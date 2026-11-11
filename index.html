@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuidar a Distancia - Portal</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#faf6f0;margin:0;color:#2b2b2b}
+header{background:#fff;border-bottom:1px solid #e8ddc9;padding:18px 20px}
+header h1{margin:0;font-size:22px}
+header p{margin:4px 0 0;color:#6b6b6b}
+.wrap{max-width:980px;margin:0 auto;padding:20px}
+.card{background:#fff;border:1px solid #e8ddc9;border-radius:14px;padding:18px;margin-bottom:16px}
+input{width:100%;padding:12px;border:1px solid #d9cdb2;border-radius:10px;margin:6px 0;font-size:15px;box-sizing:border-box}
+button{background:#2e7d5b;color:#fff;border:0;padding:12px 18px;border-radius:10px;font-size:15px;cursor:pointer;width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.tile{background:#fff;border:1px solid #e8ddc9;border-radius:14px;padding:16px;text-decoration:none;color:#2b2b2b;display:block}
+.tile h3{margin:0 0 6px;font-size:17px}
+.tile p{margin:0;color:#6b6b6b;font-size:14px;line-height:1.4}
+.tile span{display:inline-block;margin-top:10px;background:#eef6f0;color:#2e7d5b;padding:6px 10px;border-radius:999px;font-size:13px}
+.note{color:#6b6b6b;font-size:13px}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding:0"><h1>Cuidar a Distancia</h1><p>Portal del familiar - 7 apps, un solo lugar</p></div></header>
+<div class="wrap">
+<div class="card" id="loginCard">
+<h2 style="margin:0 0 8px">Iniciar sesión</h2>
+<p class="note" style="margin:0 0 10px">Usa el correo con el que te suscribiste. La suscripción activa desbloquea las 7 apps.</p>
+<input id="email" type="email" placeholder="Correo electrónico">
+<input id="password" type="password" placeholder="Contraseña">
+<button onclick="alert('Login con Supabase Auth - se activa en Fase 3. Por ahora es vista previa.')">Entrar</button>
+<p class="note" style="margin:10px 0 0">Vista previa del portal - v1. Auth, suscripción y datos reales se conectan en Fase 2 y 3.</p>
+</div>
+<div class="grid">
+<a class="tile" href="#"><h3>📝 Reporte Diario</h3><p>Reporte diario del familiar: ánimo, comidas, medicación, actividades.</p><span>Abrir →</span></a>
+<a class="tile" href="#"><h3>📊 Dashboard</h3><p>Resumen, últimos reportes, % buen ánimo, tendencia.</p><span>Abrir →</span></a>
+<a class="tile" href="#"><h3>🩺 Reporte Médico</h3><p>Historial médico, últimos 30 días, por cuidadora.</p><span>Abrir →</span></a>
+<a class="tile" href="#"><h3>💰 Pagos</h3><p>Pago a cuidadoras, registros, configuración.</p><span>Abrir →</span></a>
+<a class="tile" href="#"><h3>💊 Inventario</h3><p>Inventario de medicinas, stock, compras, dispensación.</p><span>Abrir →</span></a>
+<a class="tile" href="#"><h3>🧾 Gastos</h3><p>Gastos del hogar, movimientos, resumen.</p><span>Abrir →</span></a>
+<a class="tile" href="#"><h3>⚙️ Gastos Admin</h3><p>Administración de gastos, categorías, miembros.</p><span>Abrir →</span></a>
+</div>
+</div>
+</body>
+</html>
