@@ -29,8 +29,27 @@ button{background:#2e7d5b;color:#fff;border:0;padding:12px 18px;border-radius:10
 <p class="note" style="margin:0 0 10px">Usa el correo con el que te suscribiste. La suscripción activa desbloquea las 7 apps.</p>
 <input id="email" type="email" placeholder="Correo electrónico">
 <input id="password" type="password" placeholder="Contraseña">
-<button onclick="alert('Login con Supabase Auth - se activa en Fase 3. Por ahora es vista previa.')">Entrar</button>
-<p class="note" style="margin:10px 0 0">Vista previa del portal - v1. Auth, suscripción y datos reales se conectan en Fase 2 y 3.</p>
+<button onclick="handleLogin()" style="width:100%;padding:12px;background:#2e7d5b;color:white;border:0;border-radius:8px;font-size:16px;margin-top:10px;cursor:pointer;">Entrar</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+async function handleLogin() {
+  const email = document.getElementById('email') ? document.getElementById('email').value.trim() : '';
+  const password = document.getElementById('password') ? document.getElementById('password').value : '';
+  if (!email || !password) { alert('Escribe correo y contraseña'); return; }
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) { alert('Error al entrar: ' + error.message); return; }
+  const { data: members, error: mErr } = await supabaseClient.from('tenant_members').select('tenant_id').eq('user_id', data.user.id);
+  if (mErr) { alert('Logueado, pero no pude leer tenant: ' + mErr.message); return; }
+  if (!members || members.length === 0) { alert('Logueado, pero no tienes household asignado'); return; }
+  const tenantId = members[0].tenant_id;
+  const { data: reps, error: rErr } = await supabaseClient.from('reportes').select('id, fecha, observaciones').eq('tenant_id', tenantId);
+  if (rErr) { alert('Logueado, pero no pude leer reportes: ' + rErr.message); return; }
+  alert('Entraste como ' + email + '. Tienes ' + reps.length + ' reporte(s) en tu household. RLS funciona.');
+}
+</script>
 </div>
 <div class="grid">
 <a class="tile" href="#"><h3>📝 Reporte Diario</h3><p>Reporte diario del familiar: ánimo, comidas, medicación, actividades.</p><span>Abrir →</span></a>
