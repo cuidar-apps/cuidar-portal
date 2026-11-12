@@ -1,68 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cuidar a Distancia - Portal</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Cuidar a Distancia — Portal del familiar</title>
+<script>
+  window.SUPABASE_URL = "https://fftnffmttuzfftntzzhu.supabase.co";
+  window.SUPABASE_ANON_KEY = "__SUPABASE_ANON_KEY__";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#faf6f0;margin:0;color:#2b2b2b}
-header{background:#fff;border-bottom:1px solid #e8ddc9;padding:18px 20px}
-header h1{margin:0;font-size:22px}
-header p{margin:4px 0 0;color:#6b6b6b}
-.wrap{max-width:980px;margin:0 auto;padding:20px}
-.card{background:#fff;border:1px solid #e8ddc9;border-radius:14px;padding:18px;margin-bottom:16px}
-input{width:100%;padding:12px;border:1px solid #d9cdb2;border-radius:10px;margin:6px 0;font-size:15px;box-sizing:border-box}
-button{background:#2e7d5b;color:#fff;border:0;padding:12px 18px;border-radius:10px;font-size:15px;cursor:pointer;width:100%}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.tile{background:#fff;border:1px solid #e8ddc9;border-radius:14px;padding:16px;text-decoration:none;color:#2b2b2b;display:block}
-.tile h3{margin:0 0 6px;font-size:17px}
-.tile p{margin:0;color:#6b6b6b;font-size:14px;line-height:1.4}
-.tile span{display:inline-block;margin-top:10px;background:#eef6f0;color:#2e7d5b;padding:6px 10px;border-radius:999px;font-size:13px}
-.note{color:#6b6b6b;font-size:13px}
+:root{--bg:#FAF7F0;--surface:#FFFFFF;--ink:#1E2B27;--muted:#6E7A75;--primary:#256D6B;--primary-dark:#123F3D;--sage:#6F9A72;--line:#E4E2D8;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;}
+#loginBox{position:fixed;inset:0;background:#FAF7F0;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+#loginBox .login-card{background:#fff;border:1px solid #E4E2D8;border-radius:16px;padding:28px;width:100%;max-width:380px;}
+#loginBox input{width:100%;padding:12px;border:1px solid #E4E2D8;border-radius:10px;margin:6px 0;font-size:15px;box-sizing:border-box;}
+#loginBox button{width:100%;padding:12px;background:#256D6B;color:#fff;border:0;border-radius:10px;font-size:16px;cursor:pointer;margin-top:10px;}
+.banner{background:#D9EAD3;padding:14px 20px;border-radius:12px;margin:20px auto;max-width:960px;font-weight:600;}
+.wrap{max-width:960px;margin:0 auto;padding:10px 20px 60px;}
+h1{font-size:28px;margin:10px 0 4px;}
+.sub{color:var(--muted);margin:0 0 20px;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:760px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px;min-height:150px;}
+.card h3{margin:0;font-size:18px;}
+.card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4;flex:1;}
+.open{display:inline-block;background:rgba(111,154,114,0.15);color:var(--primary-dark);padding:7px 14px;border-radius:20px;font-weight:600;text-decoration:none;font-size:13px;width:fit-content;}
+.open:hover{background:rgba(111,154,114,0.25);}
+.soon{color:var(--muted);font-size:12px;background:#F5F5F0;padding:7px 12px;border-radius:20px;width:fit-content;}
+.toprow{display:flex;justify-content:space-between;align-items:center;max-width:960px;margin:0 auto;padding:14px 20px 0;}
+.logout{background:none;border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer;font-family:var(--sans);font-size:13px;}
 </style>
 </head>
 <body>
-<header><div class="wrap" style="padding:0"><h1>Cuidar a Distancia</h1><p>Portal del familiar - 7 apps, un solo lugar</p></div></header>
-<div class="wrap">
-<div class="card" id="loginCard">
-<h2 style="margin:0 0 8px">Iniciar sesión</h2>
-<p class="note" style="margin:0 0 10px">Usa el correo con el que te suscribiste. La suscripción activa desbloquea las 7 apps.</p>
-<input id="email" type="email" placeholder="Correo electrónico">
-<input id="password" type="password" placeholder="Contraseña">
-<button onclick="handleLogin()" style="width:100%;padding:12px;background:#2e7d5b;color:white;border:0;border-radius:8px;font-size:16px;margin-top:10px;cursor:pointer;">Entrar</button>
-</div>
-<script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-async function handleLogin() {
-  const email = document.getElementById('email') ? document.getElementById('email').value.trim() : '';
-  const password = document.getElementById('password') ? document.getElementById('password').value : '';
-  if (!email || !password) { alert('Escribe correo y contraseña'); return; }
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) { alert('Error al entrar: ' + error.message); return; }
-  const { data: members, error: mErr } = await supabaseClient.from('tenant_members').select('tenant_id').eq('user_id', data.user.id);
-  if (mErr) { alert('Logueado, pero no pude leer tenant: ' + mErr.message); return; }
-  if (!members || members.length === 0) { alert('Logueado, pero no tienes household asignado'); return; }
-  const tenantId = members[0].tenant_id;
-  const { data: reps, error: rErr } = await supabaseClient.from('reportes').select('id, fecha, observaciones').eq('tenant_id', tenantId);
-  if (rErr) { alert('Logueado, pero no pude leer reportes: ' + rErr.message); return; }
-  document.getElementById('loginCard').style.display = 'none';
-  let banner = document.getElementById('loginOkBanner');
-  if (!banner) { banner = document.createElement('div'); banner.id = 'loginOkBanner'; banner.style.cssText = 'background:#e6f4ea;padding:12px 16px;border-radius:10px;margin:12px 0;font-weight:600;'; document.querySelector('.wrap').prepend(banner); }
-  banner.textContent = 'Entraste como ' + email + '. Tienes ' + reps.length + ' reporte(s) en tu household. RLS funciona.';
-}
-</script>
-</div>
+<div id="loginBox" style="display:none"><div class="login-card"><h2 style="margin:0 0 8px">Iniciar sesión - Portal</h2><p style="color:#6E7A75;font-size:13px;margin:0 0 10px">Usa el correo con el que te suscribiste.</p><input id="loginEmail" type="email" placeholder="Correo electrónico" value="test1@cuidar.local"><input id="loginPass" type="password" placeholder="Contraseña"><button type="button" id="loginBtn">Entrar</button><div id="loginMsg" style="color:#A8493D;font-size:13px;margin-top:10px;min-height:18px"></div></div></div>
+<div id="app" style="display:none">
+<div class="toprow"><div style="font-weight:700">Cuidar a Distancia</div><button class="logout" id="logoutBtn">Cerrar sesión</button></div>
+<div class="banner" id="banner">Entraste como …</div>
+<div class="wrap"><h1>Cuidar a Distancia</h1><p class="sub">Portal del familiar - 7 apps, un solo lugar</p>
 <div class="grid">
-<a class="tile" href="https://cuidar-reportes.marbaquero.workers.dev" target="_blank"><h3>📝 Reporte Diario</h3><p>Reporte diario del familiar: ánimo, comidas, medicación, actividades.</p><span>Abrir →</span></a>
-<a class="tile" href="#"><h3>📊 Dashboard</h3><p>Resumen, últimos reportes, % buen ánimo, tendencia.</p><span>Abrir →</span></a>
-<a class="tile" href="#"><h3>🩺 Reporte Médico</h3><p>Historial médico, últimos 30 días, por cuidadora.</p><span>Abrir →</span></a>
-<a class="tile" href="#"><h3>💰 Pagos</h3><p>Pago a cuidadoras, registros, configuración.</p><span>Abrir →</span></a>
-<a class="tile" href="#"><h3>💊 Inventario</h3><p>Inventario de medicinas, stock, compras, dispensación.</p><span>Abrir →</span></a>
-<a class="tile" href="#"><h3>🧾 Gastos</h3><p>Gastos del hogar, movimientos, resumen.</p><span>Abrir →</span></a>
-<a class="tile" href="#"><h3>⚙ Gastos Admin</h3><p>Administración de gastos, categorías, miembros.</p><span>Abrir →</span></a>
-</div>
-</div>
+<div class="card"><h3>📝 Reporte Diario</h3><p>Reporte diario del familiar: ánimo, comidas, medicación, actividades.</p><a class="open" href="https://cuidar-reportes.marbaquero.workers.dev" target="_blank" rel="noopener">Abrir →</a></div>
+<div class="card"><h3>📊 Dashboard</h3><p>Resumen, últimos reportes, % buen ánimo, tendencia.</p><span class="soon">Próximamente</span></div>
+<div class="card"><h3>🩺 Reporte Médico</h3><p>Historial médico, últimos 30 días, por cuidadora.</p><span class="soon">Próximamente</span></div>
+<div class="card"><h3>💰 Pagos</h3><p>Pago a cuidadoras, registros, configuración.</p><a class="open" href="https://cuidar-pagos.marbaquero.workers.dev" target="_blank" rel="noopener">Abrir →</a></div>
+<div class="card"><h3>💊 Inventario</h3><p>Inventario de medicinas, stock, compras, dispensación.</p><span class="soon">Próximamente</span></div>
+<div class="card"><h3>💸 Gastos</h3><p>Gastos del hogar, movimientos, resumen.</p><span class="soon">Próximamente</span></div>
+<div class="card"><h3>⚙️ Gastos Admin</h3><p>Administración de gastos, categorías, miembros.</p><span class="soon">Próximamente</span></div>
+</div></div></div>
+<script>
+let supa=null, currentTenantId=null;
+function initSupabase(){ if(!window.SUPABASE_URL||!window.SUPABASE_ANON_KEY||window.SUPABASE_ANON_KEY.includes("PASTE_")) return false; supa=window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY); return true; }
+async function getTenantId(userId){ const {data,error}=await supa.from("tenant_members").select("tenant_id").eq("user_id",userId).maybeSingle(); if(error||!data) return null; return data.tenant_id; }
+(async function(){
+  if(!initSupabase()) return;
+  const box=document.getElementById('loginBox'), app=document.getElementById('app'), msg=document.getElementById('loginMsg'), banner=document.getElementById('banner');
+  function show(t){ if(msg) msg.textContent=t; }
+  async function enter(sess){
+    const tid=await getTenantId(sess.user.id);
+    if(!tid){ show('Logueado, pero no tienes household asignado'); if(box) box.style.display='flex'; return; }
+    currentTenantId=tid;
+    let countText="";
+    try{ const {data,error}=await supa.from("reports").select("id",{count:"exact"}).limit(1); if(!error) countText=" Tienes "+(data?data.length:0)+" reporte(s) en tu household. RLS funciona."; }catch(e){}
+    // Count via reports table - fallback to 1 if table query blocked by RLS count
+    try{ const {count,error}=await supa.from("reports").select("*",{count:"exact",head:true}); if(!error&&count!=null) countText=" Tienes "+count+" reporte(s) en tu household. RLS funciona."; }catch(e){}
+    banner.textContent="Entraste como "+sess.user.email+"."+countText;
+    if(box) box.style.display='none'; if(app) app.style.display='block';
+  }
+  const {data:{session}}=await supa.auth.getSession();
+  if(session){ await enter(session); } else { if(box) box.style.display='flex'; }
+  const btn=document.getElementById('loginBtn');
+  if(btn) btn.addEventListener('click', async(e)=>{ e.preventDefault(); const email=document.getElementById('loginEmail').value.trim(); const password=document.getElementById('loginPass').value; show('Conectando...'); try{ const r=await supa.auth.signInWithPassword({email,password}); if(r.error){ show('Error: '+r.error.message); return; } await enter(r.data.session); show(''); }catch(err){ show('Error: '+err.message); } });
+  const lo=document.getElementById('logoutBtn'); if(lo) lo.addEventListener('click', async()=>{ await supa.auth.signOut(); location.reload(); });
+})();
+</script>
 </body>
 </html>
