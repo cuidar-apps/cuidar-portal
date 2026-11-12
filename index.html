@@ -50,14 +50,16 @@ h1{font-size:28px;margin:10px 0 4px;}
 </div></div></div>
 <script>
 let supa=null, currentTenantId=null;
-function initSupabase(){ if(!window.SUPABASE_URL||!window.SUPABASE_ANON_KEY||window.SUPABASE_ANON_KEY.includes("PASTE_")) return false; supa=window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY); return true; }
-async function getTenantId(userId){ const {data,error}=await supa.from("tenant_members").select("tenant_id").eq("user_id",userId).maybeSingle(); if(error||!data) return null; return data.tenant_id; }
+function initSupabase(){ if(!window.SUPABASE_URL||!window.SUPABASE_ANON_KEY||window.SUPABASE_ANON_KEY.includes("PASTE_")||window.SUPABASE_ANON_KEY.includes("__SUPABASE")) return false; supa=window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY); return true; }
+async function getTenantId(userId){ const {data,error}=await supa.from("tenant_members").select("tenant_id").eq("user_id",userId).maybeSingle(); if(error) return {tid:null, error:error}; if(!data) return {tid:null, error:null}; return {tid:data.tenant_id, error:null}; }
 (async function(){
-  if(!initSupabase()) return;
+  if(!initSupabase()){ const b=document.getElementById('loginBox'); if(b) b.style.display='flex'; const m=document.getElementById('loginMsg'); if(m) m.textContent='Error: Invalid API key — Cloudflare no reemplazó __SUPABASE_ANON_KEY__ en cuidar-portal. Revisa Variable + Build command.'; return; }
   const box=document.getElementById('loginBox'), app=document.getElementById('app'), msg=document.getElementById('loginMsg'), banner=document.getElementById('banner');
   function show(t){ if(msg) msg.textContent=t; }
   async function enter(sess){
-    const tid=await getTenantId(sess.user.id);
+    const res=await getTenantId(sess.user.id);
+    const tid=res.tid;
+    if(res.error){ show('Error: '+res.error.message+' — revisa SUPABASE_ANON_KEY en Cloudflare de cuidar-portal'); if(box) box.style.display='flex'; return; }
     if(!tid){ show('Logueado, pero no tienes household asignado'); if(box) box.style.display='flex'; return; }
     currentTenantId=tid;
     let countText="";
