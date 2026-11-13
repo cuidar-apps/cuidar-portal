@@ -3,75 +3,239 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-<title>Cuidar a Distancia — Portal del familiar</title>
+<title>Inventario — Medicinas</title>
 <script>
   window.SUPABASE_URL = "https://fftnffmttuzfftntzzhu.supabase.co";
   window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmdG5mZm10dHV6ZmZ0bnR6emh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5MTgxNzAsImV4cCI6MjEwOTQ5NDE3MH0.lmYfQeXAq6oPZ-UMj8AQXQq2snU78FatLMbwRftaMyM";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-:root{--bg:#FAF7F0;--surface:#FFFFFF;--ink:#1E2B27;--muted:#6E7A75;--primary:#256D6B;--primary-dark:#123F3D;--sage:#6F9A72;--line:#E4E2D8;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+:root{--bg:#F5F5F0;--surface:#FFFFFF;--ink:#1E2B27;--muted:#6E7A75;--primary:#256D6B;--primary-dark:#123F3D;--sage:#6F9A72;--amber:#C08A34;--brick:#A8493D;--line:#E4E2D8;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;}
-#loginBox{position:fixed;inset:0;background:#FAF7F0;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+#app{display:flex;min-height:100vh;width:100%;}
+.hidden{display:none !important;}
+.sidebar{width:230px;flex-shrink:0;background:var(--primary-dark);color:#EFF3F1;display:flex;flex-direction:column;padding:20px 14px;gap:14px;overflow-y:auto;}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px;}
+.brand-mark{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.brand-title{font-weight:700;font-size:14.5px;}
+.brand-sub{font-size:11px;color:rgba(255,255,255,0.55);}
+.nav{display:flex;flex-direction:column;gap:2px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;background:none;border:none;color:rgba(255,255,255,0.75);font-size:13.5px;cursor:pointer;text-align:left;font-family:var(--sans);width:100%;}
+.nav-item:hover{background:rgba(255,255,255,0.06);}
+.nav-item.active{background:rgba(255,255,255,0.14);color:#fff;font-weight:600;}
+.sidebar-foot{margin-top:4px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;gap:8px;}
+.admin-toggle{width:100%;display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);font-size:12px;cursor:pointer;font-family:var(--sans);}
+.admin-toggle.on{background:rgba(111,154,114,0.25);border-color:var(--sage);color:#fff;}
+.admin-toggle .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.3);}
+.admin-toggle.on .dot{background:var(--sage);}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 28px 8px;flex-wrap:wrap;gap:8px;}
+.topbar h1{font-size:19px;margin:0;}
+.sync-pill{font-size:11px;color:var(--sage);background:rgba(111,154,114,0.12);padding:3px 9px;border-radius:20px;font-family:var(--mono);}
+.sync-banner{display:flex;align-items:center;gap:8px;font-size:12px;font-family:var(--mono);background:rgba(111,154,114,0.10);color:var(--primary-dark);padding:8px 28px;border-bottom:1px solid var(--line);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--sage);flex-shrink:0;}
+.content{padding:12px 28px 100px;overflow-y:auto;}
+.label-eyebrow{font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:600;}
+.stack-lg{display:flex;flex-direction:column;gap:20px;}
+.stack{display:flex;flex-direction:column;gap:10px;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:760px){.stat-row{grid-template-columns:repeat(2,1fr);}.sidebar{width:180px;}}
+.mini-stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;}
+.mini-stat-num{font-family:var(--mono);font-size:22px;font-weight:700;line-height:1.1;}
+.mini-stat-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-top:4px;}
+.mini-stat.mini-warn .mini-stat-num{color:var(--amber);}
+.mini-stat.mini-bad .mini-stat-num{color:var(--brick);}
+.mini-stat.mini-ok .mini-stat-num{color:var(--sage);}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap;}
+.panel-head h3{margin:0;font-size:15px;}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.mono{font-family:var(--mono);}
+.strong{font-weight:700;}
+.muted{color:var(--muted);}
+.small{font-size:12px;}
+.badge{font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;display:inline-block;}
+.badge-ok{background:rgba(111,154,114,0.15);color:var(--sage);}
+.badge-warn{background:rgba(192,138,52,0.15);color:var(--amber);}
+.badge-bad{background:rgba(168,73,61,0.15);color:var(--brick);}
+table.pay-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+table.pay-table th{text-align:left;font-size:10.5px;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
+table.pay-table td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle;}
+table.pay-table input,table.pay-table select{width:100%;padding:6px 7px;border-radius:7px;border:1px solid var(--line);font-family:var(--sans);font-size:12px;background:var(--surface);}
+.table-wrap{overflow-x:auto;}
+.btn{border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-ghost{background:none;color:var(--muted);}
+.btn-outline{background:none;border:1px solid var(--line);color:var(--ink);}
+.btn-danger{background:none;border:1px solid rgba(168,73,61,0.35);color:var(--brick);}
+.btn.sm{padding:5px 10px;font-size:11.5px;}
+.btn.icon{padding:5px 8px;}
+.modal-backdrop{position:fixed;inset:0;background:rgba(20,30,28,0.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
+.modal{background:var(--surface);border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+.modal h3{margin:6px 0 4px;font-size:17px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.form-grid label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);font-weight:600;}
+.form-grid input,.form-grid select,.form-grid textarea{padding:9px 10px;border-radius:8px;border:1px solid var(--line);font-family:var(--sans);font-size:13.5px;color:var(--ink);}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;}
+.loader-ring{width:40px;height:40px;border-radius:50%;border:3px solid #E7E5DA;border-top-color:var(--primary);margin:0 auto;animation:spin 0.9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;padding:10px 18px;border-radius:20px;font-size:12.5px;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+#loginBox{position:fixed;inset:0;background:#F5F5F0;display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
 #loginBox .login-card{background:#fff;border:1px solid #E4E2D8;border-radius:16px;padding:28px;width:100%;max-width:380px;}
 #loginBox input{width:100%;padding:12px;border:1px solid #E4E2D8;border-radius:10px;margin:6px 0;font-size:15px;box-sizing:border-box;}
 #loginBox button{width:100%;padding:12px;background:#256D6B;color:#fff;border:0;border-radius:10px;font-size:16px;cursor:pointer;margin-top:10px;}
-.banner{background:#D9EAD3;padding:14px 20px;border-radius:12px;margin:20px auto;max-width:960px;font-weight:600;}
-.wrap{max-width:960px;margin:0 auto;padding:10px 20px 60px;}
-h1{font-size:28px;margin:10px 0 4px;}
-.sub{color:var(--muted);margin:0 0 20px;}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-@media(max-width:760px){.grid{grid-template-columns:1fr;}}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px;min-height:150px;}
-.card h3{margin:0;font-size:18px;}
-.card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4;flex:1;}
-.open{display:inline-block;background:rgba(111,154,114,0.15);color:var(--primary-dark);padding:7px 14px;border-radius:20px;font-weight:600;text-decoration:none;font-size:13px;width:fit-content;}
-.open:hover{background:rgba(111,154,114,0.25);}
-.soon{color:var(--muted);font-size:12px;background:#F5F5F0;padding:7px 12px;border-radius:20px;width:fit-content;}
-.toprow{display:flex;justify-content:space-between;align-items:center;max-width:960px;margin:0 auto;padding:14px 20px 0;}
-.logout{background:none;border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer;font-family:var(--sans);font-size:13px;}
+.search{width:100%;max-width:320px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-family:var(--sans);font-size:13.5px;}
 </style>
 </head>
 <body>
-<div id="loginBox" style="display:none"><div class="login-card"><h2 style="margin:0 0 8px">Iniciar sesión - Portal</h2><p style="color:#6E7A75;font-size:13px;margin:0 0 10px">Usa el correo con el que te suscribiste.</p><input id="loginEmail" type="email" placeholder="Correo electrónico" value="test1@cuidar.local"><input id="loginPass" type="password" placeholder="Contraseña"><button type="button" id="loginBtn">Entrar</button><div id="loginMsg" style="color:#A8493D;font-size:13px;margin-top:10px;min-height:18px"></div></div></div>
-<div id="app" style="display:none">
-<div class="toprow"><div style="font-weight:700">Cuidar a Distancia</div><button class="logout" id="logoutBtn">Cerrar sesión</button></div>
-<div class="banner" id="banner">Entraste como …</div>
-<div class="wrap"><h1>Cuidar a Distancia</h1><p class="sub">Portal del familiar - 7 apps, un solo lugar</p>
-<div class="grid">
-<div class="card"><h3>📝 Reporte Diario</h3><p>Reporte diario del familiar: ánimo, comidas, medicación, actividades.</p><a class="open" href="https://cuidar-reportes.marbaquero.workers.dev" target="_blank" rel="noopener">Abrir →</a></div>
-<div class="card"><h3>📊 Dashboard</h3><p>Resumen, últimos reportes, % buen ánimo, tendencia.</p><span class="soon">Próximamente</span></div>
-<div class="card"><h3>🩺 Reporte Médico</h3><p>Historial médico, últimos 30 días, por cuidadora.</p><span class="soon">Próximamente</span></div>
-<div class="card"><h3>💰 Pagos</h3><p>Pago a cuidadoras, registros, configuración.</p><a class="open" href="https://cuidar-pagos.marbaquero.workers.dev" target="_blank" rel="noopener">Abrir →</a></div>
-<div class="card"><h3>💊 Inventario</h3><p>Inventario de medicinas, stock, compras, dispensación.</p><span class="soon">Próximamente</span></div>
-<div class="card"><h3>💸 Gastos</h3><p>Gastos del hogar, movimientos, resumen.</p><span class="soon">Próximamente</span></div>
-<div class="card"><h3>⚙️ Gastos Admin</h3><p>Administración de gastos, categorías, miembros.</p><span class="soon">Próximamente</span></div>
-</div></div></div>
+<div id="loading" style="padding:40px;text-align:center;color:#6E7A75;">Cargando Inventario…</div>
+<div id="loginBox" style="display:none"><div class="login-card"><h2 style="margin:0 0 8px">Iniciar sesión - Inventario</h2><p style="color:#6E7A75;font-size:13px;margin:0 0 10px">Usa el correo con el que te suscribiste.</p><input id="loginEmail" type="email" placeholder="Correo electrónico" value="test1@cuidar.local"><input id="loginPass" type="password" placeholder="Contraseña"><button type="button" id="loginBtn">Entrar</button><div id="loginMsg" style="color:#A8493D;font-size:13px;margin-top:10px;min-height:18px"></div></div></div>
+<div id="app"></div>
 <script>
-let supa=null, currentTenantId=null;
-function initSupabase(){ if(!window.SUPABASE_URL||!window.SUPABASE_ANON_KEY||window.SUPABASE_ANON_KEY.includes("PASTE_")) return false; supa=window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY); return true; }
-async function getTenantId(userId){ const {data,error}=await supa.from("tenant_members").select("tenant_id").eq("user_id",userId).maybeSingle(); if(error||!data) return null; return data.tenant_id; }
+let currentTenantId=null, supa=null;
+function tenantKey(k){ return currentTenantId ? k+"_"+currentTenantId : k; }
+async function getTenantId(uid){ const {data,error}=await supa.from("tenant_members").select("tenant_id").eq("user_id",uid).maybeSingle(); if(error) return {tid:null,error}; if(!data) return {tid:null,error:null}; return {tid:data.tenant_id,error:null}; }
+function initSupabase(){ if(!window.SUPABASE_URL||!window.SUPABASE_ANON_KEY||window.SUPABASE_ANON_KEY.includes("__SUPABASE")) return false; supa=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY); return true; }
+async function kvGetRaw(k){ const {data,error}=await supa.from("kv_store").select("value").eq("key",k).maybeSingle(); if(error) return {ok:false,error}; return {ok:true,value:data?data.value:null}; }
+async function kvGet(k){ const r1=await kvGetRaw(tenantKey(k)); if(r1.ok&&r1.value!=null) return r1.value; const r2=await kvGetRaw(k); if(r2.ok&&r2.value!=null){ await kvSet(k,r2.value); return r2.value; } return null; }
+async function kvSet(k,v){ const {error}=await supa.from("kv_store").upsert({key:tenantKey(k),value:v,updated_at:new Date().toISOString()}); if(error) console.error("kvSet",k,error); }
+const DEFAULT_ITEMS=[
+{id:"med1",nombre:"Losartán",presentacion:"50 mg tabletas",unidad:"tabletas",stock:28,minimo:10,precio:0.35,vencimiento:"2027-06-30",ubicacion:"Botiquín cocina",notas:"Presión - 1 al día"},
+{id:"med2",nombre:"Metformina",presentacion:"500 mg tabletas",unidad:"tabletas",stock:42,minimo:14,precio:0.12,vencimiento:"2027-03-31",ubicacion:"Botiquín cocina",notas:"Diabetes - 2 al día"},
+{id:"med3",nombre:"Paracetamol",presentacion:"500 mg tabletas",unidad:"tabletas",stock:18,minimo:10,precio:0.08,vencimiento:"2026-12-31",ubicacion:"Botiquín baño",notas:"Dolor / fiebre - según necesidad"},
+{id:"med4",nombre:"Omeprazol",presentacion:"20 mg cápsulas",unidad:"cápsulas",stock:9,minimo:10,precio:0.22,vencimiento:"2027-08-31",ubicacion:"Botiquín cocina",notas:"Estómago - 1 en ayunas"},
+{id:"med5",nombre:"Vitamina D",presentacion:"1000 UI gotas",unidad:"ml",stock:25,minimo:5,precio:0.45,vencimiento:"2027-01-31",ubicacion:"Refrigerador",notas:"1 gota al día"},
+{id:"med6",nombre:"Gasas estériles",presentacion:"10x10 cm paquete",unidad:"paquetes",stock:6,minimo:4,precio:1.20,vencimiento:"2028-01-31",ubicacion:"Botiquín baño",notas:"Curaciones"},
+];
+const state={items:[],movimientos:[],isAdmin:false,view:"resumen",loaded:false,search:"",filtro:"todos"};
+function fmtMoney(n){ return "$"+(Math.round(n*100)/100).toFixed(2); }
+function todayISO(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function fmtDate(s){ if(!s) return "—"; const d=new Date(s+"T00:00:00"); const m=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][d.getMonth()]; return d.getDate()+"-"+m+"-"+d.getFullYear(); }
+function daysToExpiry(s){ if(!s) return 9999; const a=new Date(s+"T00:00:00"), b=new Date(todayISO()+"T00:00:00"); return Math.round((a-b)/(1000*60*60*24)); }
+function itemStatus(it){ if(it.stock<=0) return {label:"Agotado",cls:"badge-bad"}; if(it.stock<=it.minimo) return {label:"Stock bajo",cls:"badge-warn"}; const d=daysToExpiry(it.vencimiento); if(d<=30) return {label:"Vence pronto",cls:"badge-warn"}; return {label:"OK",cls:"badge-ok"}; }
+async function loadAll(){
+  try{
+    const items=await kvGet("inventario_items");
+    const movs=await kvGet("inventario_movimientos");
+    state.items = items || DEFAULT_ITEMS;
+    if(!items) await kvSet("inventario_items", state.items);
+    state.movimientos = movs || [];
+    if(!movs) await kvSet("inventario_movimientos", state.movimientos);
+    state.loaded=true; render();
+  }catch(err){ console.error(err); document.getElementById("app").innerHTML=`<div style="padding:40px;max-width:480px;margin:40px auto;background:#fff;border:1px solid #E4E2D8;border-radius:16px;"><h2>No se pudieron cargar los datos</h2><p style="font-family:monospace;font-size:12px;background:#F5F5F0;padding:10px;border-radius:8px;">${err.message||String(err)}</p><button class="btn btn-primary" onclick="location.reload()">Reintentar</button></div>`; }
+}
+let syncTimer=null;
+function flashSync(){ const p=document.getElementById("sync-pill"); if(p) p.textContent="Guardando…"; clearTimeout(syncTimer); syncTimer=setTimeout(()=>{ const q=document.getElementById("sync-pill"); if(q) q.textContent="Sincronizado"; },700); }
+async function persistItems(){ await kvSet("inventario_items", state.items); flashSync(); }
+async function persistMovs(){ await kvSet("inventario_movimientos", state.movimientos); flashSync(); }
+function showToast(m){ const t=document.createElement("div"); t.className="toast"; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2400); }
+function toggleAdmin(){ if(state.isAdmin){ state.isAdmin=false; render(); showToast("Modo administrador desactivado."); } else { state.isAdmin=true; render(); showToast("Modo administrador activado."); } }
+function itemById(id){ return state.items.find(x=>x.id===id); }
+function addMovimiento(itemId,tipo,cantidad,motivo,notas){ const it=itemById(itemId); if(!it) return; const mov={id:"m_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),itemId, itemNombre:it.nombre, tipo, cantidad:Number(cantidad)||0, fecha:todayISO(), motivo:motivo||"", notas:notas||""}; state.movimientos.unshift(mov); if(tipo==="Entrada") it.stock+=mov.cantidad; if(tipo==="Salida") it.stock=Math.max(0,it.stock-mov.cantidad); persistItems(); persistMovs(); }
+function filteredItems(){ let list=[...state.items]; if(state.search){ const q=state.search.toLowerCase(); list=list.filter(x=>(x.nombre+" "+x.presentacion+" "+x.ubicacion).toLowerCase().includes(q)); } if(state.filtro==="bajo") list=list.filter(x=>x.stock<=x.minimo||x.stock<=0); if(state.filtro==="vence") list=list.filter(x=>daysToExpiry(x.vencimiento)<=60); if(state.filtro==="ok") list=list.filter(x=>x.stock>x.minimo&&daysToExpiry(x.vencimiento)>60); return list.sort((a,b)=>a.nombre.localeCompare(b.nombre)); }
+function render(){
+  const app=document.getElementById("app");
+  if(!state.loaded){ app.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;min-height:100vh;"><div class="loader-ring"></div></div>`; return; }
+  const low=state.items.filter(x=>x.stock<=x.minimo||x.stock<=0).length;
+  const vence=state.items.filter(x=>daysToExpiry(x.vencimiento)<=60).length;
+  const valor=state.items.reduce((s,x)=>s+(x.stock*(x.precio||0)),0);
+  app.innerHTML=`
+  <div class="sidebar"><div class="brand"><div class="brand-mark">💊</div><div><div class="brand-title">Inventario — Medicinas</div><div class="brand-sub">Rosa Emilia · Botiquín</div></div></div>
+  <div class="nav"><button class="nav-item ${state.view==='resumen'?'active':''}" data-view="resumen">📊 Resumen</button><button class="nav-item ${state.view==='inventario'?'active':''}" data-view="inventario">💊 Inventario</button><button class="nav-item ${state.view==='movimientos'?'active':''}" data-view="movimientos">🔄 Movimientos</button></div>
+  <div class="sidebar-foot">
+  ${state.isAdmin?`<button class="admin-toggle" id="add-item-btn"><span class="dot" style="background:var(--amber)"></span>Agregar medicina</button>`:""}
+  ${state.isAdmin?`<button class="admin-toggle" id="add-entrada-btn"><span class="dot" style="background:var(--sage)"></span>Registrar entrada</button>`:""}
+  ${state.isAdmin?`<button class="admin-toggle" id="add-salida-btn"><span class="dot" style="background:var(--amber)"></span>Registrar salida / dispensar</button>`:""}
+  <button class="admin-toggle" id="logout-btn"><span class="dot" style="background:#fff"></span>Cerrar sesión</button>
+  <button class="admin-toggle ${state.isAdmin?'on':''}" id="admin-toggle"><span class="dot"></span>${state.isAdmin?"Administrador activo":"Modo administrador"}</button>
+  </div></div>
+  <div class="main"><div class="sync-banner"><span class="sync-dot"></span><span id="sync-pill">Sincronizado</span> · datos compartidos en tiempo real</div><div class="content stack-lg" id="content"></div></div>`;
+  document.querySelectorAll(".nav-item[data-view]").forEach(b=>b.addEventListener("click",()=>{ state.view=b.dataset.view; render(); }));
+  document.getElementById("admin-toggle").addEventListener("click",toggleAdmin);
+  const lo=document.getElementById("logout-btn"); if(lo) lo.addEventListener("click",async()=>{ if(!confirm("Cerrar sesión?")) return; await supa.auth.signOut(); location.reload(); });
+  const a1=document.getElementById("add-item-btn"); if(a1) a1.addEventListener("click",openAddItemModal);
+  const a2=document.getElementById("add-entrada-btn"); if(a2) a2.addEventListener("click",()=>openMovModal("Entrada"));
+  const a3=document.getElementById("add-salida-btn"); if(a3) a3.addEventListener("click",()=>openMovModal("Salida"));
+  const c=document.getElementById("content");
+  if(state.view==="resumen") renderResumen(c,low,vence,valor); else if(state.view==="inventario") renderInventario(c); else renderMovimientos(c);
+}
+function renderResumen(c,low,vence,valor){
+  const bajo=state.items.filter(x=>x.stock<=x.minimo||x.stock<=0);
+  const prox=state.items.filter(x=>daysToExpiry(x.vencimiento)<=60).sort((a,b)=>a.vencimiento.localeCompare(b.vencimiento));
+  c.innerHTML=`
+  <div class="stack"><div class="label-eyebrow">Resumen · Inventario de medicinas</div>
+  <div class="stat-row"><div class="mini-stat"><div class="mini-stat-num">${state.items.length}</div><div class="mini-stat-label">Medicinas</div></div><div class="mini-stat mini-warn"><div class="mini-stat-num">${low}</div><div class="mini-stat-label">Stock bajo / agotado</div></div><div class="mini-stat mini-bad"><div class="mini-stat-num">${vence}</div><div class="mini-stat-label">Vencen en 60 días</div></div><div class="mini-stat"><div class="mini-stat-num">${fmtMoney(valor)}</div><div class="mini-stat-label">Valor en stock</div></div></div></div>
+  <div class="panel"><div class="panel-head"><h3>⚠️ Stock bajo — comprar pronto</h3></div>${bajo.length?`<div class="stack">${bajo.map(x=>{ const st=itemStatus(x); return `<div class="row-between"><div><span class="strong">${x.nombre}</span> <span class="muted small">· ${x.presentacion} · ${x.ubicacion}</span></div><div><span class="badge ${st.cls}">${st.label}</span> <span class="mono small">${x.stock} / mínimo ${x.minimo} ${x.unidad}</span> ${state.isAdmin?`<button class="btn btn-outline sm" data-entrada="${x.id}">+ Entrada</button>`:""}</div></div>`; }).join("")}</div>`:`<p class="muted">Ninguna medicina con stock bajo. 🎉</p>`}</div>
+  <div class="panel"><div class="panel-head"><h3>📅 Vencen pronto</h3></div>${prox.length?`<div class="stack">${prox.map(x=>`<div class="row-between"><div><span class="strong">${x.nombre}</span> <span class="muted small">· vence ${fmtDate(x.vencimiento)} · ${daysToExpiry(x.vencimiento)} días</span></div><span class="mono small">${x.stock} ${x.unidad}</span></div>`).join("")}</div>`:`<p class="muted">Ninguna vence en los próximos 60 días.</p>`}</div>
+  <div class="panel"><div class="panel-head"><h3>Últimos movimientos</h3></div>${state.movimientos.slice(0,8).map(m=>`<div class="row-between" style="padding:6px 0;border-bottom:1px solid var(--line);"><div><span class="badge ${m.tipo==="Entrada"?"badge-ok":"badge-warn"}">${m.tipo}</span> <span class="strong">${m.itemNombre}</span> <span class="muted small">· ${m.motivo||""}</span></div><span class="mono small">${m.tipo==="Entrada"?"+":"−"}${m.cantidad} · ${fmtDate(m.fecha)}</span></div>`).join("")||`<p class="muted">Sin movimientos aún.</p>`}</div>`;
+  c.querySelectorAll("[data-entrada]").forEach(b=>b.addEventListener("click",()=>openMovModal("Entrada",b.dataset.entrada)));
+}
+function renderInventario(c){
+  const list=filteredItems();
+  c.innerHTML=`
+  <div class="row-between"><div class="label-eyebrow">Inventario · ${list.length} de ${state.items.length} medicinas</div><input class="search" id="search-inv" placeholder="Buscar medicina…" value="${state.search}" /></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn ${state.filtro==="todos"?"btn-primary":"btn-outline"} sm" data-f="todos">Todos</button><button class="btn ${state.filtro==="bajo"?"btn-primary":"btn-outline"} sm" data-f="bajo">Stock bajo</button><button class="btn ${state.filtro==="vence"?"btn-primary":"btn-outline"} sm" data-f="vence">Vencen pronto</button><button class="btn ${state.filtro==="ok"?"btn-primary":"btn-outline"} sm" data-f="ok">OK</button></div>
+  <div class="panel"><div class="table-wrap"><table class="pay-table"><thead><tr><th>Medicina</th><th>Presentación</th><th>Stock</th><th>Mínimo</th><th>Vence</th><th>Ubicación</th><th>Estado</th>${state.isAdmin?"<th></th>":""}</tr></thead><tbody id="inv-body"></tbody></table></div></div>
+  <p class="muted small">Tip: En Modo administrador puedes editar stock, mínimo y vencimiento directo en la tabla, o usar Registrar entrada / salida para que quede en Movimientos.</p>`;
+  const si=c.querySelector("#search-inv"); if(si) si.addEventListener("input",()=>{ state.search=si.value; render(); });
+  c.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>{ state.filtro=b.dataset.f; render(); }));
+  const body=document.getElementById("inv-body");
+  body.innerHTML=list.map(x=>{ const st=itemStatus(x); return `<tr data-id="${x.id}"><td><span class="strong">${x.nombre}</span><br><span class="muted small">${x.notas||""}</span></td><td>${x.presentacion}</td><td>${state.isAdmin?`<input type="number" class="f-stock" value="${x.stock}" style="max-width:70px;" />`:`<span class="mono strong">${x.stock} ${x.unidad}</span>`}</td><td>${state.isAdmin?`<input type="number" class="f-min" value="${x.minimo}" style="max-width:70px;" />`:x.minimo}</td><td>${state.isAdmin?`<input type="date" class="f-venc" value="${x.vencimiento}" />`:fmtDate(x.vencimiento)}</td><td>${x.ubicacion}</td><td><span class="badge ${st.cls}">${st.label}</span></td>${state.isAdmin?`<td><button class="btn btn-ghost sm" data-edit="${x.id}">Editar</button> <button class="btn btn-danger sm" data-del="${x.id}">✕</button></td>`:""}</tr>`; }).join("");
+  list.forEach(x=>{
+    const tr=body.querySelector(`tr[data-id="${x.id}"]`); if(!tr) return;
+    const sEl=tr.querySelector(".f-stock"); if(sEl) sEl.addEventListener("change",()=>{ x.stock=parseInt(sEl.value)||0; persistItems(); render(); });
+    const mEl=tr.querySelector(".f-min"); if(mEl) mEl.addEventListener("change",()=>{ x.minimo=parseInt(mEl.value)||0; persistItems(); render(); });
+    const vEl=tr.querySelector(".f-venc"); if(vEl) vEl.addEventListener("change",()=>{ x.vencimiento=vEl.value; persistItems(); render(); });
+    const eEl=tr.querySelector("[data-edit]"); if(eEl) eEl.addEventListener("click",()=>openAddItemModal(x));
+    const dEl=tr.querySelector("[data-del]"); if(dEl) dEl.addEventListener("click",()=>{ if(!confirm("¿Eliminar "+x.nombre+"?")) return; state.items=state.items.filter(y=>y.id!==x.id); persistItems(); render(); });
+  });
+}
+function renderMovimientos(c){
+  c.innerHTML=`<div class="label-eyebrow">Movimientos · Entradas y salidas</div><div class="panel"><div class="table-wrap"><table class="pay-table"><thead><tr><th>Fecha</th><th>Medicina</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th><th>Notas</th></tr></thead><tbody>${state.movimientos.map(m=>`<tr><td class="mono">${fmtDate(m.fecha)}</td><td class="strong">${m.itemNombre}</td><td><span class="badge ${m.tipo==="Entrada"?"badge-ok":"badge-warn"}">${m.tipo}</span></td><td class="mono">${m.tipo==="Entrada"?"+":"−"}${m.cantidad}</td><td>${m.motivo||""}</td><td class="muted small">${m.notas||""}</td></tr>`).join("")||`<tr><td colspan="6" class="muted">Sin movimientos aún. Usa Registrar entrada / salida.</td></tr>`}</tbody></table></div></div>`;
+}
+function openAddItemModal(existing){
+  if(!state.isAdmin) return;
+  const bd=document.createElement("div"); bd.className="modal-backdrop";
+  bd.innerHTML=`<div class="modal"><h3>${existing?"Editar medicina":"Agregar medicina"}</h3><div class="form-grid"><label>Nombre<input id="f-nombre" value="${existing?existing.nombre:""}" /></label><label>Presentación<input id="f-pres" value="${existing?existing.presentacion:""}" placeholder="500 mg tabletas" /></label><label>Unidad<input id="f-unidad" value="${existing?existing.unidad:"tabletas"}" /></label><label>Stock<input type="number" id="f-stock" value="${existing?existing.stock:0}" /></label><label>Mínimo<input type="number" id="f-min" value="${existing?existing.minimo:5}" /></label><label>Precio por unidad<input type="number" step="0.01" id="f-precio" value="${existing?existing.precio||0:0}" /></label><label>Vencimiento<input type="date" id="f-venc" value="${existing?existing.vencimiento:""}" /></label><label>Ubicación<input id="f-ubic" value="${existing?existing.ubicacion:"Botiquín cocina"}" /></label></div><label style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);font-weight:600;margin-top:12px;">Notas<textarea id="f-notas" rows="2">${existing?existing.notas||"":""}</textarea></label><div class="modal-actions"><button class="btn btn-ghost" id="m-cancel">Cancelar</button><button class="btn btn-primary" id="m-save">Guardar</button></div></div>`;
+  document.body.appendChild(bd);
+  bd.querySelector("#m-cancel").addEventListener("click",()=>bd.remove());
+  bd.querySelector("#m-save").addEventListener("click",async()=>{
+    const nombre=bd.querySelector("#f-nombre").value.trim(); if(!nombre) return showToast("Escriba el nombre.");
+    if(existing){ existing.nombre=nombre; existing.presentacion=bd.querySelector("#f-pres").value; existing.unidad=bd.querySelector("#f-unidad").value; existing.stock=parseInt(bd.querySelector("#f-stock").value)||0; existing.minimo=parseInt(bd.querySelector("#f-min").value)||0; existing.precio=parseFloat(bd.querySelector("#f-precio").value)||0; existing.vencimiento=bd.querySelector("#f-venc").value; existing.ubicacion=bd.querySelector("#f-ubic").value; existing.notas=bd.querySelector("#f-notas").value; }
+    else { state.items.push({id:"med_"+Date.now(),nombre,presentacion:bd.querySelector("#f-pres").value,unidad:bd.querySelector("#f-unidad").value,stock:parseInt(bd.querySelector("#f-stock").value)||0,minimo:parseInt(bd.querySelector("#f-min").value)||0,precio:parseFloat(bd.querySelector("#f-precio").value)||0,vencimiento:bd.querySelector("#f-venc").value,ubicacion:bd.querySelector("#f-ubic").value,notas:bd.querySelector("#f-notas").value}); }
+    await persistItems(); bd.remove(); render(); showToast("Guardado.");
+  });
+}
+function openMovModal(tipo, presetId){
+  if(!state.isAdmin) return;
+  const bd=document.createElement("div"); bd.className="modal-backdrop";
+  bd.innerHTML=`<div class="modal"><h3>${tipo==="Entrada"?"Registrar entrada (compra)":"Registrar salida / dispensar"}</h3><div class="form-grid"><label>Medicina<select id="m-item">${state.items.map(x=>`<option value="${x.id}" ${x.id===presetId?"selected":""}>${x.nombre} — stock ${x.stock}</option>`).join("")}</select></label><label>Cantidad<input type="number" id="m-cant" value="1" min="1" /></label><label>Motivo<select id="m-motivo">${tipo==="Entrada"?`<option>Compra</option><option>Donación</option><option>Ajuste</option>`:`<option>Dispensación diaria</option><option>Curación</option><option>Vencido / dañado</option><option>Ajuste</option>`}</select></label><label>Notas<input id="m-notas" placeholder="Opcional" /></label></div><div class="modal-actions"><button class="btn btn-ghost" id="m-cancel">Cancelar</button><button class="btn btn-primary" id="m-save">Guardar ${tipo}</button></div></div>`;
+  document.body.appendChild(bd);
+  bd.querySelector("#m-cancel").addEventListener("click",()=>bd.remove());
+  bd.querySelector("#m-save").addEventListener("click",()=>{
+    const id=bd.querySelector("#m-item").value; const cant=parseInt(bd.querySelector("#m-cant").value)||0; if(!id||cant<=0) return showToast("Elija medicina y cantidad.");
+    const it=itemById(id); if(tipo==="Salida"&&cant>it.stock) { if(!confirm("Salida de "+cant+" pero solo hay "+it.stock+" en stock. ¿Continuar y dejar en 0?")) return; }
+    addMovimiento(id,tipo,cant,bd.querySelector("#m-motivo").value,bd.querySelector("#m-notas").value); bd.remove(); render(); showToast(tipo+" registrada.");
+  });
+}
 (async function(){
-  if(!initSupabase()) return;
-  const box=document.getElementById('loginBox'), app=document.getElementById('app'), msg=document.getElementById('loginMsg'), banner=document.getElementById('banner');
+  const loading=document.getElementById("loading");
+  if(!initSupabase()){ if(loading) loading.style.display="none"; const box=document.getElementById("loginBox"); if(box) box.style.display="flex"; const msg=document.getElementById("loginMsg"); if(msg) msg.textContent="Error: Invalid API key — reemplaza __SUPABASE_ANON_KEY__ con la llave eyJ... de Pagos, en una sola línea."; return; }
+  const box=document.getElementById("loginBox"), msg=document.getElementById("loginMsg");
   function show(t){ if(msg) msg.textContent=t; }
   async function enter(sess){
-    const tid=await getTenantId(sess.user.id);
-    if(!tid){ show('Logueado, pero no tienes household asignado'); if(box) box.style.display='flex'; return; }
-    currentTenantId=tid;
-    let countText="";
-    try{ const {data,error}=await supa.from("reports").select("id",{count:"exact"}).limit(1); if(!error) countText=" Tienes "+(data?data.length:0)+" reporte(s) en tu household. RLS funciona."; }catch(e){}
-    // Count via reports table - fallback to 1 if table query blocked by RLS count
-    try{ const {count,error}=await supa.from("reports").select("*",{count:"exact",head:true}); if(!error&&count!=null) countText=" Tienes "+count+" reporte(s) en tu household. RLS funciona."; }catch(e){}
-    banner.textContent="Entraste como "+sess.user.email+"."+countText;
-    if(box) box.style.display='none'; if(app) app.style.display='block';
+    const res=await getTenantId(sess.user.id);
+    if(res.error){ show("Error: "+res.error.message); if(box) box.style.display="flex"; if(loading) loading.style.display="none"; return; }
+    if(!res.tid){ show("Logueado, pero no tienes household asignado"); if(box) box.style.display="flex"; if(loading) loading.style.display="none"; return; }
+    currentTenantId=res.tid; if(box) box.style.display="none"; if(loading) loading.style.display="none"; loadAll();
   }
   const {data:{session}}=await supa.auth.getSession();
-  if(session){ await enter(session); } else { if(box) box.style.display='flex'; }
-  const btn=document.getElementById('loginBtn');
-  if(btn) btn.addEventListener('click', async(e)=>{ e.preventDefault(); const email=document.getElementById('loginEmail').value.trim(); const password=document.getElementById('loginPass').value; show('Conectando...'); try{ const r=await supa.auth.signInWithPassword({email,password}); if(r.error){ show('Error: '+r.error.message); return; } await enter(r.data.session); show(''); }catch(err){ show('Error: '+err.message); } });
-  const lo=document.getElementById('logoutBtn'); if(lo) lo.addEventListener('click', async()=>{ await supa.auth.signOut(); location.reload(); });
+  if(session){ await enter(session); } else { if(loading) loading.style.display="none"; if(box) box.style.display="flex"; }
+  const btn=document.getElementById("loginBtn");
+  if(btn) btn.addEventListener("click",async(e)=>{ e.preventDefault(); const email=document.getElementById("loginEmail").value.trim(); const password=document.getElementById("loginPass").value; show("Conectando..."); try{ const r=await supa.auth.signInWithPassword({email,password}); if(r.error){ show("Error: "+r.error.message); return; } await enter(r.data.session); show(""); }catch(err){ show("Error: "+err.message); } });
 })();
 </script>
 </body>
