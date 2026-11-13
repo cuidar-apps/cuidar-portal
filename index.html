@@ -21,11 +21,13 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:v
 .wrap{max-width:960px;margin:0 auto;padding:10px 20px 60px;}
 h1{font-size:28px;margin:10px 0 4px;}
 .sub{color:var(--muted);margin:0 0 20px;}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-@media(max-width:760px){.grid{grid-template-columns:1fr;}}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px;min-height:150px;}
-.card h3{margin:0;font-size:18px;}
-.card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4;flex:1;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;grid-auto-rows:1fr;align-items:stretch;}
+@media(max-width:760px){.grid{grid-template-columns:1fr 1fr;gap:14px;}}
+@media(max-width:480px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px;min-height:185px;height:100%;}
+.card h3{margin:0;font-size:18px;line-height:1.25;min-height:22px;}
+.card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.45;flex:1;min-height:39px;}
+.open{margin-top:auto;align-self:flex-start;}
 .open{display:inline-block;background:rgba(111,154,114,0.15);color:var(--primary-dark);padding:7px 14px;border-radius:20px;font-weight:600;text-decoration:none;font-size:13px;width:fit-content;}
 .open:hover{background:rgba(111,154,114,0.25);}
 .soon{color:var(--muted);font-size:12px;background:#F5F5F0;padding:7px 12px;border-radius:20px;width:fit-content;}
@@ -43,12 +45,8 @@ h1{font-size:28px;margin:10px 0 4px;}
 <div class="wrap"><h1>Cuidar a Distancia</h1><p class="sub">Portal del familiar - 8 apps, un solo lugar</p>
 <div class="grid">
 <div class="card"><h3>📝 Reporte Diario</h3><p>Reporte diario del familiar: ánimo, comidas, medicación, actividades.</p><a class="open" href="https://cuidar-reportes.marbaquero.workers.dev" target="_blank" rel="noopener">Abrir →</a></div>
-<div class="card"><h3>📊 Dashboard</h3><p>Resumen, últimos reportes, % buen ánimo, tendencia.</p><a class="open" <a href="https://cuidar-reportes.marbaquero.workers.dev/?view=sesion" style="text-decoration:none;color:inherit;display:block;background:#fff;border:1px solid #EDE6D6;border-radius:18px;padding:20px 22px;box-shadow:0 1px 0 rgba(0,0,0,.03)">
-        <div style="font-size:22px;font-weight:700;margin:0 0 8px">🧠 Sesión Cognitiva</div>
-        <div style="color:#6B655A;font-family:system-ui,sans-serif;font-size:15px;line-height:1.5">Sesión de estimulación de Rosita: participación, manos, lo más lindo, materiales.</div>
-        <div style="display:inline-block;margin-top:14px;background:#EAF2E8;border-radius:999px;padding:8px 14px;font-weight:700;font-family:system-ui,sans-serif">Abrir →</div>
-      </a>
-      href="https://cuidar-dashboard.pages.dev" target="_blank" rel="noopener">Abrir →</a></div>
+<div class="card"><h3>🧠 Sesión Cognitiva</h3><p>Sesión de estimulación: duración, qué hicieron, ánimo, participación, manos, lo más lindo, materiales.</p><a class="open" href="https://cuidar-reportes.marbaquero.workers.dev/?view=sesion" target="_blank" rel="noopener">Abrir →</a></div>
+<div class="card"><h3>📊 Dashboard — Historial</h3><p>Ver los reportes ya llenados — historial, últimos reportes, % buen ánimo, tendencia.</p><a class="open" href="https://cuidar-dashboard.pages.dev" target="_blank" rel="noopener">Abrir →</a></div>
 <div class="card"><h3>🏥 Reporte Médico</h3><p>Historial médico, últimos 30 días, por cuidadora.</p><a class="open" href="https://reporte-medico.pages.dev" target="_blank" rel="noopener">Abrir →</a></div>
 <div class="card"><h3>💰 Pagos</h3><p>Pago a cuidadoras, registros, configuración.</p><a class="open" href="https://cuidar-pagos.marbaquero.workers.dev" target="_blank" rel="noopener">Abrir →</a></div>
 <div class="card"><h3>💊 Inventario</h3><p>Inventario de medicinas, stock, compras, dispensación.</p><a class="open" href="https://cuidar-inventario.marbaquero.workers.dev" target="_blank" rel="noopener">Abrir →</a></div>
