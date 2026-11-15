@@ -31,7 +31,7 @@ h1{font-size:28px;margin:10px 0 4px;}
 .open{display:inline-block;background:rgba(111,154,114,0.15);color:var(--primary-dark);padding:7px 14px;border-radius:20px;font-weight:600;text-decoration:none;font-size:13px;width:fit-content;}
 .open:hover{background:rgba(111,154,114,0.25);}
 .soon{color:var(--muted);font-size:12px;background:#F5F5F0;padding:7px 12px;border-radius:20px;width:fit-content;}
-.toprow{display:flex;justify-content:space-between;align-items:center;max-width:960px;margin:0 auto;padding:14px 20px 0;}
+.toprow{display:flex;justify-content:space-between;align-items:center;max-width:960px;margin:0 auto;padding:14px 20px 0;}.top-actions{display:flex;align-items:center;gap:8px}.lang-switch{display:flex;gap:4px}.lang-btn{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 11px;cursor:pointer;font-family:var(--sans);font-size:13px;color:var(--muted)}.lang-btn.active{background:rgba(111,154,114,0.15);color:var(--primary-dark);font-weight:700;border-color:#cbded3}
 .logout{background:none;border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer;font-family:var(--sans);font-size:13px;}
 </style>
 </head>
@@ -40,7 +40,7 @@ h1{font-size:28px;margin:10px 0 4px;}
 <noscript><div style="padding:40px;text-align:center;">Activa JavaScript para ver el Portal.</div></noscript>
 <div id="loginBox" style="display:none"><div class="login-card"><h2 style="margin:0 0 8px">Iniciar sesión - Portal</h2><p style="color:#6E7A75;font-size:13px;margin:0 0 10px">Usa el correo con el que te suscribiste.</p><input id="loginEmail" type="email" placeholder="Correo electrónico" value="test1@cuidar.local"><input id="loginPass" type="password" placeholder="Contraseña"><button type="button" id="loginBtn">Entrar</button><div id="loginMsg" style="color:#A8493D;font-size:13px;margin-top:10px;min-height:18px"></div></div></div>
 <div id="app" style="display:none">
-<div class="toprow"><div style="font-weight:700">Cuidar a Distancia</div><button class="logout" id="logoutBtn">Cerrar sesión</button></div>
+<div class="toprow"><div style="font-weight:700">Cuidar a Distancia</div><div class="top-actions"><div class="lang-switch" role="group" aria-label="Language"><button type="button" class="lang-btn" id="lang-en" aria-pressed="false">EN</button><button type="button" class="lang-btn active" id="lang-es" aria-pressed="true">ES</button></div><button class="logout" id="logoutBtn">Cerrar sesión</button></div></div>
 <div class="banner" id="banner">Entraste como …</div>
 <div class="wrap"><h1>Cuidar a Distancia</h1><p class="sub">Portal del familiar - 8 apps, un solo lugar</p>
 <div class="grid">
@@ -55,30 +55,95 @@ h1{font-size:28px;margin:10px 0 4px;}
 </div></div></div>
 <script>
 let supa=null, currentTenantId=null;
+const portalTranslations={
+ es:{
+  loading:"Cargando Portal… Si ves esto en Vista Previa del Finder, es normal — sube el archivo a GitHub y abre la URL workers.dev.",
+  noscript:"Activa JavaScript para ver el Portal.",
+  loginTitle:"Iniciar sesión - Portal",loginIntro:"Usa el correo con el que te suscribiste.",email:"Correo electrónico",password:"Contraseña",login:"Entrar",logout:"Cerrar sesión",
+  banner:"Entraste como ",portalSubtitle:"Portal del familiar - 8 apps, un solo lugar",open:"Abrir →",
+  cards:[
+   ["📝 Reporte Diario","Reporte diario del familiar: ánimo, comidas, medicación, actividades."],
+   ["🧠 Sesión Cognitiva","Sesión de estimulación: duración, qué hicieron, ánimo, participación, manos, lo más lindo, materiales."],
+   ["📊 Dashboard — Historial","Ver los reportes ya llenados — historial, últimos reportes, % buen ánimo, tendencia."],
+   ["🏥 Reporte Médico","Historial médico, últimos 30 días, por cuidadora."],
+   ["💰 Pagos","Pago a cuidadoras, registros, configuración."],
+   ["💊 Inventario","Inventario de medicinas, stock, compras, dispensación."],
+   ["💸 Gastos","Gastos de Mamá. Saldo, gastos, reporte mensual."],
+   ["⚙️ Gastos Admin","Gastos de Mamá — Administrador. Saldo, depósitos, reporte mensual."]
+  ],
+  connecting:"Conectando...",error:"Error: ",invalidKey:"Error: Invalid API key — Cloudflare no reemplazó la llave en cuidar-portal. Revisa Variable + Build command.",
+  tenantError:"Error: ",tenantSuffix:" — revisa SUPABASE_ANON_KEY en Cloudflare de cuidar-portal",
+  noHousehold:"Logueado, pero no tienes household asignado",
+  reportCount:" Tienes ",reportSuffix:" reporte(s) en tu household. RLS funciona."
+ },
+ en:{
+  loading:"Loading portal… If you see this in Finder Preview, that is normal — upload the file to GitHub and open the workers.dev URL.",
+  noscript:"Enable JavaScript to view the portal.",
+  loginTitle:"Sign in - Portal",loginIntro:"Use the email address you subscribed with.",email:"Email address",password:"Password",login:"Sign in",logout:"Sign out",
+  banner:"Signed in as ",portalSubtitle:"Family portal - 8 apps, all in one place",open:"Open →",
+  cards:[
+   ["📝 Daily Report","Daily family report: mood, meals, medication, activities."],
+   ["🧠 Cognitive Session","Stimulation session: duration, activities, mood, participation, hands, highlights, materials."],
+   ["📊 Dashboard — History","View completed reports — history, latest reports, positive-mood percentage, and trends."],
+   ["🏥 Medical Report","Medical history for the last 30 days, by caregiver."],
+   ["💰 Payments","Caregiver payments, records, and settings."],
+   ["💊 Inventory","Medication inventory, stock, purchases, and dispensing."],
+   ["💸 Expenses","Mom’s expenses. Balance, expenses, and monthly report."],
+   ["⚙️ Expenses Admin","Mom’s expenses — Administrator. Balance, deposits, and monthly report."]
+  ],
+  connecting:"Connecting...",error:"Error: ",invalidKey:"Error: Invalid API key — Cloudflare did not replace the key in cuidar-portal. Check the variable and build command.",
+  tenantError:"Error: ",tenantSuffix:" — check SUPABASE_ANON_KEY in Cloudflare for cuidar-portal",
+  noHousehold:"Signed in, but no household is assigned to this account",
+  reportCount:" You have ",reportSuffix:" report(s) in your household. RLS is working."
+ }
+};
+let portalLanguage=localStorage.getItem("family-portal-language")==="en"?"en":"es";
+function pt(key){return portalTranslations[portalLanguage][key]}
+function setPortalLanguage(lang){
+ portalLanguage=lang;localStorage.setItem("family-portal-language",lang);document.documentElement.lang=lang;
+ const tr=portalTranslations[lang];
+ const loading=document.getElementById("loading");if(loading)loading.textContent=tr.loading;
+ const ns=document.querySelector("noscript div");if(ns)ns.textContent=tr.noscript;
+ const loginCard=document.querySelector("#loginBox .login-card");
+ if(loginCard){loginCard.querySelector("h2").textContent=tr.loginTitle;loginCard.querySelector("p").textContent=tr.loginIntro;document.getElementById("loginEmail").placeholder=tr.email;document.getElementById("loginPass").placeholder=tr.password;document.getElementById("loginBtn").textContent=tr.login;}
+ const lo=document.getElementById("logoutBtn");if(lo)lo.textContent=tr.logout;
+ const subtitle=document.querySelector(".wrap .sub");if(subtitle)subtitle.textContent=tr.portalSubtitle;
+ const cards=document.querySelectorAll(".grid .card");cards.forEach((card,i)=>{card.querySelector("h3").textContent=tr.cards[i][0];card.querySelector("p").textContent=tr.cards[i][1];card.querySelector(".open").textContent=tr.open;});
+ document.getElementById("lang-en").classList.toggle("active",lang==="en");document.getElementById("lang-es").classList.toggle("active",lang==="es");
+ document.getElementById("lang-en").setAttribute("aria-pressed",String(lang==="en"));document.getElementById("lang-es").setAttribute("aria-pressed",String(lang==="es"));
+ if(window.currentPortalEmail)updatePortalBanner();
+}
+function updatePortalBanner(){
+ const banner=document.getElementById("banner");if(!banner||!window.currentPortalEmail)return;
+ banner.textContent=pt("banner")+window.currentPortalEmail+"."+ (window.currentPortalCountText||"");
+}
 function initSupabase(){ if(!window.SUPABASE_URL||!window.SUPABASE_ANON_KEY||window.SUPABASE_ANON_KEY.includes("PASTE_")||window.SUPABASE_ANON_KEY.includes("__SUPABASE")) return false; supa=window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY); return true; }
 async function getTenantId(userId){ const {data,error}=await supa.from("tenant_members").select("tenant_id").eq("user_id",userId).maybeSingle(); if(error) return {tid:null, error:error}; if(!data) return {tid:null, error:null}; return {tid:data.tenant_id, error:null}; }
 (async function(){
-  if(!initSupabase()){ const ld2=document.getElementById('loading'); if(ld2) ld2.style.display='none'; const b=document.getElementById('loginBox'); if(b) b.style.display='flex'; const m=document.getElementById('loginMsg'); if(m) m.textContent='Error: Invalid API key — Cloudflare no reemplazó la llave en cuidar-portal. Revisa Variable + Build command.'; return; }
+  if(!initSupabase()){ const ld2=document.getElementById('loading'); if(ld2) ld2.style.display='none'; const b=document.getElementById('loginBox'); if(b) b.style.display='flex'; const m=document.getElementById('loginMsg'); if(m) m.textContent=pt('invalidKey'); return; }
   const box=document.getElementById('loginBox'), app=document.getElementById('app'), msg=document.getElementById('loginMsg'), banner=document.getElementById('banner');
   function show(t){ if(msg) msg.textContent=t; }
   async function enter(sess){
     const res=await getTenantId(sess.user.id);
     const tid=res.tid;
-    if(res.error){ show('Error: '+res.error.message+' — revisa SUPABASE_ANON_KEY en Cloudflare de cuidar-portal'); if(box) box.style.display='flex'; return; }
-    if(!tid){ show('Logueado, pero no tienes household asignado'); if(box) box.style.display='flex'; return; }
+    if(res.error){ show(pt('tenantError')+res.error.message+pt('tenantSuffix')); if(box) box.style.display='flex'; return; }
+    if(!tid){ show(pt('noHousehold')); if(box) box.style.display='flex'; return; }
     currentTenantId=tid;
     let countText="";
-    try{ const {data,error}=await supa.from("reports").select("id",{count:"exact"}).limit(1); if(!error) countText=" Tienes "+(data?data.length:0)+" reporte(s) en tu household. RLS funciona."; }catch(e){}
+    try{ const {data,error}=await supa.from("reports").select("id",{count:"exact"}).limit(1); if(!error) countText=pt("reportCount")+(data?data.length:0)+pt("reportSuffix"); }catch(e){}
     // Count via reports table - fallback to 1 if table query blocked by RLS count
-    try{ const {count,error}=await supa.from("reports").select("*",{count:"exact",head:true}); if(!error&&count!=null) countText=" Tienes "+count+" reporte(s) en tu household. RLS funciona."; }catch(e){}
-    banner.textContent="Entraste como "+sess.user.email+"."+countText;
+    try{ const {count,error}=await supa.from("reports").select("*",{count:"exact",head:true}); if(!error&&count!=null) countText=pt("reportCount")+count+pt("reportSuffix"); }catch(e){}
+    window.currentPortalEmail=sess.user.email;window.currentPortalCountText=countText;updatePortalBanner();
     if(box) box.style.display='none'; if(app) app.style.display='block'; const ld=document.getElementById('loading'); if(ld) ld.style.display='none';
   }
   const {data:{session}}=await supa.auth.getSession();
   if(session){ await enter(session); } else { const ld=document.getElementById('loading'); if(ld) ld.style.display='none'; if(box) box.style.display='flex'; }
   const btn=document.getElementById('loginBtn');
-  if(btn) btn.addEventListener('click', async(e)=>{ e.preventDefault(); const email=document.getElementById('loginEmail').value.trim(); const password=document.getElementById('loginPass').value; show('Conectando...'); try{ const r=await supa.auth.signInWithPassword({email,password}); if(r.error){ show('Error: '+r.error.message); return; } await enter(r.data.session); show(''); }catch(err){ show('Error: '+err.message); } });
+  if(btn) btn.addEventListener('click', async(e)=>{ e.preventDefault(); const email=document.getElementById('loginEmail').value.trim(); const password=document.getElementById('loginPass').value; show(pt('connecting')); try{ const r=await supa.auth.signInWithPassword({email,password}); if(r.error){ show(pt('error')+r.error.message); return; } await enter(r.data.session); show(''); }catch(err){ show(pt('error')+err.message); } });
   const lo=document.getElementById('logoutBtn'); if(lo) lo.addEventListener('click', async()=>{ await supa.auth.signOut(); location.reload(); });
+  document.getElementById('lang-en').addEventListener('click',()=>setPortalLanguage('en'));
+  document.getElementById('lang-es').addEventListener('click',()=>setPortalLanguage('es'));
+  setPortalLanguage(portalLanguage);
 })();
 </script>
 </body>
