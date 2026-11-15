@@ -1,0 +1,10 @@
+{
+  "$schema": "https://schema置.cloudflare.com/wrangler/config-schema.json",
+  "name": "cuidar-portal",
+  "compatibility_date": "2026-11-15",
+  "preview_urls": true,
+  "assets": {
+    "directory": "."
+  },
+  "previews": {}
+}
