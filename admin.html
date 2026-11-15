@@ -24,41 +24,55 @@ input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;mar
 .metric{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;min-height:122px}
 .metric .label{color:var(--muted);font-size:13px}.metric .value{font-size:32px;font-weight:750;margin-top:8px;letter-spacing:-1px}
 .note{margin-top:22px;padding:14px 16px;background:var(--soft);border-radius:10px;color:#31564b;font-size:13px}
-.actions{display:flex;gap:10px;align-items:center}
+.actions{display:flex;gap:10px;align-items:center}.languages{display:flex;gap:4px;margin-right:8px}.lang-btn{padding:7px 10px;font-size:12px;background:#fff;color:var(--muted);border:1px solid var(--line)}.lang-btn.active{background:var(--soft);color:var(--brand);border-color:#cbded3}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{margin:24px auto}}
 @media(max-width:430px){.grid{grid-template-columns:1fr 1fr}.metric{padding:14px}.metric .value{font-size:26px}}
 </style>
 </head>
 <body>
-<header><div><span class="brand">Cuidar a Distancia</span><span class="tag">Administración de plataforma</span></div><div class="actions"><button id="refresh" class="secondary" style="display:none">Actualizar</button><button id="logout" class="secondary" style="display:none">Salir</button></div></header>
+<header><div><span class="brand">Cuidar a Distancia</span><span class="tag" data-i18n="platformAdmin">Administración de plataforma</span></div><div class="actions"><div class="languages" role="group" aria-label="Language"><button type="button" class="lang-btn" id="lang-en" aria-pressed="false">EN</button><button type="button" class="lang-btn active" id="lang-es" aria-pressed="true">ES</button></div><button id="refresh" class="secondary" style="display:none" data-i18n="refresh">Actualizar</button><button id="logout" class="secondary" style="display:none" data-i18n="logout">Salir</button></div></header>
 <section id="login">
-<h2>Acceso administrativo</h2><p class="sub">Inicie sesión con su cuenta autorizada de administración.</p>
-<label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="username" placeholder="Correo electrónico">
-<label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="Contraseña">
-<button id="loginBtn" style="width:100%">Entrar</button><div id="message" role="status"></div>
+<h2 data-i18n="loginTitle">Acceso administrativo</h2><p class="sub" data-i18n="loginIntro">Inicie sesión con su cuenta autorizada de administración.</p>
+<label for="email" data-i18n="email">Correo electrónico</label><input id="email" type="email" autocomplete="username" placeholder="Correo electrónico" data-i18n-placeholder="emailPlaceholder">
+<label for="password" data-i18n="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="Contraseña" data-i18n-placeholder="passwordPlaceholder">
+<button id="loginBtn" style="width:100%" data-i18n="loginButton">Entrar</button><div id="message" role="status"></div>
 </section>
 <main id="dashboard">
-<h1>Resumen de plataforma</h1><p class="sub">Vista agregada de solo lectura. No muestra información personal ni permite modificar cuentas o cobros.</p>
+<h1 data-i18n="summaryTitle">Resumen de plataforma</h1><p class="sub" data-i18n="summaryIntro">Vista agregada de solo lectura. No muestra información personal ni permite modificar cuentas o cobros.</p>
 <div class="grid">
-<div class="metric"><div class="label">Hogares registrados</div><div class="value" id="households">—</div></div>
-<div class="metric"><div class="label">Perfiles de clientes</div><div class="value" id="profiles">—</div></div>
-<div class="metric"><div class="label">Suscripciones</div><div class="value" id="subscriptions">—</div></div>
-<div class="metric"><div class="label">Suscripciones activas</div><div class="value" id="active">—</div></div>
-<div class="metric"><div class="label">Suscripciones vencidas</div><div class="value" id="pastdue">—</div></div>
-<div class="metric"><div class="label">Aplicaciones activas</div><div class="value" id="apps">—</div></div>
+<div class="metric"><div class="label" data-i18n="households">Hogares registrados</div><div class="value" id="households">—</div></div>
+<div class="metric"><div class="label" data-i18n="profiles">Perfiles de clientes</div><div class="value" id="profiles">—</div></div>
+<div class="metric"><div class="label" data-i18n="subscriptions">Suscripciones</div><div class="value" id="subscriptions">—</div></div>
+<div class="metric"><div class="label" data-i18n="active">Suscripciones activas</div><div class="value" id="active">—</div></div>
+<div class="metric"><div class="label" data-i18n="pastdue">Suscripciones vencidas</div><div class="value" id="pastdue">—</div></div>
+<div class="metric"><div class="label" data-i18n="apps">Aplicaciones activas</div><div class="value" id="apps">—</div></div>
 </div>
-<div class="note" id="updated">Los datos se consultan desde una función protegida en Supabase.</div>
+<div class="note" id="updated" data-i18n="loadingNote">Los datos se consultan desde una función protegida en Supabase.</div>
 </main>
 <script>
 const supabaseClient=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
 const $=id=>document.getElementById(id);
-function message(t){$("message").textContent=t||""}
+const translations={
+ es:{platformAdmin:"Administración de plataforma",refresh:"Actualizar",logout:"Salir",loginTitle:"Acceso administrativo",loginIntro:"Inicie sesión con su cuenta autorizada de administración.",email:"Correo electrónico",emailPlaceholder:"Correo electrónico",password:"Contraseña",passwordPlaceholder:"Contraseña",loginButton:"Entrar",summaryTitle:"Resumen de plataforma",summaryIntro:"Vista agregada de solo lectura. No muestra información personal ni permite modificar cuentas o cobros.",households:"Hogares registrados",profiles:"Perfiles de clientes",subscriptions:"Suscripciones",active:"Suscripciones activas",pastdue:"Suscripciones vencidas",apps:"Aplicaciones activas",loadingNote:"Los datos se consultan desde una función protegida en Supabase.",checking:"Verificando acceso…",denied:"Esta cuenta no tiene permisos de administrador.",loginError:"No se pudo iniciar sesión: ",closed:"Sesión cerrada.",loading:"Consultando resumen…",summaryError:"No se pudo cargar el resumen: ",lastUpdate:"Última actualización: "},
+ en:{platformAdmin:"Platform administration",refresh:"Refresh",logout:"Sign out",loginTitle:"Administrator sign-in",loginIntro:"Sign in with your authorized administrator account.",email:"Email address",emailPlaceholder:"Email address",password:"Password",passwordPlaceholder:"Password",loginButton:"Sign in",summaryTitle:"Platform overview",summaryIntro:"Read-only aggregated view. No personal information or account or billing changes are exposed.",households:"Registered households",profiles:"Customer profiles",subscriptions:"Subscriptions",active:"Active subscriptions",pastdue:"Past-due subscriptions",apps:"Active applications",loadingNote:"Data is retrieved through a protected Supabase function.",checking:"Verifying access…",denied:"This account does not have administrator permissions.",loginError:"Unable to sign in: ",closed:"Signed out.",loading:"Loading summary…",summaryError:"Unable to load summary: ",lastUpdate:"Last updated: "}
+};
+let currentLanguage=localStorage.getItem("admin-language")==="en"?"en":"es";
+function t(key){return translations[currentLanguage][key]||key}
+function setLanguage(language){
+ currentLanguage=language;localStorage.setItem("admin-language",language);document.documentElement.lang=language;
+ document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n)});
+ document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{el.placeholder=t(el.dataset.i18nPlaceholder)});
+ $("lang-en").classList.toggle("active",language==="en");$("lang-es").classList.toggle("active",language==="es");
+ $("lang-en").setAttribute("aria-pressed",String(language==="en"));$("lang-es").setAttribute("aria-pressed",String(language==="es"));
+ if($("updated").dataset.state==="lastUpdate")formatLastUpdate();
+}
+function message(key,detail=""){$("message").textContent=key?t(key)+detail:""}
 function showDashboard(){ $("login").style.display="none";$("dashboard").style.display="block";$("logout").style.display="inline-block";$("refresh").style.display="inline-block"; }
 function showLogin(){ $("login").style.display="block";$("dashboard").style.display="none";$("logout").style.display="none";$("refresh").style.display="none"; }
 async function loadSummary(){
- $("updated").textContent="Consultando resumen…";
+ $("updated").dataset.state="loading";$("updated").textContent=t("loading");
  const {data,error}=await supabaseClient.rpc("admin_dashboard_summary");
- if(error){$("updated").textContent="No se pudo cargar el resumen: "+error.message;return;}
+ if(error){$("updated").dataset.state="error";$("updated").textContent=t("summaryError")+error.message;return;}
  const d=data||{};
  $("households").textContent=d.households_total??"—";
  $("profiles").textContent=d.customer_profiles_total??"—";
@@ -66,22 +80,26 @@ async function loadSummary(){
  $("active").textContent=d.subscriptions_active??"—";
  $("pastdue").textContent=d.subscriptions_past_due??"—";
  $("apps").textContent=d.apps_active??"—";
- $("updated").textContent="Última actualización: "+new Date(d.generated_at||Date.now()).toLocaleString();
+ $("updated").dataset.state="lastUpdate";formatLastUpdate(d.generated_at);
 }
+function formatLastUpdate(value){$("updated").textContent=t("lastUpdate")+new Date(value||Date.now()).toLocaleString(currentLanguage==="en"?"en-US":"es-ES");}
 async function authorize(session){
  if(!session){showLogin();return}
  const {data,error}=await supabaseClient.rpc("is_platform_admin");
- if(error||data!==true){await supabaseClient.auth.signOut();showLogin();message("Esta cuenta no tiene permisos de administrador.");return}
+ if(error||data!==true){await supabaseClient.auth.signOut();showLogin();message("denied");return}
  showDashboard();await loadSummary();
 }
 $("loginBtn").addEventListener("click",async()=>{
- message("Verificando acceso…");
+ message("checking");
  const {data,error}=await supabaseClient.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
- if(error){message("No se pudo iniciar sesión: "+error.message);return}
+ if(error){message("loginError",error.message);return}
  await authorize(data.session);
 });
-$("logout").addEventListener("click",async()=>{await supabaseClient.auth.signOut();showLogin();message("Sesión cerrada.")});
+$("logout").addEventListener("click",async()=>{await supabaseClient.auth.signOut();showLogin();message("closed")});
 $("refresh").addEventListener("click",loadSummary);
+$("lang-en").addEventListener("click",()=>setLanguage("en"));
+$("lang-es").addEventListener("click",()=>setLanguage("es"));
+setLanguage(currentLanguage);
 supabaseClient.auth.getSession().then(({data})=>authorize(data.session));
 supabaseClient.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin()});
 </script>
