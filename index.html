@@ -110,8 +110,8 @@ function setPortalLanguage(lang){
  const lo=document.getElementById("logoutBtn");if(lo)lo.textContent=tr.logout;
  const subtitle=document.querySelector(".wrap .sub");if(subtitle)subtitle.textContent=tr.portalSubtitle;
  const cards=document.querySelectorAll(".grid .card");cards.forEach((card,i)=>{card.querySelector("h3").textContent=tr.cards[i][0];card.querySelector("p").textContent=tr.cards[i][1];card.querySelector(".open").textContent=tr.open;});
- document.getElementById("lang-en").classList.toggle("active",lang==="en");document.getElementById("lang-es").classList.toggle("active",lang==="es");
- document.getElementById("lang-en").setAttribute("aria-pressed",String(lang==="en"));document.getElementById("lang-es").setAttribute("aria-pressed",String(lang==="es"));
+ 
+ 
  if(window.currentPortalEmail)updatePortalBanner();
  document.querySelectorAll("#cuidar-language-control button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang)));
  localStorage.setItem("cuidar-language",lang);
