@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal de Cuidado | Care Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Base SaaS Styles */
         :root {
@@ -17,16 +18,33 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
         
-        /* Header & Language Selector */
+        /* Header */
         header { background: white; padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
         .logo { font-size: 1.25rem; font-weight: 700; color: var(--primary-color); }
+        
+        .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--text-muted); }
+        .btn-logout { background: transparent; border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 0.875rem; transition: all 0.2s; }
+        .btn-logout:hover { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+
         .lang-selector { display: flex; gap: 0.5rem; background: var(--bg-color); padding: 0.25rem; border-radius: 0.5rem; border: 1px solid var(--border-color); }
         .lang-btn { background: transparent; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600; color: var(--text-muted); transition: all 0.2s; }
         .lang-btn.active { background: var(--primary-color); color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .lang-btn:hover:not(.active) { background: var(--border-color); color: var(--text-main); }
 
+        /* Login Box */
+        #loginBox { display: none; flex: 1; align-items: center; justify-content: center; padding: 2rem; }
+        .login-card { background: white; padding: 2.5rem; border-radius: 1rem; border: 1px solid var(--border-color); width: 100%; max-width: 400px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .login-card h2 { margin-bottom: 0.5rem; font-size: 1.5rem; }
+        .login-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .login-card input { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; margin-bottom: 1rem; font-size: 1rem; outline: none; }
+        .login-card input:focus { border-color: var(--primary-color); }
+        .login-card button { width: 100%; padding: 0.75rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; font-size: 1rem; }
+        .login-card button:hover { background: #0284c7; }
+        .login-msg { color: #b91c1c; font-size: 0.875rem; margin-top: 1rem; text-align: center; min-height: 1.25rem; }
+
         /* Main Content */
-        main { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+        main { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; display: none; }
         .page-header { text-align: center; margin-bottom: 3rem; }
         .page-header h1 { font-size: 2.25rem; margin-bottom: 0.5rem; color: var(--text-main); }
         .page-header p { font-size: 1.125rem; color: var(--text-muted); }
@@ -45,25 +63,54 @@
 
     <header>
         <div class="logo">Cuidar SaaS</div>
-        <div class="lang-selector">
-            <button id="btn-es" class="lang-btn" onclick="switchLanguage('es')">ES</button>
-            <button id="btn-en" class="lang-btn" onclick="switchLanguage('en')">EN</button>
+        <div class="header-actions">
+            <div class="user-info" id="userInfo" style="display:none;">
+                <span id="userEmail"></span>
+                <button class="btn-logout" onclick="signOut()">Cerrar Sesión</button>
+            </div>
+            <div class="lang-selector">
+                <button id="btn-es" class="lang-btn" onclick="switchLanguage('es')">ES</button>
+                <button id="btn-en" class="lang-btn" onclick="switchLanguage('en')">EN</button>
+            </div>
         </div>
     </header>
 
-    <main>
+    <!-- Login View -->
+    <div id="loginBox">
+        <div class="login-card">
+            <h2 id="login-title">Iniciar Sesión</h2>
+            <p id="login-sub">Ingrese sus credenciales para acceder al sistema.</p>
+            <input type="email" id="loginEmail" placeholder="Correo electrónico" />
+            <input type="password" id="loginPass" placeholder="Contraseña" />
+            <button onclick="handleLogin()" id="btn-login">Entrar</button>
+            <div class="login-msg" id="loginMsg"></div>
+        </div>
+    </div>
+
+    <!-- Portal View -->
+    <main id="portalView">
         <div class="page-header">
             <h1 id="portal-title">Portal de Cuidado</h1>
             <p id="portal-subtitle">Seleccione una aplicación</p>
         </div>
-
-        <div class="grid" id="cards-container">
-            <!-- Cards are generated dynamically by JavaScript to ensure perfect translation and URL syncing -->
-        </div>
+        <div class="grid" id="cards-container"></div>
     </main>
 
     <script>
-        // --- 1. VERIFIED SOURCE OF TRUTH: URLS ---
+        // --- 1. SUPABASE SETUP ---
+        window.SUPABASE_URL = "https://fftnffmttuzfftntzzhu.supabase.co";
+        window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmdG5mZm10dHV6ZmZ0bnR6emh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5MTgxNzAsImV4cCI6MjEwOTQ5NDE3MH0.lmYfQeXAq6oPZ-UMj8AQXQq2snU78FatLMbwRftaMyM";
+        
+        let supa = null;
+        let currentUser = null;
+
+        function initSupabase() {
+            if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) return false;
+            supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+            return true;
+        }
+
+        // --- 2. VERIFIED SOURCE OF TRUTH: URLS ---
         const APP_URLS = {
             reportes: "https://cuidar-reportes.marbaquero.workers.dev",
             dashboard: "https://cuidar-dashboard.pages.dev",
@@ -74,12 +121,15 @@
             reporteMedico: "https://reporte-medico.pages.dev"
         };
 
-        // --- 2. EXACT TRANSLATIONS ---
+        // --- 3. EXACT TRANSLATIONS ---
         const TRANSLATIONS = {
             es: {
                 title: "Portal de Cuidado",
                 subtitle: "Seleccione una aplicación",
                 enterBtn: "Entrar",
+                loginTitle: "Iniciar Sesión",
+                loginSub: "Ingrese sus credenciales para acceder al sistema.",
+                logoutBtn: "Cerrar Sesión",
                 cards: {
                     reportes: { title: "Reporte Diario", desc: "Registro de actividades y terapias." },
                     dashboard: { title: "Dashboard", desc: "Resumen visual del progreso." },
@@ -94,6 +144,9 @@
                 title: "Care Portal",
                 subtitle: "Select an application",
                 enterBtn: "Enter",
+                loginTitle: "Sign In",
+                loginSub: "Enter your credentials to access the system.",
+                logoutBtn: "Sign Out",
                 cards: {
                     reportes: { title: "Daily Report", desc: "Log of activities and therapies." },
                     dashboard: { title: "Dashboard", desc: "Visual summary of progress." },
@@ -106,46 +159,43 @@
             }
         };
 
-        // --- 3. STATE MANAGEMENT (URL & LocalStorage Sync) ---
+        // --- 4. STATE MANAGEMENT ---
         function getCurrentLang() {
             const urlParams = new URLSearchParams(window.location.search);
             const urlLang = urlParams.get('lang');
-            
             if (urlLang === 'en' || urlLang === 'es') {
                 localStorage.setItem('cuidar-language', urlLang); 
                 return urlLang;
             }
-            
             const storedLang = localStorage.getItem('cuidar-language');
-            if (storedLang === 'en' || storedLang === 'es') {
-                return storedLang;
-            }
-            
-            return 'es'; // Default
+            if (storedLang === 'en' || storedLang === 'es') return storedLang;
+            return 'es';
         }
 
         let currentLang = getCurrentLang();
 
-        // --- 4. RENDER LOGIC ---
+        // --- 5. RENDER LOGIC ---
         function renderPortal() {
             const t = TRANSLATIONS[currentLang];
-            
-            // Update static texts
             document.documentElement.lang = currentLang;
+            
+            // Update Static texts
             document.getElementById('portal-title').innerText = t.title;
             document.getElementById('portal-subtitle').innerText = t.subtitle;
-            
+            document.getElementById('login-title').innerText = t.loginTitle;
+            document.getElementById('login-sub').innerText = t.loginSub;
+            document.querySelector('.btn-logout').innerText = t.logoutBtn;
+
             // Update Selector active states
             document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
             document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
 
             // Generate Cards
             const container = document.getElementById('cards-container');
-            container.innerHTML = ''; // Clear existing
+            container.innerHTML = ''; 
 
             Object.keys(APP_URLS).forEach(key => {
                 const cardData = t.cards[key];
-                // Construct the exact destination URL with the language parameter
                 const destinationUrl = `${APP_URLS[key]}?lang=${currentLang}`;
                 
                 const cardHTML = `
@@ -159,26 +209,80 @@
             });
         }
 
-        // --- 5. LANGUAGE SWITCHING ---
+        // --- 6. AUTH & LOGIN LOGIC ---
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const msg = document.getElementById('loginMsg');
+            
+            if (!email || !pass) {
+                msg.textContent = currentLang === 'en' ? "Please enter email and password." : "Por favor ingrese correo y contraseña.";
+                return;
+            }
+
+            msg.textContent = currentLang === 'en' ? "Signing in..." : "Entrando...";
+            
+            const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+            
+            if (error) {
+                msg.textContent = "Error: " + error.message;
+                return;
+            }
+            
+            await checkAuth();
+        }
+
+        async function signOut() {
+            await supa.auth.signOut();
+            location.reload();
+        }
+
+        async function checkAuth() {
+            const { data: { session } } = await supa.auth.getSession();
+            
+            if (session) {
+                currentUser = session.user;
+                
+                // Show Portal, Hide Login
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('portalView').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userEmail').textContent = currentUser.email;
+                
+                renderPortal();
+            } else {
+                // Show Login, Hide Portal
+                document.getElementById('loginBox').style.display = 'flex';
+                document.getElementById('portalView').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'none';
+                
+                renderPortal(); // Ensure login texts are translated
+            }
+        }
+
+        // --- 7. LANGUAGE SWITCHING ---
         function switchLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('cuidar-language', lang);
-            
-            // Update URL silently (so if they copy/paste URL, language persists)
             const newUrl = new URL(window.location);
             newUrl.searchParams.set('lang', lang);
             window.history.pushState({}, '', newUrl);
-            
             renderPortal();
         }
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', renderPortal);
+        // --- 8. INIT ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!initSupabase()) {
+                alert("Error: Faltan las credenciales de Supabase.");
+                return;
+            }
+            
+            // Listen for auth changes (e.g., login from another tab)
+            supa.auth.onAuthStateChange((event, session) => {
+                checkAuth();
+            });
 
-        // Listen for browser Back/Forward buttons to keep language synced
-        window.addEventListener('popstate', () => {
-            currentLang = getCurrentLang();
-            renderPortal();
+            await checkAuth();
         });
     </script>
 </body>
