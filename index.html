@@ -34,13 +34,16 @@ h1{font-size:28px;margin:10px 0 4px;}
 .toprow{display:flex;justify-content:space-between;align-items:center;max-width:960px;margin:0 auto;padding:14px 20px 0;}.top-actions{display:flex;align-items:center;gap:8px}.lang-switch{display:flex;gap:4px}.lang-btn{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 11px;cursor:pointer;font-family:var(--sans);font-size:13px;color:var(--muted)}.lang-btn.active{background:rgba(111,154,114,0.15);color:var(--primary-dark);font-weight:700;border-color:#cbded3}
 .logout{background:none;border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer;font-family:var(--sans);font-size:13px;}
 </style>
+<style id="cuidar-portal-language-style">#cuidar-language-control{position:fixed;top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));z-index:100000;display:flex;gap:3px;padding:4px;border:1px solid #e6e0d4;border-radius:999px;background:#fff;box-shadow:0 2px 10px rgba(20,40,35,.12);font:600 12px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}#cuidar-language-control button{border:0;border-radius:999px;background:transparent;color:#5f625c;padding:7px 11px;cursor:pointer;font:inherit}#cuidar-language-control button[aria-pressed="true"]{background:#2e4a2e;color:#fff}</style>
 </head>
 <body>
+<script id="cuidar-portal-language-script">(function(){const p=new URLSearchParams(location.search),incoming=p.get("lang");let lang=(incoming==="en"||incoming==="es")?incoming:(localStorage.getItem("family-portal-language")||"es");if(lang!=="en"&&lang!=="es")lang="es";function sync(){document.querySelectorAll("a[href]").forEach(a=>{try{const u=new URL(a.href,location.href);if(/cuidar-|reporte-medico/.test(u.hostname)&&(u.hostname.endsWith(".workers.dev")||u.hostname.endsWith(".pages.dev"))){u.searchParams.set("lang",lang);a.href=u.href}}catch(e){}})}function render(){document.documentElement.lang=lang;localStorage.setItem("cuidar-language",lang);document.querySelectorAll("#cuidar-language-control button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang)));sync()}const c=document.createElement("div");c.id="cuidar-language-control";c.setAttribute("role","group");c.setAttribute("aria-label","Language");c.innerHTML='<button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>';c.addEventListener("click",e=>{const b=e.target.closest("button[data-lang]");if(!b)return;lang=b.dataset.lang;const u=new URL(location.href);u.searchParams.set("lang",lang);history.replaceState({},"",u);localStorage.setItem("family-portal-language",lang);if(typeof window.setPortalLanguage==="function")window.setPortalLanguage(lang);render()});document.body.appendChild(c);render();new MutationObserver(sync).observe(document.body,{childList:true,subtree:true});window.CuidarLanguage={get:()=>lang,set:v=>{if(v!=="en"&&v!=="es")return;lang=v;render()}}})();</script>
+
 <div id="loading" style="padding:40px;text-align:center;font-family:-apple-system,Helvetica,Arial,sans-serif;color:#6E7A75;">Cargando Portal… Si ves esto en Vista Previa del Finder, es normal — sube el archivo a GitHub y abre la URL workers.dev.</div>
 <noscript><div style="padding:40px;text-align:center;">Activa JavaScript para ver el Portal.</div></noscript>
 <div id="loginBox" style="display:none"><div class="login-card"><h2 style="margin:0 0 8px">Iniciar sesión - Portal</h2><p style="color:#6E7A75;font-size:13px;margin:0 0 10px">Usa el correo con el que te suscribiste.</p><input id="loginEmail" type="email" placeholder="Correo electrónico" value="test1@cuidar.local"><input id="loginPass" type="password" placeholder="Contraseña"><button type="button" id="loginBtn">Entrar</button><div id="loginMsg" style="color:#A8493D;font-size:13px;margin-top:10px;min-height:18px"></div></div></div>
 <div id="app" style="display:none">
-<div class="toprow"><div style="font-weight:700">Cuidar a Distancia</div><div class="top-actions"><div class="lang-switch" role="group" aria-label="Language"><button type="button" class="lang-btn" id="lang-en" aria-pressed="false">EN</button><button type="button" class="lang-btn active" id="lang-es" aria-pressed="true">ES</button></div><button class="logout" id="logoutBtn">Cerrar sesión</button></div></div>
+<div class="toprow"><div style="font-weight:700">Cuidar a Distancia</div><div class="top-actions"><button class="logout" id="logoutBtn">Cerrar sesión</button></div></div>
 <div class="banner" id="banner">Entraste como …</div>
 <div class="wrap"><h1>Cuidar a Distancia</h1><p class="sub">Portal del familiar - 7 apps, un solo lugar</p>
 <div class="grid">
@@ -94,7 +97,8 @@ const portalTranslations={
   reportCount:" You have ",reportSuffix:" report(s) in your household. RLS is working."
  }
 };
-let portalLanguage=localStorage.getItem("family-portal-language")==="en"?"en":"es";
+const initialPortalLang=new URLSearchParams(location.search).get("lang");
+let portalLanguage=(initialPortalLang==="en"||initialPortalLang==="es")?initialPortalLang:(localStorage.getItem("family-portal-language")==="en"?"en":"es");
 function pt(key){return portalTranslations[portalLanguage][key]}
 function setPortalLanguage(lang){
  portalLanguage=lang;localStorage.setItem("family-portal-language",lang);document.documentElement.lang=lang;
@@ -106,9 +110,11 @@ function setPortalLanguage(lang){
  const lo=document.getElementById("logoutBtn");if(lo)lo.textContent=tr.logout;
  const subtitle=document.querySelector(".wrap .sub");if(subtitle)subtitle.textContent=tr.portalSubtitle;
  const cards=document.querySelectorAll(".grid .card");cards.forEach((card,i)=>{card.querySelector("h3").textContent=tr.cards[i][0];card.querySelector("p").textContent=tr.cards[i][1];card.querySelector(".open").textContent=tr.open;});
- document.getElementById("lang-en").classList.toggle("active",lang==="en");document.getElementById("lang-es").classList.toggle("active",lang==="es");
- document.getElementById("lang-en").setAttribute("aria-pressed",String(lang==="en"));document.getElementById("lang-es").setAttribute("aria-pressed",String(lang==="es"));
+ 
+ 
  if(window.currentPortalEmail)updatePortalBanner();
+ document.querySelectorAll("#cuidar-language-control button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang)));
+ localStorage.setItem("cuidar-language",lang);
 }
 function updatePortalBanner(){
  const banner=document.getElementById("banner");if(!banner||!window.currentPortalEmail)return;
