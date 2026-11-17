@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
+<html lang="es"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal de Cuidado | Care Portal</title>
@@ -69,31 +67,73 @@
                 <button class="btn-logout" onclick="signOut()">Cerrar Sesión</button>
             </div>
             <div class="lang-selector">
-                <button id="btn-es" class="lang-btn" onclick="switchLanguage('es')">ES</button>
+                <button id="btn-es" class="lang-btn active" onclick="switchLanguage('es')">ES</button>
                 <button id="btn-en" class="lang-btn" onclick="switchLanguage('en')">EN</button>
             </div>
         </div>
     </header>
 
     <!-- Login View -->
-    <div id="loginBox">
+    <div id="loginBox" style="display: flex;">
         <div class="login-card">
             <h2 id="login-title">Iniciar Sesión</h2>
             <p id="login-sub">Ingrese sus credenciales para acceder al sistema.</p>
-            <input type="email" id="loginEmail" placeholder="Correo electrónico" />
-            <input type="password" id="loginPass" placeholder="Contraseña" />
+            <input type="email" id="loginEmail" placeholder="Correo electrónico">
+            <input type="password" id="loginPass" placeholder="Contraseña">
             <button onclick="handleLogin()" id="btn-login">Entrar</button>
             <div class="login-msg" id="loginMsg"></div>
         </div>
     </div>
 
     <!-- Portal View -->
-    <main id="portalView">
+    <main id="portalView" style="display: none;">
         <div class="page-header">
             <h1 id="portal-title">Portal de Cuidado</h1>
             <p id="portal-subtitle">Seleccione una aplicación</p>
         </div>
-        <div class="grid" id="cards-container"></div>
+        <div class="grid" id="cards-container">
+                    <a href="https://cuidar-reportes.marbaquero.workers.dev?lang=es" class="card" id="card-reportes">
+                        <h2>Reporte Diario</h2>
+                        <p>Registro de actividades y terapias.</p>
+                        <span class="card-btn">Entrar</span>
+                    </a>
+                
+                    <a href="https://cuidar-dashboard.pages.dev?lang=es" class="card" id="card-dashboard">
+                        <h2>Dashboard</h2>
+                        <p>Resumen visual del progreso.</p>
+                        <span class="card-btn">Entrar</span>
+                    </a>
+                
+                    <a href="https://cuidar-gastos.marbaquero.workers.dev?lang=es" class="card" id="card-gastos">
+                        <h2>Gastos</h2>
+                        <p>Control de gastos diarios.</p>
+                        <span class="card-btn">Entrar</span>
+                    </a>
+                
+                    <a href="https://cuidar-gastos-admin.pages.dev?lang=es" class="card" id="card-gastosAdmin">
+                        <h2>Gastos Admin</h2>
+                        <p>Administración de presupuestos.</p>
+                        <span class="card-btn">Entrar</span>
+                    </a>
+                
+                    <a href="https://cuidar-inventario.marbaquero.workers.dev?lang=es" class="card" id="card-inventario">
+                        <h2>Inventario</h2>
+                        <p>Gestión de suministros y medicinas.</p>
+                        <span class="card-btn">Entrar</span>
+                    </a>
+                
+                    <a href="https://cuidar-pagos.marbaquero.workers.dev?lang=es" class="card" id="card-pagos">
+                        <h2>Pagos</h2>
+                        <p>Historial de pagos y facturación.</p>
+                        <span class="card-btn">Entrar</span>
+                    </a>
+                
+                    <a href="https://reporte-medico.pages.dev?lang=es" class="card" id="card-reporteMedico">
+                        <h2>Reporte Médico</h2>
+                        <p>Historial clínico y recetas.</p>
+                        <span class="card-btn">Entrar</span>
+                    </a>
+                </div>
     </main>
 
     <script>
@@ -222,6 +262,10 @@
 
             msg.textContent = currentLang === 'en' ? "Signing in..." : "Entrando...";
             
+            // CRITICAL: clear any previous session so switching users never re-uses the old JWT
+            await supa.auth.signOut({ scope: 'local' });
+            currentUser = null;
+
             const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
             
             if (error) {
@@ -233,7 +277,8 @@
         }
 
         async function signOut() {
-            await supa.auth.signOut();
+            await supa.auth.signOut({ scope: 'local' });
+            currentUser = null;
             location.reload();
         }
 
@@ -285,5 +330,6 @@
             await checkAuth();
         });
     </script>
-</body>
-</html>
+
+
+</body></html>
