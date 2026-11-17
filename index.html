@@ -1,5 +1,7 @@
 <html lang="es"><head>
     <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal de Cuidado | Care Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -144,10 +146,36 @@
         let supa = null;
         let currentUser = null;
 
+        // Apps that use the same Supabase project and therefore accept the
+        // portal session handoff. The remaining tiles are legacy/PIN apps and
+        // must never receive auth tokens in their URL.
+        const AUTH_APPS = new Set(["reportes", "dashboard", "reporteMedico"]);
+        const BUILD_TAG = "2026-11-17-session-1";
+
         function initSupabase() {
             if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) return false;
-            supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+            supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+                auth: {
+                    persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: false,
+                    storageKey: "cuidar-portal-auth"
+                }
+            });
             return true;
+        }
+
+        // Remove every Supabase token this origin may have cached. Called
+        // before a login and on sign-out so a previous family can never win.
+        function purgeAuthStorage() {
+            try {
+                const doomed = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.indexOf("sb-") === 0) doomed.push(k);
+                }
+                doomed.forEach((k) => localStorage.removeItem(k));
+            } catch (e) { /* ignore blocked storage */ }
         }
 
         // --- 2. VERIFIED SOURCE OF TRUTH: URLS ---
@@ -214,6 +242,67 @@
 
         let currentLang = getCurrentLang();
 
+        // Build a tile URL with the language, a cache-busting version, and (for
+        // apps on the same Supabase project) the live session handoff.
+        function buildAppUrl(key) {
+            const url = new URL(APP_URLS[key], window.location.href);
+            url.searchParams.set("lang", currentLang);
+            url.searchParams.set("v", BUILD_TAG);
+            return url;
+        }
+
+        // Cross-origin session handoff.
+        //
+        // The portal and each app are separate origins, so they each have their
+        // own localStorage. Signing in/out of the portal therefore cannot clear
+        // a session that a previously visited app cached. Opening the app with
+        // the current access/refresh tokens in the URL hash makes Supabase adopt
+        // the portal's user on load and replace whatever the app had cached.
+        // The hash is never sent to the server and Supabase removes it as soon
+        // as it stores the session.
+        async function openApp(key, event) {
+            if (!AUTH_APPS.has(key)) return; // legacy tile: normal navigation
+            event.preventDefault();
+
+            const target = buildAppUrl(key);
+
+            try {
+                let session = (await supa.auth.getSession()).data.session;
+                if (!session) {
+                    // No portal session: send the user back to the login screen
+                    // instead of opening an app that may still hold an old one.
+                    location.reload();
+                    return;
+                }
+
+                const now = Math.floor(Date.now() / 1000);
+                if (!session.expires_at || session.expires_at - now < 120) {
+                    const { data, error } = await supa.auth.refreshSession();
+                    if (error || !data.session) {
+                        location.reload();
+                        return;
+                    }
+                    session = data.session;
+                }
+
+                const expiresIn = Math.max(
+                    60,
+                    (session.expires_at || now + 3600) - now
+                );
+                target.hash = new URLSearchParams({
+                    access_token: session.access_token,
+                    refresh_token: session.refresh_token,
+                    expires_in: String(expiresIn),
+                    token_type: "bearer"
+                }).toString();
+
+                location.assign(target.toString());
+            } catch (error) {
+                console.error("Could not open app with the current session", error);
+                location.reload();
+            }
+        }
+
         // --- 5. RENDER LOGIC ---
         function renderPortal() {
             const t = TRANSLATIONS[currentLang];
@@ -236,10 +325,10 @@
 
             Object.keys(APP_URLS).forEach(key => {
                 const cardData = t.cards[key];
-                const destinationUrl = `${APP_URLS[key]}?lang=${currentLang}`;
+                const destinationUrl = buildAppUrl(key).toString();
                 
                 const cardHTML = `
-                    <a href="${destinationUrl}" class="card" id="card-${key}">
+                    <a href="${destinationUrl}" class="card" id="card-${key}" data-app-key="${key}">
                         <h2>${cardData.title}</h2>
                         <p>${cardData.desc}</p>
                         <span class="card-btn">${t.enterBtn}</span>
@@ -247,6 +336,13 @@
                 `;
                 container.insertAdjacentHTML('beforeend', cardHTML);
             });
+
+            // Delegated so it survives re-renders (language switch, auth change).
+            container.onclick = (event) => {
+                const card = event.target.closest("a.card[data-app-key]");
+                if (!card) return;
+                openApp(card.getAttribute("data-app-key"), event);
+            };
         }
 
         // --- 6. AUTH & LOGIN LOGIC ---
@@ -262,8 +358,10 @@
 
             msg.textContent = currentLang === 'en' ? "Signing in..." : "Entrando...";
             
-            // CRITICAL: clear any previous session so switching users never re-uses the old JWT
-            await supa.auth.signOut({ scope: 'local' });
+            // CRITICAL: clear every previous token before signing in so switching
+            // users can never re-use the old family's JWT or refresh token.
+            try { await supa.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
+            purgeAuthStorage();
             currentUser = null;
 
             const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
@@ -272,20 +370,36 @@
                 msg.textContent = "Error: " + error.message;
                 return;
             }
-            
-            await checkAuth();
+
+            // Guard against a client that somehow kept the old session: the
+            // session we are about to render must belong to the email just used.
+            const sessionEmail = (data.session && data.session.user && data.session.user.email) || "";
+            if (!data.session || sessionEmail.toLowerCase() !== email.toLowerCase()) {
+                try { await supa.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
+                purgeAuthStorage();
+                currentUser = null;
+                applySession(null);
+                msg.textContent = currentLang === 'en'
+                    ? "The session did not switch accounts. Please try again."
+                    : "La sesión no cambió de cuenta. Intente de nuevo.";
+                return;
+            }
+
+            msg.textContent = "";
+            applySession(data.session);
         }
 
         async function signOut() {
-            await supa.auth.signOut({ scope: 'local' });
+            try { await supa.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
+            purgeAuthStorage();
             currentUser = null;
-            location.reload();
+            applySession(null);
+            // A full reload guarantees no in-memory user/plan data survives.
+            location.replace(location.pathname + location.search);
         }
 
-        async function checkAuth() {
-            const { data: { session } } = await supa.auth.getSession();
-            
-            if (session) {
+        function applySession(session) {
+            if (session && session.user) {
                 currentUser = session.user;
                 
                 // Show Portal, Hide Login
@@ -293,16 +407,22 @@
                 document.getElementById('portalView').style.display = 'block';
                 document.getElementById('userInfo').style.display = 'flex';
                 document.getElementById('userEmail').textContent = currentUser.email;
-                
-                renderPortal();
+                try { localStorage.setItem('cuidar-last-user', currentUser.id); } catch (e) {}
             } else {
+                currentUser = null;
                 // Show Login, Hide Portal
                 document.getElementById('loginBox').style.display = 'flex';
                 document.getElementById('portalView').style.display = 'none';
                 document.getElementById('userInfo').style.display = 'none';
-                
-                renderPortal(); // Ensure login texts are translated
+                document.getElementById('userEmail').textContent = "";
             }
+            
+            renderPortal(); // Ensure texts/cards match the current language and state
+        }
+
+        async function checkAuth() {
+            const { data: { session } } = await supa.auth.getSession();
+            applySession(session);
         }
 
         // --- 7. LANGUAGE SWITCHING ---
@@ -321,13 +441,34 @@
                 alert("Error: Faltan las credenciales de Supabase.");
                 return;
             }
-            
-            // Listen for auth changes (e.g., login from another tab)
+
+            // One-time migration: this build stores the portal session under
+            // "cuidar-portal-auth". Remove any token left under the old
+            // project-derived key so it can never be picked up by another
+            // Supabase client on this origin.
+            purgeAuthStorage();
+
+            // Listen for auth changes (login from another tab, token refresh, sign out).
+            // Use the provided session directly: calling getSession() inside this
+            // callback can deadlock or return the previous session.
             supa.auth.onAuthStateChange((event, session) => {
-                checkAuth();
+                if (event === 'SIGNED_OUT') {
+                    applySession(null);
+                } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                    applySession(session);
+                }
             });
 
             await checkAuth();
+        });
+
+        // If the browser restores this page from the back/forward cache, the
+        // in-memory user can be stale. Re-read the stored session on restore.
+        window.addEventListener("pageshow", (event) => {
+            if (event.persisted && supa) checkAuth();
+        });
+        window.addEventListener("focus", () => {
+            if (supa) checkAuth();
         });
     </script>
 
