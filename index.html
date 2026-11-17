@@ -112,13 +112,15 @@
         // Apps that use the same Supabase project and therefore accept the
         // portal session handoff. The remaining tiles are legacy/PIN apps and
         // must never receive auth tokens in their URL.
-        const AUTH_APPS = new Set(["reportes", "dashboard", "reporteMedico"]);
+        const AUTH_APPS = new Set(["reportes", "dashboard", "gastosAdmin", "inventario", "pagos", "reporteMedico"]);
         // Apps that are still wired to the legacy shared project. They must not
         // be reachable from the commercial portal until they are migrated to the
         // tenant-scoped fftn… backend. Showing them as "migrating" avoids a
         // silent data leak and avoids breaking the seven-app promise.
-        const AVAILABLE_APPS = new Set(["reportes", "dashboard", "reporteMedico"]);
-        const BUILD_TAG = "2026-11-17-session-2";
+        const AVAILABLE_APPS = new Set(["reportes", "dashboard", "gastosAdmin", "inventario", "pagos", "reporteMedico"]);
+        // Caregiver apps are opened from a caregiver link, not from the owner portal.
+        const CAREGIVER_ONLY = new Set(["gastos"]);
+        const BUILD_TAG = "2026-11-17-session-3";
 
         function initSupabase() {
             if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) return false;
@@ -164,6 +166,7 @@
                 subtitle: "Seleccione una aplicación",
                 enterBtn: "Entrar",
                 migrating: "En migración",
+                caregiverLink: "Enlace de cuidadora",
                 migrationNote: "Gastos, Gastos Admin, Inventario y Pagos se están migrando a la nueva plataforma de Cuidar. No están disponibles temporalmente para no mostrar datos de otro hogar.",
                 loginTitle: "Iniciar Sesión",
                 loginSub: "Ingrese sus credenciales para acceder al sistema.",
@@ -171,7 +174,7 @@
                 cards: {
                     reportes: { title: "Reporte Diario", desc: "Registro de actividades y terapias." },
                     dashboard: { title: "Dashboard", desc: "Resumen visual del progreso." },
-                    gastos: { title: "Gastos", desc: "Control de gastos diarios." },
+                    gastos: { title: "Gastos (cuidadoras)", desc: "Se abre con el enlace privado de cada cuidadora." },
                     gastosAdmin: { title: "Gastos Admin", desc: "Administración de presupuestos." },
                     inventario: { title: "Inventario", desc: "Gestión de suministros y medicinas." },
                     pagos: { title: "Pagos", desc: "Historial de pagos y facturación." },
@@ -183,6 +186,7 @@
                 subtitle: "Select an application",
                 enterBtn: "Enter",
                 migrating: "Migrating",
+                caregiverLink: "Caregiver link",
                 migrationNote: "Expenses, Expenses Admin, Inventory and Payments are being migrated to Cuidar's new platform. They are temporarily unavailable so another household's data cannot be shown.",
                 loginTitle: "Sign In",
                 loginSub: "Enter your credentials to access the system.",
@@ -190,7 +194,7 @@
                 cards: {
                     reportes: { title: "Daily Report", desc: "Log of activities and therapies." },
                     dashboard: { title: "Dashboard", desc: "Visual summary of progress." },
-                    gastos: { title: "Expenses", desc: "Daily expense tracking." },
+                    gastos: { title: "Expenses (caregivers)", desc: "Opened with each caregiver private link." },
                     gastosAdmin: { title: "Expenses Admin", desc: "Budget administration." },
                     inventario: { title: "Inventory", desc: "Supplies and medication management." },
                     pagos: { title: "Payments", desc: "Payment history and billing." },
@@ -298,30 +302,43 @@
             Object.keys(APP_URLS).forEach(key => {
                 const cardData = t.cards[key];
                 const available = AVAILABLE_APPS.has(key);
+                const caregiverOnly = CAREGIVER_ONLY.has(key);
                 
-                const cardHTML = available
-                    ? `
+                let cardHTML;
+                if (available) {
+                    cardHTML = `
                     <a href="${buildAppUrl(key).toString()}" class="card" id="card-${key}" data-app-key="${key}">
                         <h2>${cardData.title}</h2>
                         <p>${cardData.desc}</p>
                         <span class="card-btn">${t.enterBtn}</span>
                     </a>
-                `
-                    : `
+                `;
+                } else if (caregiverOnly) {
+                    cardHTML = `
+                    <div class="card off" id="card-${key}" aria-disabled="true">
+                        <h2>${cardData.title}</h2>
+                        <p>${cardData.desc}</p>
+                        <span class="card-btn">${t.caregiverLink}</span>
+                    </div>
+                `;
+                } else {
+                    cardHTML = `
                     <div class="card off" id="card-${key}" aria-disabled="true">
                         <h2>${cardData.title}</h2>
                         <p>${cardData.desc}</p>
                         <span class="card-btn">${t.migrating}</span>
                     </div>
                 `;
+                }
                 container.insertAdjacentHTML('beforeend', cardHTML);
             });
 
-            // Make the temporary unavailability explicit so no one assumes the
-            // disabled tiles are a bug. Hidden when every app is available.
+            // Only show the migration banner if an owner app is still unavailable.
             const note = document.getElementById('migration-note');
             if (note) {
-                const hasUnavailable = Object.keys(APP_URLS).some(k => !AVAILABLE_APPS.has(k));
+                const hasUnavailable = Object.keys(APP_URLS).some(
+                    k => !AVAILABLE_APPS.has(k) && !CAREGIVER_ONLY.has(k)
+                );
                 note.hidden = !hasUnavailable;
                 note.textContent = hasUnavailable ? t.migrationNote : "";
             }
