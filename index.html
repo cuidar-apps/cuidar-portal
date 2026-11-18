@@ -1,482 +1,660 @@
-<html lang="es"><head>
-    <meta charset="UTF-8">
-  <meta http-equiv="Cache-Control" content="no-store, max-age=0">
-  <meta http-equiv="Pragma" content="no-cache">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Cuidado | Care Portal</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        /* Base SaaS Styles */
-        :root {
-            --primary-color: #0ea5e9;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-        
-        /* Header */
-        header { background: white; padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .logo { font-size: 1.25rem; font-weight: 700; color: var(--primary-color); }
-        
-        .header-actions { display: flex; align-items: center; gap: 1.5rem; }
-        .user-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--text-muted); }
-        .btn-logout { background: transparent; border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 0.875rem; transition: all 0.2s; }
-        .btn-logout:hover { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal de Cuidado | Care Portal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='18' font-weight='bold' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+<meta http-equiv="Cache-Control" content="no-store, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --brand:#0f766e;--brand-dark:#0b3b36;--brand-deep:#082b27;--brand-soft:#e6f4f1;
+  --bg:#f4f8f6;--surface:#fff;--ink:#12211d;--muted:#6b7c76;--line:#e2eae6;
+  --blue:#2563eb;--violet:#7c3aed;--amber:#d97706;--green:#059669;--rose:#e11d48;--red:#dc2626;
+  --radius:18px;--shadow:0 1px 2px rgba(16,24,40,.04),0 12px 30px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}button{cursor:pointer}a{color:inherit}
+[hidden]{display:none!important}
+.eyebrow{font-size:10px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:11px}
 
-        .lang-selector { display: flex; gap: 0.5rem; background: var(--bg-color); padding: 0.25rem; border-radius: 0.5rem; border: 1px solid var(--border-color); }
-        .lang-btn { background: transparent; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600; color: var(--text-muted); transition: all 0.2s; }
-        .lang-btn.active { background: var(--primary-color); color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .lang-btn:hover:not(.active) { background: var(--border-color); color: var(--text-main); }
+/* Header */
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px max(20px,calc((100% - 1200px)/2));background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
+.brand-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#2dd4bf,#0f766e);color:#fff;display:grid;place-items:center;font-size:16px;font-weight:800;box-shadow:0 5px 14px rgba(15,118,110,.25);flex:none}
+.brand-text strong{display:block;font-size:15px;letter-spacing:-.02em;line-height:1.2;color:var(--ink)}
+.brand-text span{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.header-actions{display:flex;align-items:center;gap:10px;min-width:0}
+.lang-selector{display:inline-flex;align-items:center;gap:2px;padding:2px;border:1px solid var(--line);border-radius:9px;background:#f1f5f4;flex:none}
+.lang-btn{border:0;background:transparent;color:#7b8b85;font-size:10px;font-weight:750;padding:4px 8px;border-radius:6px;line-height:1}
+.lang-btn.active{background:#fff;color:var(--brand);box-shadow:0 1px 2px rgba(16,24,40,.08)}
+.user-pill{display:flex;align-items:center;gap:8px;padding:4px 5px 4px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:0}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:11px;font-weight:800;flex:none}
+.user-meta{min-width:0;line-height:1.25}
+.user-meta span{display:block}
+.user-email{font-size:11px;font-weight:650;color:#34443f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.user-label{font-size:9px;color:var(--muted);margin-top:1px}
+.logout{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 8px;border:1px solid transparent;border-radius:7px;background:transparent;color:#5d6e68;font-size:10px;font-weight:700;white-space:nowrap}
+.logout:hover{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+.logout svg{width:13px;height:13px}
 
-        /* Login Box */
-        #loginBox { display: none; flex: 1; align-items: center; justify-content: center; padding: 2rem; }
-        .login-card { background: white; padding: 2.5rem; border-radius: 1rem; border: 1px solid var(--border-color); width: 100%; max-width: 400px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .login-card h2 { margin-bottom: 0.5rem; font-size: 1.5rem; }
-        .login-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
-        .login-card input { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; margin-bottom: 1rem; font-size: 1rem; outline: none; }
-        .login-card input:focus { border-color: var(--primary-color); }
-        .login-card button { width: 100%; padding: 0.75rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; font-size: 1rem; }
-        .login-card button:hover { background: #0284c7; }
-        .login-msg { color: #b91c1c; font-size: 0.875rem; margin-top: 1rem; text-align: center; min-height: 1.25rem; }
+/* Login */
+#loginBox{display:flex;align-items:stretch;justify-content:center;gap:26px;max-width:1120px;margin:0 auto;padding:34px 24px 42px;min-height:calc(100vh - 63px)}
+.login-aside{position:relative;flex:1;overflow:hidden;background:radial-gradient(circle at 16% 18%,#165e55 0,#0b3b36 44%,#082824 100%);border-radius:22px;color:#e9f5f1;padding:clamp(30px,5vw,56px);display:flex;flex-direction:column;justify-content:space-between;min-height:560px;box-shadow:0 24px 60px rgba(16,24,40,.12)}
+.login-aside:after{content:"";position:absolute;width:460px;height:460px;border:1px solid rgba(255,255,255,.10);border-radius:50%;right:-180px;bottom:-220px;box-shadow:0 0 0 64px rgba(255,255,255,.025),0 0 0 128px rgba(255,255,255,.018)}
+.login-aside .brand{position:relative;z-index:1}
+.login-aside .brand-text strong{color:#fff}.login-aside .brand-text span{color:#8fb9b0}
+.login-copy{position:relative;z-index:1;max-width:470px;margin:48px 0}
+.login-copy h1{font-size:clamp(28px,3.5vw,42px);line-height:1.1;letter-spacing:-.035em;margin:9px 0 14px;color:#fff}
+.login-copy p{font-size:14px;line-height:1.7;color:#b9d5ce;margin:0}
+.login-points{position:relative;z-index:1;display:grid;gap:9px;font-size:12px;color:#cfe5df}
+.login-points div{display:flex;align-items:center;gap:8px}
+.login-points i{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-style:normal;font-size:10px;color:#8ee0cd;flex:none}
+.login-panel{width:430px;display:flex;align-items:center;flex:none}
+.login-card{width:100%;background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px;box-shadow:var(--shadow)}
+.login-card .eyebrow{color:var(--brand)}
+.login-card h2{font-size:23px;letter-spacing:-.025em;margin:7px 0 4px}
+.login-card .intro{font-size:12.5px;color:var(--muted);margin:0 0 20px;line-height:1.55}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;margin-bottom:5px;color:#35443f}
+.field input{width:100%;height:43px;border:1px solid var(--line);border-radius:9px;padding:0 12px;background:#fbfcfc;color:var(--ink);outline:none;font-size:13px;transition:border-color .15s,box-shadow .15s}
+.field input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(15,118,110,.11);background:#fff}
+#btn-login{width:100%;height:43px;border:0;border-radius:9px;background:var(--brand);color:#fff;font-weight:750;font-size:13px;box-shadow:0 5px 14px rgba(15,118,110,.2)}
+#btn-login:hover{background:#0b655e}
+#btn-login:disabled{opacity:.65;cursor:wait}
+.login-msg{min-height:20px;color:#b91c1c;font-size:11.5px;text-align:center;margin-top:8px}
+.login-foot{border-top:1px solid var(--line);margin-top:16px;padding-top:12px;color:var(--muted);font-size:10px;line-height:1.6}
 
-        /* Main Content */
-        main { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; display: none; }
-        .page-header { text-align: center; margin-bottom: 3rem; }
-        .page-header h1 { font-size: 2.25rem; margin-bottom: 0.5rem; color: var(--text-main); }
-        .page-header p { font-size: 1.125rem; color: var(--text-muted); }
+/* Portal */
+#portalView{display:none;max-width:1200px;margin:0 auto;padding:26px 24px 38px}
+.hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#0b3b36 0,#0f766e 52%,#149b8e 100%);border-radius:24px;padding:32px;display:grid;grid-template-columns:1.35fr .65fr;gap:28px;color:#fff;box-shadow:0 20px 50px rgba(11,59,54,.20);margin-bottom:22px}
+.hero:before{content:"";position:absolute;width:360px;height:360px;border:1px solid rgba(255,255,255,.14);border-radius:50%;right:-120px;top:-180px;box-shadow:0 0 0 56px rgba(255,255,255,.035),0 0 0 112px rgba(255,255,255,.022)}
+.hero:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(255,255,255,.10);border-radius:50%;left:-80px;bottom:-110px}
+.hero-copy{position:relative;z-index:1;min-width:0}
+.hero-copy .eyebrow{color:#8ee0cd}
+.hero-copy h1{font-size:clamp(30px,4vw,42px);line-height:1.08;letter-spacing:-.04em;margin:8px 0 6px;color:#fff}
+.hero-copy #portal-subtitle{font-size:14px;color:#c4e5de;margin:0 0 18px;max-width:520px}
+.hero-greeting{font-size:12px;font-weight:650;color:#eafff9;margin:0 0 2px}
+.hero-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.secure-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);color:#d9f4ec;font-size:10px;font-weight:650}
+.secure-badge svg{width:11px;height:11px}
+.hero-panel{position:relative;z-index:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:17px;padding:18px;backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;gap:13px}
+.hero-stat{display:flex;align-items:baseline;gap:9px}
+.hero-stat strong{font-size:31px;line-height:1;letter-spacing:-.04em;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+.hero-stat span{font-size:10.5px;color:#c4e5de;line-height:1.3}
+.hero-divider{height:1px;background:rgba(255,255,255,.14)}
+.hero-panel .hero-note{font-size:10px;color:#a9d8cf;line-height:1.5;margin:0}
 
-        /* Cards Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: var(--primary-color); }
-        .card h2 { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--text-main); }
-        .card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; flex: 1; margin-bottom: 1.5rem; }
-        .card-btn { display: inline-block; text-align: center; background: var(--bg-color); color: var(--primary-color); font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color); transition: all 0.2s; }
-        .card:hover .card-btn { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-        .card.off { opacity: .65; cursor: not-allowed; }
-        .card.off:hover { transform: none; box-shadow: none; border-color: var(--border-color); }
-        .card.off .card-btn { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
-        .card.off:hover .card-btn { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
-    </style>
+.apps-section{margin-top:4px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin:0 2px 14px}
+.section-head h2{font-size:18px;letter-spacing:-.025em;margin:0 0 2px}
+.section-head p{font-size:12px;color:var(--muted);margin:0}
+.apps-badge{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 8px;border-radius:999px;background:var(--brand-soft);color:var(--brand);font-size:11px;font-weight:800;flex:none}
+.app-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.app-card{--accent:var(--brand);position:relative;display:flex;flex-direction:column;min-height:196px;padding:17px;background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 1px 2px rgba(16,24,40,.025);text-decoration:none;color:inherit;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.app-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:0 10px 26px rgba(16,24,40,.08)}
+.app-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}
+.app-icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
+.app-icon svg{width:19px;height:19px}
+.app-tag{font-size:8.5px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:#7b8b85;background:#f5f8f7;border:1px solid #e8efeb;border-radius:999px;padding:3px 6px;white-space:nowrap}
+.app-card h3{font-size:14px;letter-spacing:-.015em;margin:0 0 4px;color:#22332d}
+.app-card p{font-size:11.5px;line-height:1.5;color:var(--muted);margin:0;flex:1}
+.app-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #f0f4f2}
+.app-status{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700}
+.app-status i{width:5px;height:5px;border-radius:50%;display:inline-block;background:currentColor}
+.app-status.on{color:#15803d}.app-status.off{color:#94a3b8}
+.app-cta{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;color:var(--accent)}
+.app-cta svg{width:12px;height:12px;transition:transform .15s}
+.app-card:hover .app-cta svg{transform:translateX(2px)}
+.app-card.off{opacity:.72;background:#fbfcfc;cursor:not-allowed}
+.app-card.off:hover{transform:none;border-color:var(--line);box-shadow:none}
+.app-card.off .app-cta{color:#94a3b8}
+.migration-note{margin:14px 2px 0;padding:11px 13px;border:1px solid #f0dfbd;background:#fff8eb;border-radius:10px;color:#8a5a12;font-size:11.5px;line-height:1.55}
+.portal-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:24px;padding-top:14px;border-top:1px solid #e5ece9;font-size:10px;color:#8b9a94}
+
+@media(max-width:1000px){
+  .hero{grid-template-columns:1fr;gap:18px;padding:26px}
+  .hero-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hero-panel .hero-note{grid-column:1/-1}
+  .app-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:900px){
+  .login-aside{display:none}
+  #loginBox{justify-content:center;padding:26px 20px}
+  .login-panel{width:min(430px,100%)}
+  .user-email{max-width:150px}
+}
+@media(max-width:700px){
+  header{padding:10px 14px;flex-wrap:wrap;gap:8px}
+  .brand-text span{display:none}
+  .header-actions{gap:6px;margin-left:auto}
+  .user-meta{display:none}
+  .user-pill{padding:4px}
+  .logout{height:30px;padding:0 7px}
+  #portalView{padding:18px 14px 28px}
+  .hero{padding:22px;border-radius:18px}
+  .hero-copy h1{font-size:31px}
+  .hero-panel{padding:14px}
+  .hero-stat strong{font-size:25px}
+  .app-grid{grid-template-columns:1fr;gap:10px}
+  .app-card{min-height:0;padding:15px}
+  .app-card h3{font-size:14px}
+  .app-card p{font-size:11.5px}
+  .section-head{align-items:flex-start}
+  .login-card{padding:24px}
+  .portal-footer{font-size:9.5px}
+}
+@media(max-width:420px){
+  .brand-mark{width:34px;height:34px;border-radius:9px;font-size:14px}
+  .brand-text strong{font-size:14px}
+  .lang-btn{padding:4px 6px}
+  .hero{padding:18px}
+  .hero-copy h1{font-size:28px}
+  .hero-panel{grid-template-columns:1fr 1fr}
+}
+</style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">Cuidar SaaS</div>
-        <div class="header-actions">
-            <div class="user-info" id="userInfo" style="display:none;">
-                <span id="userEmail"></span>
-                <button class="btn-logout" onclick="signOut()">Cerrar Sesión</button>
-            </div>
-            <div class="lang-selector">
-                <button id="btn-es" class="lang-btn active" onclick="switchLanguage('es')">ES</button>
-                <button id="btn-en" class="lang-btn" onclick="switchLanguage('en')">EN</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Login View -->
-    <div id="loginBox" style="display: flex;">
-        <div class="login-card">
-            <h2 id="login-title">Iniciar Sesión</h2>
-            <p id="login-sub">Ingrese sus credenciales para acceder al sistema.</p>
-            <input type="email" id="loginEmail" placeholder="Correo electrónico">
-            <input type="password" id="loginPass" placeholder="Contraseña">
-            <button onclick="handleLogin()" id="btn-login">Entrar</button>
-            <div class="login-msg" id="loginMsg"></div>
-        </div>
+<header>
+  <a class="brand" href="/" aria-label="Cuidar SaaS">
+    <div class="brand-mark">C</div>
+    <div class="brand-text"><strong>Cuidar SaaS</strong><span id="headerBrandSub">Portal de Cuidado</span></div>
+  </a>
+  <div class="header-actions">
+    <div class="user-pill" id="userInfo" style="display:none">
+      <div class="avatar" id="userAvatar">M</div>
+      <div class="user-meta"><span class="user-email" id="userEmail"></span><span class="user-label" id="userLabel">Cuenta familiar</span></div>
+      <button class="logout" type="button" onclick="signOut()" title="Cerrar sesión">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 4H5v16h5"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9"/></svg>
+        <span id="logoutText">Cerrar sesión</span>
+      </button>
     </div>
+    <div class="lang-selector" aria-label="Language">
+      <button id="btn-es" class="lang-btn active" type="button" onclick="switchLanguage('es')">ES</button>
+      <button id="btn-en" class="lang-btn" type="button" onclick="switchLanguage('en')">EN</button>
+    </div>
+  </div>
+</header>
 
-    <!-- Portal View -->
-    <main id="portalView" style="display: none;">
-        <div class="page-header">
-            <h1 id="portal-title">Portal de Cuidado</h1>
-            <p id="portal-subtitle">Seleccione una aplicación</p>
-            <p id="migration-note" style="max-width:760px;margin:1rem auto 0;color:#8a5a12;background:#fff6e5;border:1px solid #f0dfbd;border-radius:.75rem;padding:.85rem 1rem;font-size:.9rem;line-height:1.5;" hidden></p>
-        </div>
-        <div class="grid" id="cards-container"></div>
-    </main>
+<div id="loginBox">
+  <aside class="login-aside">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <div class="brand-text"><strong>Cuidar SaaS</strong><span id="loginBrandSub">Portal de Cuidado</span></div>
+    </div>
+    <div class="login-copy">
+      <div class="eyebrow" id="loginEyebrow">Acceso familiar</div>
+      <h1 id="loginAsideTitle">El cuidado de su familia, en un solo lugar.</h1>
+      <p id="loginAsideLead">Acceda a las herramientas de cuidado de su hogar: reportes, inventario, pagos y más. Todo protegido y disponible cuando lo necesite.</p>
+    </div>
+    <div class="login-points">
+      <div><i>✓</i><span id="loginPoint1">Aplicaciones seguras para su hogar</span></div>
+      <div><i>✓</i><span id="loginPoint2">Sesión protegida y acceso privado</span></div>
+      <div><i>✓</i><span id="loginPoint3">Disponible en español e inglés</span></div>
+    </div>
+  </aside>
+  <div class="login-panel">
+    <div class="login-card">
+      <div class="eyebrow" id="loginCardEyebrow">Acceso familiar</div>
+      <h2 id="login-title">Iniciar Sesión</h2>
+      <p class="intro" id="login-sub">Ingrese sus credenciales para acceder al sistema.</p>
+      <div class="field">
+        <label for="loginEmail" id="loginEmailLabel">Correo electrónico</label>
+        <input type="email" id="loginEmail" autocomplete="username" placeholder="tu@correo.com">
+      </div>
+      <div class="field">
+        <label for="loginPass" id="loginPassLabel">Contraseña</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="Tu contraseña">
+      </div>
+      <button type="button" onclick="handleLogin()" id="btn-login">Entrar</button>
+      <div class="login-msg" id="loginMsg"></div>
+      <div class="login-foot" id="loginFoot">Acceso exclusivo para familias de Cuidar SaaS. Si olvidó su contraseña, contacte a su coordinador de cuidado.</div>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // --- 1. SUPABASE SETUP ---
-        window.SUPABASE_URL = "https://fftnffmttuzfftntzzhu.supabase.co";
-        window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmdG5mZm10dHV6ZmZ0bnR6emh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5MTgxNzAsImV4cCI6MjEwOTQ5NDE3MH0.lmYfQeXAq6oPZ-UMj8AQXQq2snU78FatLMbwRftaMyM";
-        
-        let supa = null;
-        let currentUser = null;
+<main id="portalView">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow" id="heroGreeting">Bienvenido de nuevo</div>
+      <h1 id="portal-title">Portal de Cuidado</h1>
+      <p id="portal-subtitle">Seleccione una aplicación</p>
+      <div class="hero-meta">
+        <span class="secure-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span id="secureSession">Sesión segura</span>
+        </span>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="hero-stat"><strong id="appsCount">6</strong><span id="appsCountLabel">aplicaciones disponibles</span></div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat"><strong id="caregiverCount">1</strong><span id="caregiverCountLabel">enlace de cuidadora</span></div>
+      <p class="hero-note" id="heroNote">Sus datos se mantienen privados en este dispositivo.</p>
+    </div>
+  </section>
 
-        // Apps that use the same Supabase project and therefore accept the
-        // portal session handoff. The remaining tiles are legacy/PIN apps and
-        // must never receive auth tokens in their URL.
-        const AUTH_APPS = new Set(["reportes", "dashboard", "gastosAdmin", "inventario", "pagos", "reporteMedico"]);
-        // Apps that are still wired to the legacy shared project. They must not
-        // be reachable from the commercial portal until they are migrated to the
-        // tenant-scoped fftn… backend. Showing them as "migrating" avoids a
-        // silent data leak and avoids breaking the seven-app promise.
-        const AVAILABLE_APPS = new Set(["reportes", "dashboard", "gastosAdmin", "inventario", "pagos", "reporteMedico"]);
-        // Caregiver apps are opened from a caregiver link, not from the owner portal.
-        const CAREGIVER_ONLY = new Set(["gastos"]);
-        const BUILD_TAG = "2026-11-17-session-3";
+  <section class="apps-section">
+    <div class="section-head">
+      <div><h2 id="appsHeading">Sus aplicaciones</h2><p id="appsSub">Todo lo que necesita para el cuidado diario.</p></div>
+      <span class="apps-badge" id="appsBadge">6</span>
+    </div>
+    <div class="app-grid" id="cards-container"></div>
+    <p class="migration-note" id="migration-note" hidden></p>
+  </section>
 
-        function initSupabase() {
-            if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) return false;
-            supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
-                auth: {
-                    persistSession: true,
-                    autoRefreshToken: true,
-                    detectSessionInUrl: false,
-                    storageKey: "cuidar-portal-auth"
-                }
-            });
-            return true;
-        }
+  <footer class="portal-footer">
+    <span id="footerLeft">Cuidar SaaS · Portal de Cuidado</span>
+    <span id="footerRight">¿Necesita ayuda? Contacte a su coordinador de cuidado.</span>
+  </footer>
+</main>
 
-        // Remove every Supabase token this origin may have cached. Called
-        // before a login and on sign-out so a previous family can never win.
-        function purgeAuthStorage() {
-            try {
-                const doomed = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.indexOf("sb-") === 0) doomed.push(k);
-                }
-                doomed.forEach((k) => localStorage.removeItem(k));
-            } catch (e) { /* ignore blocked storage */ }
-        }
+<script>
+window.SUPABASE_URL = "https://fftnffmttuzfftntzzhu.supabase.co";
+window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZmdG5mZm10dHV6ZmZ0bnR6emh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5MTgxNzAsImV4cCI6MjEwOTQ5NDE3MH0.lmYfQeXAq6oPZ-UMj8AQXQq2snU78FatLMbwRftaMyM";
 
-        // --- 2. VERIFIED SOURCE OF TRUTH: URLS ---
-        const APP_URLS = {
-            reportes: "https://cuidar-reportes.marbaquero.workers.dev",
-            dashboard: "https://cuidar-dashboard.pages.dev",
-            gastos: "https://cuidar-gastos.marbaquero.workers.dev",
-            gastosAdmin: "https://cuidar-gastos-admin.pages.dev",
-            inventario: "https://cuidar-inventario.marbaquero.workers.dev",
-            pagos: "https://cuidar-pagos.marbaquero.workers.dev",
-            reporteMedico: "https://reporte-medico.pages.dev"
-        };
+let supa = null;
+let currentUser = null;
+let currentLang = "es";
+const $ = id => document.getElementById(id);
 
-        // --- 3. EXACT TRANSLATIONS ---
-        const TRANSLATIONS = {
-            es: {
-                title: "Portal de Cuidado",
-                subtitle: "Seleccione una aplicación",
-                enterBtn: "Entrar",
-                migrating: "En migración",
-                caregiverLink: "Enlace de cuidadora",
-                migrationNote: "Gastos, Gastos Admin, Inventario y Pagos se están migrando a la nueva plataforma de Cuidar. No están disponibles temporalmente para no mostrar datos de otro hogar.",
-                loginTitle: "Iniciar Sesión",
-                loginSub: "Ingrese sus credenciales para acceder al sistema.",
-                logoutBtn: "Cerrar Sesión",
-                cards: {
-                    reportes: { title: "Reporte Diario", desc: "Registro de actividades y terapias." },
-                    dashboard: { title: "Dashboard", desc: "Resumen visual del progreso." },
-                    gastos: { title: "Gastos (cuidadoras)", desc: "Se abre con el enlace privado de cada cuidadora." },
-                    gastosAdmin: { title: "Gastos Admin", desc: "Administración de presupuestos." },
-                    inventario: { title: "Inventario", desc: "Gestión de suministros y medicinas." },
-                    pagos: { title: "Pagos", desc: "Historial de pagos y facturación." },
-                    reporteMedico: { title: "Reporte Médico", desc: "Historial clínico y recetas." }
-                }
-            },
-            en: {
-                title: "Care Portal",
-                subtitle: "Select an application",
-                enterBtn: "Enter",
-                migrating: "Migrating",
-                caregiverLink: "Caregiver link",
-                migrationNote: "Expenses, Expenses Admin, Inventory and Payments are being migrated to Cuidar's new platform. They are temporarily unavailable so another household's data cannot be shown.",
-                loginTitle: "Sign In",
-                loginSub: "Enter your credentials to access the system.",
-                logoutBtn: "Sign Out",
-                cards: {
-                    reportes: { title: "Daily Report", desc: "Log of activities and therapies." },
-                    dashboard: { title: "Dashboard", desc: "Visual summary of progress." },
-                    gastos: { title: "Expenses (caregivers)", desc: "Opened with each caregiver private link." },
-                    gastosAdmin: { title: "Expenses Admin", desc: "Budget administration." },
-                    inventario: { title: "Inventory", desc: "Supplies and medication management." },
-                    pagos: { title: "Payments", desc: "Payment history and billing." },
-                    reporteMedico: { title: "Medical Report", desc: "Clinical history and prescriptions." }
-                }
-            }
-        };
+const AUTH_APPS = new Set(["reportes", "dashboard", "gastosAdmin", "inventario", "pagos", "reporteMedico"]);
+const AVAILABLE_APPS = new Set(["reportes", "dashboard", "gastosAdmin", "inventario", "pagos", "reporteMedico"]);
+const CAREGIVER_ONLY = new Set(["gastos"]);
+const BUILD_TAG = "2026-11-17-session-3";
 
-        // --- 4. STATE MANAGEMENT ---
-        function getCurrentLang() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlLang = urlParams.get('lang');
-            if (urlLang === 'en' || urlLang === 'es') {
-                localStorage.setItem('cuidar-language', urlLang); 
-                return urlLang;
-            }
-            const storedLang = localStorage.getItem('cuidar-language');
-            if (storedLang === 'en' || storedLang === 'es') return storedLang;
-            return 'es';
-        }
+const APP_URLS = {
+  reportes: "https://cuidar-reportes.marbaquero.workers.dev",
+  dashboard: "https://cuidar-dashboard.pages.dev",
+  gastos: "https://cuidar-gastos.marbaquero.workers.dev",
+  gastosAdmin: "https://cuidar-gastos-admin.pages.dev",
+  inventario: "https://cuidar-inventario.marbaquero.workers.dev",
+  pagos: "https://cuidar-pagos.marbaquero.workers.dev",
+  reporteMedico: "https://reporte-medico.pages.dev"
+};
 
-        let currentLang = getCurrentLang();
+const ICONS = {
+  reportes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+  dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  gastos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 8.6a9 9 0 1 0 1.1 6.1"/><path d="M12 7v5l3 2"/><path d="M20 3v6h-6"/></svg>',
+  gastosAdmin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 7V5a2 2 0 0 1 2-2h11"/><path d="M16 13h3"/></svg>',
+  inventario: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>',
+  pagos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M7 15h3"/></svg>',
+  reporteMedico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 0 0-7.4 7.4L12 21l8.8-8a5.2 5.2 0 0 0 0-7.4Z"/><path d="M3.5 12h4l2-3 3 6 2-3h4"/></svg>'
+};
 
-        // Build a tile URL with the language, a cache-busting version, and (for
-        // apps on the same Supabase project) the live session handoff.
-        function buildAppUrl(key) {
-            const url = new URL(APP_URLS[key], window.location.href);
-            url.searchParams.set("lang", currentLang);
-            url.searchParams.set("v", BUILD_TAG);
-            return url;
-        }
+const APP_META = {
+  reportes: { accent: "#2563eb", icon: ICONS.reportes },
+  dashboard: { accent: "#7c3aed", icon: ICONS.dashboard },
+  gastosAdmin: { accent: "#d97706", icon: ICONS.gastosAdmin },
+  inventario: { accent: "#059669", icon: ICONS.inventario },
+  pagos: { accent: "#e11d48", icon: ICONS.pagos },
+  reporteMedico: { accent: "#dc2626", icon: ICONS.reporteMedico },
+  gastos: { accent: "#64748b", icon: ICONS.gastos }
+};
 
-        // Cross-origin session handoff.
-        //
-        // The portal and each app are separate origins, so they each have their
-        // own localStorage. Signing in/out of the portal therefore cannot clear
-        // a session that a previously visited app cached. Opening the app with
-        // the current access/refresh tokens in the URL hash makes Supabase adopt
-        // the portal's user on load and replace whatever the app had cached.
-        // The hash is never sent to the server and Supabase removes it as soon
-        // as it stores the session.
-        async function openApp(key, event) {
-            if (!AUTH_APPS.has(key)) return; // legacy tile: normal navigation
-            event.preventDefault();
+const TRANSLATIONS = {
+  es: {
+    title: "Portal de Cuidado",
+    subtitle: "Seleccione una aplicación",
+    enterBtn: "Entrar",
+    available: "Disponible",
+    migrating: "En migración",
+    caregiverLink: "Enlace de cuidadora",
+    loginTitle: "Iniciar Sesión",
+    loginSub: "Ingrese sus credenciales para acceder al sistema.",
+    logoutBtn: "Cerrar sesión",
+    userLabel: "Cuenta familiar",
+    loginEyebrow: "Acceso familiar",
+    loginAsideTitle: "El cuidado de su familia, en un solo lugar.",
+    loginAsideLead: "Acceda a las herramientas de cuidado de su hogar: reportes, inventario, pagos y más. Todo protegido y disponible cuando lo necesite.",
+    loginPoint1: "Aplicaciones seguras para su hogar",
+    loginPoint2: "Sesión protegida y acceso privado",
+    loginPoint3: "Disponible en español e inglés",
+    loginFoot: "Acceso exclusivo para familias de Cuidar SaaS. Si olvidó su contraseña, contacte a su coordinador de cuidado.",
+    emailLabel: "Correo electrónico",
+    passwordLabel: "Contraseña",
+    emailPlaceholder: "tu@correo.com",
+    passwordPlaceholder: "Tu contraseña",
+    loginBtn: "Entrar",
+    signingIn: "Entrando…",
+    missingCredentials: "Por favor ingrese correo y contraseña.",
+    loginError: "Error: {error}",
+    sessionSwitchError: "La sesión no cambió de cuenta. Intente de nuevo.",
+    heroGreeting: "Bienvenido de nuevo",
+    secureSession: "Sesión segura",
+    appsHeading: "Sus aplicaciones",
+    appsSub: "Todo lo que necesita para el cuidado diario.",
+    appsCountLabel: "aplicaciones disponibles",
+    caregiverCountLabel: "enlace de cuidadora",
+    heroNote: "Sus datos se mantienen privados en este dispositivo.",
+    footerLeft: "Cuidar SaaS · Portal de Cuidado",
+    footerRight: "¿Necesita ayuda? Contacte a su coordinador de cuidado.",
+    migrationNote: "Gastos, Gastos Admin, Inventario y Pagos se están migrando a la nueva plataforma de Cuidar. No están disponibles temporalmente para no mostrar datos de otro hogar.",
+    tags: {
+      reportes: "Cuidado diario", dashboard: "Progreso", gastosAdmin: "Administración",
+      inventario: "Suministros", pagos: "Facturación", reporteMedico: "Salud", gastos: "Cuidadoras"
+    },
+    cards: {
+      reportes: { title: "Reporte Diario", desc: "Registro de actividades y terapias." },
+      dashboard: { title: "Dashboard", desc: "Resumen visual del progreso." },
+      gastos: { title: "Gastos (cuidadoras)", desc: "Se abre con el enlace privado de cada cuidadora." },
+      gastosAdmin: { title: "Gastos Admin", desc: "Administración de presupuestos." },
+      inventario: { title: "Inventario", desc: "Gestión de suministros y medicinas." },
+      pagos: { title: "Pagos", desc: "Historial de pagos y facturación." },
+      reporteMedico: { title: "Reporte Médico", desc: "Historial clínico y recetas." }
+    }
+  },
+  en: {
+    title: "Care Portal",
+    subtitle: "Select an application",
+    enterBtn: "Enter",
+    available: "Available",
+    migrating: "Migrating",
+    caregiverLink: "Caregiver link",
+    loginTitle: "Sign In",
+    loginSub: "Enter your credentials to access the system.",
+    logoutBtn: "Sign out",
+    userLabel: "Family account",
+    loginEyebrow: "Family access",
+    loginAsideTitle: "Your family's care, in one place.",
+    loginAsideLead: "Access your household's care tools: reports, inventory, payments, and more. Protected and available whenever you need them.",
+    loginPoint1: "Secure apps for your household",
+    loginPoint2: "Protected session and private access",
+    loginPoint3: "Available in Spanish and English",
+    loginFoot: "Family-only access for Cuidar SaaS. If you forgot your password, contact your care coordinator.",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    emailPlaceholder: "you@email.com",
+    passwordPlaceholder: "Your password",
+    loginBtn: "Sign in",
+    signingIn: "Signing in…",
+    missingCredentials: "Please enter email and password.",
+    loginError: "Error: {error}",
+    sessionSwitchError: "The session did not switch accounts. Please try again.",
+    heroGreeting: "Welcome back",
+    secureSession: "Secure session",
+    appsHeading: "Your applications",
+    appsSub: "Everything you need for daily care.",
+    appsCountLabel: "apps available",
+    caregiverCountLabel: "caregiver link",
+    heroNote: "Your data stays private on this device.",
+    footerLeft: "Cuidar SaaS · Care Portal",
+    footerRight: "Need help? Contact your care coordinator.",
+    migrationNote: "Expenses, Expenses Admin, Inventory and Payments are being migrated to Cuidar's new platform. They are temporarily unavailable so another household's data cannot be shown.",
+    tags: {
+      reportes: "Daily care", dashboard: "Progress", gastosAdmin: "Administration",
+      inventario: "Supplies", pagos: "Billing", reporteMedico: "Health", gastos: "Caregivers"
+    },
+    cards: {
+      reportes: { title: "Daily Report", desc: "Log of activities and therapies." },
+      dashboard: { title: "Dashboard", desc: "Visual summary of progress." },
+      gastos: { title: "Expenses (caregivers)", desc: "Opened with each caregiver private link." },
+      gastosAdmin: { title: "Expenses Admin", desc: "Budget administration." },
+      inventario: { title: "Inventory", desc: "Supplies and medication management." },
+      pagos: { title: "Payments", desc: "Payment history and billing." },
+      reporteMedico: { title: "Medical Report", desc: "Clinical history and prescriptions." }
+    }
+  }
+};
 
-            const target = buildAppUrl(key);
+function initSupabase() {
+  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) return false;
+  supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "cuidar-portal-auth" }
+  });
+  return true;
+}
 
-            try {
-                let session = (await supa.auth.getSession()).data.session;
-                if (!session) {
-                    // No portal session: send the user back to the login screen
-                    // instead of opening an app that may still hold an old one.
-                    location.reload();
-                    return;
-                }
+function purgeAuthStorage() {
+  try {
+    const doomed = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf("sb-") === 0) doomed.push(k);
+    }
+    doomed.forEach(k => localStorage.removeItem(k));
+  } catch (e) {}
+}
 
-                const now = Math.floor(Date.now() / 1000);
-                if (!session.expires_at || session.expires_at - now < 120) {
-                    const { data, error } = await supa.auth.refreshSession();
-                    if (error || !data.session) {
-                        location.reload();
-                        return;
-                    }
-                    session = data.session;
-                }
+function getCurrentLang() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get("lang");
+  if (urlLang === "en" || urlLang === "es") {
+    localStorage.setItem("cuidar-language", urlLang);
+    return urlLang;
+  }
+  const stored = localStorage.getItem("cuidar-language");
+  if (stored === "en" || stored === "es") return stored;
+  return "es";
+}
 
-                const expiresIn = Math.max(
-                    60,
-                    (session.expires_at || now + 3600) - now
-                );
-                target.hash = new URLSearchParams({
-                    access_token: session.access_token,
-                    refresh_token: session.refresh_token,
-                    expires_in: String(expiresIn),
-                    token_type: "bearer"
-                }).toString();
+function buildAppUrl(key) {
+  const url = new URL(APP_URLS[key], window.location.href);
+  url.searchParams.set("lang", currentLang);
+  url.searchParams.set("v", BUILD_TAG);
+  return url;
+}
 
-                location.assign(target.toString());
-            } catch (error) {
-                console.error("Could not open app with the current session", error);
-                location.reload();
-            }
-        }
+async function openApp(key, event) {
+  if (!AUTH_APPS.has(key)) return;
+  event.preventDefault();
+  const target = buildAppUrl(key);
+  try {
+    let session = (await supa.auth.getSession()).data.session;
+    if (!session) { location.reload(); return; }
+    const now = Math.floor(Date.now() / 1000);
+    if (!session.expires_at || session.expires_at - now < 120) {
+      const { data, error } = await supa.auth.refreshSession();
+      if (error || !data.session) { location.reload(); return; }
+      session = data.session;
+    }
+    const expiresIn = Math.max(60, (session.expires_at || now + 3600) - now);
+    target.hash = new URLSearchParams({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_in: String(expiresIn),
+      token_type: "bearer"
+    }).toString();
+    location.assign(target.toString());
+  } catch (error) {
+    console.error("Could not open app with the current session", error);
+    location.reload();
+  }
+}
 
-        // --- 5. RENDER LOGIC ---
-        function renderPortal() {
-            const t = TRANSLATIONS[currentLang];
-            document.documentElement.lang = currentLang;
-            
-            // Update Static texts
-            document.getElementById('portal-title').innerText = t.title;
-            document.getElementById('portal-subtitle').innerText = t.subtitle;
-            document.getElementById('login-title').innerText = t.loginTitle;
-            document.getElementById('login-sub').innerText = t.loginSub;
-            document.querySelector('.btn-logout').innerText = t.logoutBtn;
+function esc(v) {
+  return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function initial(v) {
+  const s = String(v || "").trim();
+  return s ? s.charAt(0).toUpperCase() : "?";
+}
 
-            // Update Selector active states
-            document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
-            document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+function renderPortal() {
+  const t = TRANSLATIONS[currentLang];
+  document.documentElement.lang = currentLang;
+  document.title = t.title + " | Cuidar SaaS";
 
-            // Generate Cards
-            const container = document.getElementById('cards-container');
-            container.innerHTML = ''; 
+  $("login-title").textContent = t.loginTitle;
+  $("login-sub").textContent = t.loginSub;
+  $("loginEmailLabel").textContent = t.emailLabel;
+  $("loginPassLabel").textContent = t.passwordLabel;
+  $("loginEmail").placeholder = t.emailPlaceholder;
+  $("loginPass").placeholder = t.passwordPlaceholder;
+  $("btn-login").textContent = t.loginBtn;
+  $("loginEyebrow").textContent = t.loginEyebrow;
+  $("loginCardEyebrow").textContent = t.loginEyebrow;
+  $("loginAsideTitle").textContent = t.loginAsideTitle;
+  $("loginAsideLead").textContent = t.loginAsideLead;
+  $("loginPoint1").textContent = t.loginPoint1;
+  $("loginPoint2").textContent = t.loginPoint2;
+  $("loginPoint3").textContent = t.loginPoint3;
+  $("loginFoot").textContent = t.loginFoot;
+  $("logoutText").textContent = t.logoutBtn;
+  $("userLabel").textContent = t.userLabel;
+  $("headerBrandSub").textContent = t.title;
+  $("loginBrandSub").textContent = t.title;
+  const lo = document.querySelector(".logout"); if (lo) lo.title = t.logoutBtn;
 
-            Object.keys(APP_URLS).forEach(key => {
-                const cardData = t.cards[key];
-                const available = AVAILABLE_APPS.has(key);
-                const caregiverOnly = CAREGIVER_ONLY.has(key);
-                
-                let cardHTML;
-                if (available) {
-                    cardHTML = `
-                    <a href="${buildAppUrl(key).toString()}" class="card" id="card-${key}" data-app-key="${key}">
-                        <h2>${cardData.title}</h2>
-                        <p>${cardData.desc}</p>
-                        <span class="card-btn">${t.enterBtn}</span>
-                    </a>
-                `;
-                } else if (caregiverOnly) {
-                    cardHTML = `
-                    <div class="card off" id="card-${key}" aria-disabled="true">
-                        <h2>${cardData.title}</h2>
-                        <p>${cardData.desc}</p>
-                        <span class="card-btn">${t.caregiverLink}</span>
-                    </div>
-                `;
-                } else {
-                    cardHTML = `
-                    <div class="card off" id="card-${key}" aria-disabled="true">
-                        <h2>${cardData.title}</h2>
-                        <p>${cardData.desc}</p>
-                        <span class="card-btn">${t.migrating}</span>
-                    </div>
-                `;
-                }
-                container.insertAdjacentHTML('beforeend', cardHTML);
-            });
+  $("portal-title").textContent = t.title;
+  $("portal-subtitle").textContent = t.subtitle;
+  $("heroGreeting").textContent = t.heroGreeting;
+  $("secureSession").textContent = t.secureSession;
+  $("appsHeading").textContent = t.appsHeading;
+  $("appsSub").textContent = t.appsSub;
+  $("appsCountLabel").textContent = t.appsCountLabel;
+  $("caregiverCountLabel").textContent = t.caregiverCountLabel;
+  $("heroNote").textContent = t.heroNote;
+  $("footerLeft").textContent = t.footerLeft;
+  $("footerRight").textContent = t.footerRight;
 
-            // Only show the migration banner if an owner app is still unavailable.
-            const note = document.getElementById('migration-note');
-            if (note) {
-                const hasUnavailable = Object.keys(APP_URLS).some(
-                    k => !AVAILABLE_APPS.has(k) && !CAREGIVER_ONLY.has(k)
-                );
-                note.hidden = !hasUnavailable;
-                note.textContent = hasUnavailable ? t.migrationNote : "";
-            }
+  $("userEmail").textContent = currentUser && currentUser.email ? currentUser.email : "";
+  $("userAvatar").textContent = initial(currentUser && currentUser.email);
 
-            // Delegated so it survives re-renders (language switch, auth change).
-            container.onclick = (event) => {
-                const card = event.target.closest("a.card[data-app-key]");
-                if (!card) return;
-                openApp(card.getAttribute("data-app-key"), event);
-            };
-        }
+  $("btn-es").classList.toggle("active", currentLang === "es");
+  $("btn-en").classList.toggle("active", currentLang === "en");
 
-        // --- 6. AUTH & LOGIN LOGIC ---
-        async function handleLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPass').value;
-            const msg = document.getElementById('loginMsg');
-            
-            if (!email || !pass) {
-                msg.textContent = currentLang === 'en' ? "Please enter email and password." : "Por favor ingrese correo y contraseña.";
-                return;
-            }
+  const keys = ["reportes", "dashboard", "gastosAdmin", "inventario", "pagos", "reporteMedico", "gastos"];
+  const availableCount = keys.filter(k => AVAILABLE_APPS.has(k)).length;
+  const caregiverCount = keys.filter(k => CAREGIVER_ONLY.has(k)).length;
+  $("appsCount").textContent = availableCount;
+  $("caregiverCount").textContent = caregiverCount;
+  $("appsBadge").textContent = availableCount;
 
-            msg.textContent = currentLang === 'en' ? "Signing in..." : "Entrando...";
-            
-            // CRITICAL: clear every previous token before signing in so switching
-            // users can never re-use the old family's JWT or refresh token.
-            try { await supa.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
-            purgeAuthStorage();
-            currentUser = null;
+  const container = $("cards-container");
+  container.innerHTML = "";
+  keys.forEach(key => {
+    const card = t.cards[key];
+    const meta = APP_META[key] || { accent: "#0f766e", icon: ICONS.reportes };
+    const available = AVAILABLE_APPS.has(key);
+    const caregiverOnly = CAREGIVER_ONLY.has(key);
+    const tag = t.tags[key] || "";
+    const status = available ? t.available : (caregiverOnly ? t.caregiverLink : t.migrating);
+    const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m14 7 5 5-5 5"/></svg>';
+    const lock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>';
+    const inner =
+      '<div class="app-top"><div class="app-icon" style="background:' + meta.accent + '14;color:' + meta.accent + '">' + meta.icon + '</div><span class="app-tag">' + esc(tag) + '</span></div>' +
+      '<h3>' + esc(card.title) + '</h3>' +
+      '<p>' + esc(card.desc) + '</p>' +
+      '<div class="app-foot"><span class="app-status ' + (available ? 'on' : 'off') + '"><i></i>' + esc(status) + '</span>' +
+      (available ? '<span class="app-cta">' + esc(t.enterBtn) + ' ' + arrow + '</span>' : '<span class="app-cta">' + (caregiverOnly ? lock : '') + '</span>') +
+      '</div>';
+    if (available) {
+      container.insertAdjacentHTML("beforeend",
+        '<a href="' + buildAppUrl(key).toString() + '" class="app-card" id="card-' + key + '" data-app-key="' + key + '" style="--accent:' + meta.accent + '">' + inner + '</a>');
+    } else {
+      container.insertAdjacentHTML("beforeend",
+        '<div class="app-card off" id="card-' + key + '" aria-disabled="true" style="--accent:' + meta.accent + '">' + inner + '</div>');
+    }
+  });
 
-            const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
-            
-            if (error) {
-                msg.textContent = "Error: " + error.message;
-                return;
-            }
+  const note = $("migration-note");
+  const hasUnavailable = keys.some(k => !AVAILABLE_APPS.has(k) && !CAREGIVER_ONLY.has(k));
+  note.hidden = !hasUnavailable;
+  note.textContent = hasUnavailable ? t.migrationNote : "";
 
-            // Guard against a client that somehow kept the old session: the
-            // session we are about to render must belong to the email just used.
-            const sessionEmail = (data.session && data.session.user && data.session.user.email) || "";
-            if (!data.session || sessionEmail.toLowerCase() !== email.toLowerCase()) {
-                try { await supa.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
-                purgeAuthStorage();
-                currentUser = null;
-                applySession(null);
-                msg.textContent = currentLang === 'en'
-                    ? "The session did not switch accounts. Please try again."
-                    : "La sesión no cambió de cuenta. Intente de nuevo.";
-                return;
-            }
+  container.onclick = event => {
+    const card = event.target.closest("a.app-card[data-app-key]");
+    if (!card) return;
+    openApp(card.getAttribute("data-app-key"), event);
+  };
+}
 
-            msg.textContent = "";
-            applySession(data.session);
-        }
+async function handleLogin() {
+  const t = TRANSLATIONS[currentLang];
+  const email = $("loginEmail").value.trim();
+  const pass = $("loginPass").value;
+  const msg = $("loginMsg");
+  if (!email || !pass) { msg.textContent = t.missingCredentials; return; }
+  msg.textContent = t.signingIn;
+  const btn = $("btn-login");
+  btn.disabled = true;
+  try { await supa.auth.signOut({ scope: "local" }); } catch (e) {}
+  purgeAuthStorage();
+  currentUser = null;
+  const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false;
+  if (error) { msg.textContent = t.loginError.replace("{error}", error.message); return; }
+  const sessionEmail = (data.session && data.session.user && data.session.user.email) || "";
+  if (!data.session || sessionEmail.toLowerCase() !== email.toLowerCase()) {
+    try { await supa.auth.signOut({ scope: "local" }); } catch (e) {}
+    purgeAuthStorage();
+    currentUser = null;
+    applySession(null);
+    msg.textContent = t.sessionSwitchError;
+    return;
+  }
+  msg.textContent = "";
+  applySession(data.session);
+}
 
-        async function signOut() {
-            try { await supa.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
-            purgeAuthStorage();
-            currentUser = null;
-            applySession(null);
-            // A full reload guarantees no in-memory user/plan data survives.
-            location.replace(location.pathname + location.search);
-        }
+async function signOut() {
+  try { await supa.auth.signOut({ scope: "local" }); } catch (e) {}
+  purgeAuthStorage();
+  currentUser = null;
+  applySession(null);
+  location.replace(location.pathname + location.search);
+}
 
-        function applySession(session) {
-            if (session && session.user) {
-                currentUser = session.user;
-                
-                // Show Portal, Hide Login
-                document.getElementById('loginBox').style.display = 'none';
-                document.getElementById('portalView').style.display = 'block';
-                document.getElementById('userInfo').style.display = 'flex';
-                document.getElementById('userEmail').textContent = currentUser.email;
-                try { localStorage.setItem('cuidar-last-user', currentUser.id); } catch (e) {}
-            } else {
-                currentUser = null;
-                // Show Login, Hide Portal
-                document.getElementById('loginBox').style.display = 'flex';
-                document.getElementById('portalView').style.display = 'none';
-                document.getElementById('userInfo').style.display = 'none';
-                document.getElementById('userEmail').textContent = "";
-            }
-            
-            renderPortal(); // Ensure texts/cards match the current language and state
-        }
+function applySession(session) {
+  const t = TRANSLATIONS[currentLang];
+  if (session && session.user) {
+    currentUser = session.user;
+    $("loginBox").style.display = "none";
+    $("portalView").style.display = "block";
+    $("userInfo").style.display = "flex";
+    $("userEmail").textContent = currentUser.email || "";
+    $("userAvatar").textContent = initial(currentUser.email);
+    $("userLabel").textContent = t.userLabel;
+    try { localStorage.setItem("cuidar-last-user", currentUser.id); } catch (e) {}
+  } else {
+    currentUser = null;
+    $("loginBox").style.display = "flex";
+    $("portalView").style.display = "none";
+    $("userInfo").style.display = "none";
+    $("userEmail").textContent = "";
+    $("loginMsg").textContent = "";
+  }
+  renderPortal();
+}
 
-        async function checkAuth() {
-            const { data: { session } } = await supa.auth.getSession();
-            applySession(session);
-        }
+async function checkAuth() {
+  const { data: { session } } = await supa.auth.getSession();
+  applySession(session);
+}
 
-        // --- 7. LANGUAGE SWITCHING ---
-        function switchLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('cuidar-language', lang);
-            const newUrl = new URL(window.location);
-            newUrl.searchParams.set('lang', lang);
-            window.history.pushState({}, '', newUrl);
-            renderPortal();
-        }
+function switchLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem("cuidar-language", lang);
+  const newUrl = new URL(window.location);
+  newUrl.searchParams.set("lang", lang);
+  window.history.pushState({}, "", newUrl);
+  renderPortal();
+}
 
-        // --- 8. INIT ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!initSupabase()) {
-                alert("Error: Faltan las credenciales de Supabase.");
-                return;
-            }
+document.addEventListener("DOMContentLoaded", async () => {
+  if (!initSupabase()) { alert("Error: Faltan las credenciales de Supabase."); return; }
+  currentLang = getCurrentLang();
+  purgeAuthStorage();
+  supa.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_OUT") applySession(null);
+    else if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") applySession(session);
+  });
+  await checkAuth();
+  renderPortal();
+});
 
-            // One-time migration: this build stores the portal session under
-            // "cuidar-portal-auth". Remove any token left under the old
-            // project-derived key so it can never be picked up by another
-            // Supabase client on this origin.
-            purgeAuthStorage();
-
-            // Listen for auth changes (login from another tab, token refresh, sign out).
-            // Use the provided session directly: calling getSession() inside this
-            // callback can deadlock or return the previous session.
-            supa.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_OUT') {
-                    applySession(null);
-                } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                    applySession(session);
-                }
-            });
-
-            await checkAuth();
-        });
-
-        // If the browser restores this page from the back/forward cache, the
-        // in-memory user can be stale. Re-read the stored session on restore.
-        window.addEventListener("pageshow", (event) => {
-            if (event.persisted && supa) checkAuth();
-        });
-        window.addEventListener("focus", () => {
-            if (supa) checkAuth();
-        });
-    </script>
-
-
-</body></html>
+window.addEventListener("pageshow", event => { if (event.persisted && supa) checkAuth(); });
+window.addEventListener("focus", () => { if (supa) checkAuth(); });
+</script>
+</body>
+</html>
