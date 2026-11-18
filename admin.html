@@ -12,96 +12,230 @@ window.SUPABASE_ANON_KEY="sb_publishable_f5py08cOv3Bdo0Yvm6lmbA_VBxnbEsP";
 <style>
 :root{--bg:#f7f8f5;--panel:#fff;--ink:#1d2b26;--muted:#69766f;--line:#e1e8e2;--brand:#256d62;--soft:#eaf3ee;--danger:#a33b32}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{display:flex;justify-content:space-between;align-items:center;padding:18px max(22px,calc((100% - 1100px)/2));background:#fff;border-bottom:1px solid var(--line)}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px max(22px,calc((100% - 1180px)/2));background:#fff;border-bottom:1px solid var(--line)}
 .brand{font-weight:750;letter-spacing:.1px}.tag{font-size:12px;color:var(--muted);margin-left:8px}
-main{max-width:1100px;margin:34px auto;padding:0 22px}
+main{max-width:1180px;margin:34px auto;padding:0 22px}
 h1{font-size:28px;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 24px}
 button{border:0;border-radius:9px;padding:10px 15px;background:var(--brand);color:#fff;font-weight:650;cursor:pointer}button.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}
-input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 14px;font-size:15px}
+input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 14px;font-size:15px;background:#fff}
 #login{max-width:390px;margin:9vh auto;background:#fff;padding:26px;border:1px solid var(--line);border-radius:16px}
 #login h2{margin:0 0 5px}#message{color:var(--danger);min-height:24px;font-size:13px}
 #dashboard{display:none}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .metric{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;min-height:122px}
 .metric .label{color:var(--muted);font-size:13px}.metric .value{font-size:32px;font-weight:750;margin-top:8px;letter-spacing:-1px}
 .note{margin-top:22px;padding:14px 16px;background:var(--soft);border-radius:10px;color:#31564b;font-size:13px}
-.actions{display:flex;gap:10px;align-items:center}.languages{display:flex;gap:4px;margin-right:8px}.lang-btn{padding:7px 10px;font-size:12px;background:#fff;color:var(--muted);border:1px solid var(--line)}.lang-btn.active{background:var(--soft);color:var(--brand);border-color:#cbded3}
-@media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{margin:24px auto}}
+.actions{display:flex;gap:10px;align-items:center}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:22px 0 12px}
+.toolbar input{max-width:340px;margin:0}.toolbar select{max-width:220px;margin:0}.toolbar .small{color:var(--muted);font-size:12px}
+.table-wrap{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#f1f5f2;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr.row{cursor:pointer}tr.row:hover{background:#f8fbf9}
+.badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge.active{background:#dcfce7;color:#166534}.badge.trialing{background:#e0f2fe;color:#075985}
+.badge.past_due{background:#fef3c7;color:#92400e}.badge.unpaid,.badge.canceled,.badge.review{background:#fee2e2;color:#991b1b}
+.badge.paused,.badge.incomplete{background:#f1f5f9;color:#475569}
+.small{font-size:11px;color:var(--muted)}
+#detail{position:fixed;top:0;right:0;width:min(580px,100%);height:100%;background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(0,0,0,.10);overflow:auto;padding:24px;z-index:10;display:none}
+#detail.open{display:block}
+#detail h2{margin:0 0 4px;font-size:21px}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:5px 12px;font-size:13px;margin:14px 0}
+.kv .k{color:var(--muted)}
+.section{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+.section h3{font-size:14px;margin:0 0 8px}
+.smalltable{width:100%;border-collapse:collapse;font-size:12px}
+.smalltable td,.smalltable th{padding:6px 8px;border-bottom:1px solid var(--line)}
+#detail code{font-size:11px;background:#f1f5f9;padding:1px 4px;border-radius:3px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{margin:24px auto}#detail{width:100%}.toolbar input,.toolbar select{max-width:100%}}
 @media(max-width:430px){.grid{grid-template-columns:1fr 1fr}.metric{padding:14px}.metric .value{font-size:26px}}
 </style>
 </head>
 <body>
-<header><div><span class="brand">Cuidar a Distancia</span><span class="tag" data-i18n="platformAdmin">Administración de plataforma</span></div><div class="actions"><div class="languages" role="group" aria-label="Language"><button type="button" class="lang-btn" id="lang-en" aria-pressed="false">EN</button><button type="button" class="lang-btn active" id="lang-es" aria-pressed="true">ES</button></div><button id="refresh" class="secondary" style="display:none" data-i18n="refresh">Actualizar</button><button id="logout" class="secondary" style="display:none" data-i18n="logout">Salir</button></div></header>
+<header>
+  <div><span class="brand">Cuidar a Distancia</span><span class="tag">Administración de plataforma</span></div>
+  <div class="actions"><button id="refresh" class="secondary" style="display:none">Actualizar</button><button id="logout" class="secondary" style="display:none">Salir</button></div>
+</header>
+
 <section id="login">
-<h2 data-i18n="loginTitle">Acceso administrativo</h2><p class="sub" data-i18n="loginIntro">Inicie sesión con su cuenta autorizada de administración.</p>
-<label for="email" data-i18n="email">Correo electrónico</label><input id="email" type="email" autocomplete="username" placeholder="Correo electrónico" data-i18n-placeholder="emailPlaceholder">
-<label for="password" data-i18n="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="Contraseña" data-i18n-placeholder="passwordPlaceholder">
-<button id="loginBtn" style="width:100%" data-i18n="loginButton">Entrar</button><div id="message" role="status"></div>
+  <h2>Acceso administrativo</h2>
+  <p class="sub">Inicie sesión con su cuenta autorizada de administración.</p>
+  <label for="email">Correo electrónico</label>
+  <input id="email" type="email" autocomplete="username" placeholder="Correo electrónico">
+  <label for="password">Contraseña</label>
+  <input id="password" type="password" autocomplete="current-password" placeholder="Contraseña">
+  <button id="loginBtn" style="width:100%">Entrar</button>
+  <div id="message" role="status"></div>
 </section>
+
 <main id="dashboard">
-<h1 data-i18n="summaryTitle">Resumen de plataforma</h1><p class="sub" data-i18n="summaryIntro">Vista agregada de solo lectura. No muestra información personal ni permite modificar cuentas o cobros.</p>
-<div class="grid">
-<div class="metric"><div class="label" data-i18n="households">Hogares registrados</div><div class="value" id="households">—</div></div>
-<div class="metric"><div class="label" data-i18n="profiles">Perfiles de clientes</div><div class="value" id="profiles">—</div></div>
-<div class="metric"><div class="label" data-i18n="subscriptions">Suscripciones</div><div class="value" id="subscriptions">—</div></div>
-<div class="metric"><div class="label" data-i18n="active">Suscripciones activas</div><div class="value" id="active">—</div></div>
-<div class="metric"><div class="label" data-i18n="pastdue">Suscripciones vencidas</div><div class="value" id="pastdue">—</div></div>
-<div class="metric"><div class="label" data-i18n="apps">Aplicaciones activas</div><div class="value" id="apps">—</div></div>
-</div>
-<div class="note" id="updated" data-i18n="loadingNote">Los datos se consultan desde una función protegida en Supabase.</div>
+  <h1>Panel de suscriptores</h1>
+  <p class="sub">Vista de administración. Muestra datos de suscriptores solo al administrador autorizado. No permite modificar cuentas ni cobros.</p>
+  <div class="grid">
+    <div class="metric"><div class="label">Hogares registrados</div><div class="value" id="households">—</div></div>
+    <div class="metric"><div class="label">Perfiles de clientes</div><div class="value" id="profiles">—</div></div>
+    <div class="metric"><div class="label">Suscripciones</div><div class="value" id="subscriptions">—</div></div>
+    <div class="metric"><div class="label">Suscripciones activas</div><div class="value" id="active">—</div></div>
+    <div class="metric"><div class="label">Suscripciones vencidas</div><div class="value" id="pastdue">—</div></div>
+    <div class="metric"><div class="label">Aplicaciones activas</div><div class="value" id="apps">—</div></div>
+  </div>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Buscar hogar, correo, plan o estado…">
+    <select id="statusFilter">
+      <option value="">Todos los estados</option>
+      <option value="active">Activo</option>
+      <option value="trialing">Prueba</option>
+      <option value="past_due">Pago pendiente</option>
+      <option value="unpaid">Impago</option>
+      <option value="canceled">Cancelado</option>
+      <option value="paused">Pausado</option>
+      <option value="review">Revisión</option>
+      <option value="incomplete">Incompleto</option>
+    </select>
+    <span class="small" id="count"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Hogar</th><th>Propietario</th><th>Plan</th><th>Estado</th><th>Renovación / gracia</th><th>Apps</th><th>Cuidadores</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div id="listMessage" class="note" style="display:none"></div>
 </main>
+
+<aside id="detail">
+  <button id="closeDetail" class="secondary" style="float:right">Cerrar</button>
+  <h2 id="detailTitle">Hogar</h2>
+  <div id="detailBody"></div>
+</aside>
+
 <script>
 const supabaseClient=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
 const $=id=>document.getElementById(id);
-const translations={
- es:{platformAdmin:"Administración de plataforma",refresh:"Actualizar",logout:"Salir",loginTitle:"Acceso administrativo",loginIntro:"Inicie sesión con su cuenta autorizada de administración.",email:"Correo electrónico",emailPlaceholder:"Correo electrónico",password:"Contraseña",passwordPlaceholder:"Contraseña",loginButton:"Entrar",summaryTitle:"Resumen de plataforma",summaryIntro:"Vista agregada de solo lectura. No muestra información personal ni permite modificar cuentas o cobros.",households:"Hogares registrados",profiles:"Perfiles de clientes",subscriptions:"Suscripciones",active:"Suscripciones activas",pastdue:"Suscripciones vencidas",apps:"Aplicaciones activas",loadingNote:"Los datos se consultan desde una función protegida en Supabase.",checking:"Verificando acceso…",denied:"Esta cuenta no tiene permisos de administrador.",loginError:"No se pudo iniciar sesión: ",closed:"Sesión cerrada.",loading:"Consultando resumen…",summaryError:"No se pudo cargar el resumen: ",lastUpdate:"Última actualización: "},
- en:{platformAdmin:"Platform administration",refresh:"Refresh",logout:"Sign out",loginTitle:"Administrator sign-in",loginIntro:"Sign in with your authorized administrator account.",email:"Email address",emailPlaceholder:"Email address",password:"Password",passwordPlaceholder:"Password",loginButton:"Sign in",summaryTitle:"Platform overview",summaryIntro:"Read-only aggregated view. No personal information or account or billing changes are exposed.",households:"Registered households",profiles:"Customer profiles",subscriptions:"Subscriptions",active:"Active subscriptions",pastdue:"Past-due subscriptions",apps:"Active applications",loadingNote:"Data is retrieved through a protected Supabase function.",checking:"Verifying access…",denied:"This account does not have administrator permissions.",loginError:"Unable to sign in: ",closed:"Signed out.",loading:"Loading summary…",summaryError:"Unable to load summary: ",lastUpdate:"Last updated: "}
-};
-let currentLanguage=localStorage.getItem("admin-language")==="en"?"en":"es";
-function t(key){return translations[currentLanguage][key]||key}
-function setLanguage(language){
- currentLanguage=language;localStorage.setItem("admin-language",language);document.documentElement.lang=language;
- document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n)});
- document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{el.placeholder=t(el.dataset.i18nPlaceholder)});
- $("lang-en").classList.toggle("active",language==="en");$("lang-es").classList.toggle("active",language==="es");
- $("lang-en").setAttribute("aria-pressed",String(language==="en"));$("lang-es").setAttribute("aria-pressed",String(language==="es"));
- if($("updated").dataset.state==="lastUpdate")formatLastUpdate();
-}
-function message(key,detail=""){$("message").textContent=key?t(key)+detail:""}
-function showDashboard(){ $("login").style.display="none";$("dashboard").style.display="block";$("logout").style.display="inline-block";$("refresh").style.display="inline-block"; }
-function showLogin(){ $("login").style.display="block";$("dashboard").style.display="none";$("logout").style.display="none";$("refresh").style.display="none"; }
+const STATUS_LABELS={active:"Activo",trialing:"Prueba",past_due:"Pago pendiente",unpaid:"Impago",canceled:"Cancelado",paused:"Pausado",review:"Revisión",incomplete:"Incompleto"};
+const PLAN_LABELS={family:"Family Plan",full_setup:"Full Setup"};
+let subscribers=[];
+
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function fmtDate(v){if(!v)return "—";const d=new Date(v);return isNaN(d)?"—":d.toLocaleDateString("es-EC",{year:"numeric",month:"short",day:"numeric"});}
+function message(t){$("message").textContent=t||"";}
+function showLogin(){$("login").style.display="block";$("dashboard").style.display="none";$("logout").style.display="none";$("refresh").style.display="none";$("detail").classList.remove("open");}
+function showDashboard(){$("login").style.display="none";$("dashboard").style.display="block";$("logout").style.display="inline-block";$("refresh").style.display="inline-block";}
+
 async function loadSummary(){
- $("updated").dataset.state="loading";$("updated").textContent=t("loading");
- const {data,error}=await supabaseClient.rpc("admin_dashboard_summary");
- if(error){$("updated").dataset.state="error";$("updated").textContent=t("summaryError")+error.message;return;}
- const d=data||{};
- $("households").textContent=d.households_total??"—";
- $("profiles").textContent=d.customer_profiles_total??"—";
- $("subscriptions").textContent=d.subscriptions_total??"—";
- $("active").textContent=d.subscriptions_active??"—";
- $("pastdue").textContent=d.subscriptions_past_due??"—";
- $("apps").textContent=d.apps_active??"—";
- $("updated").dataset.state="lastUpdate";formatLastUpdate(d.generated_at);
+  const {data,error}=await supabaseClient.rpc("admin_dashboard_summary");
+  if(error){$("count").textContent="No se pudo cargar el resumen: "+error.message;return;}
+  const d=data||{};
+  $("households").textContent=d.households_total??"—";
+  $("profiles").textContent=d.customer_profiles_total??"—";
+  $("subscriptions").textContent=d.subscriptions_total??"—";
+  $("active").textContent=d.subscriptions_active??"—";
+  $("pastdue").textContent=d.subscriptions_past_due??"—";
+  $("apps").textContent=d.apps_active??"—";
 }
-function formatLastUpdate(value){$("updated").textContent=t("lastUpdate")+new Date(value||Date.now()).toLocaleString(currentLanguage==="en"?"en-US":"es-ES");}
+async function loadSubscribers(){
+  const {data,error}=await supabaseClient.rpc("admin_list_subscribers");
+  if(error){
+    subscribers=[];
+    $("rows").innerHTML="";
+    $("listMessage").style.display="block";
+    $("listMessage").textContent = (String(error.message||"").includes("Could not find the function")||error.code==="PGRST202")
+      ? "Falta aplicar admin-dashboard.sql en Supabase para habilitar la lista de suscriptores."
+      : "No se pudo cargar la lista: "+error.message;
+    return;
+  }
+  subscribers=Array.isArray(data)?data:[];
+  renderRows();
+}
+function renderRows(){
+  const q=$("search").value.trim().toLowerCase();
+  const st=$("statusFilter").value;
+  const list=subscribers.filter(s=>{
+    const hay=[s.household_name,s.owner_email,s.plan_key,s.status].join(" ").toLowerCase();
+    return (!q||hay.includes(q))&&(!st||s.status===st);
+  });
+  $("count").textContent=list.length+" de "+subscribers.length+" hogares";
+  if(!list.length){
+    $("rows").innerHTML="";
+    $("listMessage").style.display="block";
+    $("listMessage").textContent=subscribers.length?"No hay hogares que coincidan con el filtro.":"No hay hogares registrados.";
+    return;
+  }
+  $("listMessage").style.display="none";
+  $("rows").innerHTML=list.map(s=>{
+    const status=s.status||"";
+    const plan=PLAN_LABELS[s.plan_key]||s.plan_key||"—";
+    const owner=s.owner_email||"—";
+    const renew=s.status==="past_due"&&s.grace_until?"Gracia: "+fmtDate(s.grace_until):fmtDate(s.current_period_end);
+    const review=s.review_hold?' <span class="badge review">Revisión</span>':"";
+    return '<tr class="row" data-id="'+esc(s.household_id)+'">'+
+      '<td><strong>'+esc(s.household_name||"—")+'</strong><br><span class="small">'+esc((s.household_id||"").slice(0,8))+'…</span>'+review+'</td>'+
+      '<td>'+esc(owner)+'</td>'+
+      '<td>'+esc(plan)+'</td>'+
+      '<td><span class="badge '+esc(status)+'">'+esc(STATUS_LABELS[status]||status||"—")+'</span></td>'+
+      '<td>'+esc(renew)+'</td>'+
+      '<td>'+(s.apps_enabled??0)+'/7</td>'+
+      '<td>'+(s.caregivers_active??0)+'</td>'+
+    '</tr>';
+  }).join("");
+  document.querySelectorAll("tr.row").forEach(tr=>tr.addEventListener("click",()=>openDetail(tr.dataset.id)));
+}
+async function openDetail(id){
+  $("detail").classList.add("open");
+  $("detailTitle").textContent="Cargando…";
+  $("detailBody").innerHTML="";
+  const {data,error}=await supabaseClient.rpc("admin_subscriber_detail",{p_household_id:id});
+  if(error){$("detailTitle").textContent="No se pudo abrir";$("detailBody").textContent=error.message;return;}
+  renderDetail(data||{});
+}
+function renderDetail(d){
+  const h=d.household||{},s=d.subscription||{},members=d.members||[],apps=d.apps||[],caregivers=d.caregivers||[];
+  $("detailTitle").textContent=h.name||"Hogar";
+  const owner=members.find(m=>m.role==="owner");
+  const status=s.status||"";
+  const stripe=[];
+  if(s.provider_customer_id)stripe.push('<a href="https://dashboard.stripe.com/customers/'+encodeURIComponent(s.provider_customer_id)+'" target="_blank" rel="noopener">Cliente en Stripe</a>');
+  if(s.provider_subscription_id)stripe.push('<a href="https://dashboard.stripe.com/subscriptions/'+encodeURIComponent(s.provider_subscription_id)+'" target="_blank" rel="noopener">Suscripción en Stripe</a>');
+  const memberRows=members.map(m=>'<tr><td>'+esc(m.email||"—")+'</td><td>'+esc(m.role||"—")+'</td><td>'+esc(fmtDate(m.created_at))+'</td></tr>').join("");
+  const appRows=apps.map(a=>'<tr><td>'+esc(a.app_key)+'</td><td>'+(a.is_enabled?"Sí":"No")+'</td></tr>').join("");
+  const cgRows=caregivers.map(c=>'<tr><td>'+esc(c.full_name||"—")+'</td><td>'+esc(c.status||"—")+'</td><td>'+esc(fmtDate(c.last_used_at))+'</td></tr>').join("");
+  $("detailBody").innerHTML=
+    '<div class="kv">'+
+      '<div class="k">Hogar</div><div>'+esc(h.name||"—")+'</div>'+
+      '<div class="k">ID</div><div><code>'+esc(h.id||"—")+'</code></div>'+
+      '<div class="k">Propietario</div><div>'+esc(owner?owner.email:"—")+'</div>'+
+      '<div class="k">Plan</div><div>'+esc(PLAN_LABELS[s.plan_key]||s.plan_key||"—")+'</div>'+
+      '<div class="k">Estado</div><div><span class="badge '+esc(status)+'">'+esc(STATUS_LABELS[status]||status||"—")+'</span></div>'+
+      '<div class="k">Renovación</div><div>'+esc(fmtDate(s.current_period_end))+'</div>'+
+      '<div class="k">Gracia</div><div>'+esc(fmtDate(s.grace_until))+'</div>'+
+      '<div class="k">Revisión</div><div>'+(s.review_hold?"Sí — "+esc(s.review_reason||""):"No")+'</div>'+
+      '<div class="k">Creado</div><div>'+esc(fmtDate(h.created_at))+'</div>'+
+    '</div>'+
+    (stripe.length?'<p>'+stripe.join(" · ")+'</p>':"")+
+    '<div class="section"><h3>Miembros</h3><table class="smalltable"><thead><tr><th>Correo</th><th>Rol</th><th>Desde</th></tr></thead><tbody>'+(memberRows||'<tr><td colspan="3">Sin miembros</td></tr>')+'</tbody></table></div>'+
+    '<div class="section"><h3>Aplicaciones</h3><table class="smalltable"><thead><tr><th>App</th><th>Activa</th></tr></thead><tbody>'+(appRows||'<tr><td colspan="2">Sin accesos</td></tr>')+'</tbody></table></div>'+
+    '<div class="section"><h3>Cuidadores</h3><table class="smalltable"><thead><tr><th>Nombre</th><th>Estado</th><th>Último uso</th></tr></thead><tbody>'+(cgRows||'<tr><td colspan="3">Sin cuidadores</td></tr>')+'</tbody></table></div>';
+}
 async function authorize(session){
- if(!session){showLogin();return}
- const {data,error}=await supabaseClient.rpc("is_platform_admin");
- if(error||data!==true){await supabaseClient.auth.signOut();showLogin();message("denied");return}
- showDashboard();await loadSummary();
+  if(!session){showLogin();return;}
+  const {data,error}=await supabaseClient.rpc("is_platform_admin");
+  if(error||data!==true){await supabaseClient.auth.signOut();showLogin();message("Esta cuenta no tiene permisos de administrador.");return;}
+  showDashboard();
+  await Promise.all([loadSummary(),loadSubscribers()]);
 }
 $("loginBtn").addEventListener("click",async()=>{
- message("checking");
- const {data,error}=await supabaseClient.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
- if(error){message("loginError",error.message);return}
- await authorize(data.session);
+  message("Verificando acceso…");
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+  if(error){message("No se pudo iniciar sesión: "+error.message);return;}
+  await authorize(data.session);
 });
-$("logout").addEventListener("click",async()=>{await supabaseClient.auth.signOut();showLogin();message("closed")});
-$("refresh").addEventListener("click",loadSummary);
-$("lang-en").addEventListener("click",()=>setLanguage("en"));
-$("lang-es").addEventListener("click",()=>setLanguage("es"));
-setLanguage(currentLanguage);
+$("logout").addEventListener("click",async()=>{await supabaseClient.auth.signOut();showLogin();message("Sesión cerrada.");});
+$("refresh").addEventListener("click",async()=>{await Promise.all([loadSummary(),loadSubscribers()]);});
+$("search").addEventListener("input",renderRows);
+$("statusFilter").addEventListener("change",renderRows);
+$("closeDetail").addEventListener("click",()=>$("detail").classList.remove("open"));
 supabaseClient.auth.getSession().then(({data})=>authorize(data.session));
-supabaseClient.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin()});
+supabaseClient.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin();});
 </script>
 </body>
 </html>
