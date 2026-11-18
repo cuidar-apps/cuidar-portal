@@ -79,6 +79,15 @@ a{color:var(--brand);text-decoration:none}a:hover{text-decoration:underline}
 .sidebar-card{margin-top:auto;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.035);font-size:11px;color:#a9c5bd}
 .sidebar-card-title{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#7fa79d;margin-bottom:7px}
 .system-row{display:flex;align-items:center;gap:7px;margin:4px 0}
+.sidebar-fill{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;padding:12px 0}
+.sidebar-promo{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:13px;color:#cfe2dc}
+.sidebar-promo svg{width:100%;height:auto;display:block;margin-bottom:10px;opacity:.95}
+.sidebar-promo .promo-eyebrow{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#7fa79d;font-weight:750;margin-bottom:4px}
+.sidebar-promo strong{display:block;font-size:12px;color:#eafff9;line-height:1.3;margin-bottom:3px}
+.sidebar-promo p{font-size:9.5px;line-height:1.45;color:#a9c5bd;margin:0}
+.promo-stats{display:flex;align-items:baseline;gap:5px;margin-top:8px;font-size:9px;color:#a9c5bd}
+.promo-stats strong{display:inline;font-size:15px;color:#fff;margin:0;line-height:1}
+.promo-stats .sep{color:#5f8c82;margin:0 1px}
 .sidebar-footer{border-top:1px solid rgba(255,255,255,.09);padding-top:14px;display:flex;flex-direction:column;gap:8px}
 .admin-id{display:flex;align-items:center;gap:9px;padding:2px 4px;min-width:0}
 .admin-avatar{width:30px;height:30px;border-radius:50%;background:rgba(45,212,191,.16);color:#8ef0dc;display:grid;place-items:center;font-size:11px;font-weight:750;flex:none}
@@ -254,12 +263,14 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
 .welcome-copy .eyebrow{color:#0f766e;font-size:9.5px}
 .welcome-copy h2{font-size:20px;letter-spacing:-.03em;margin:4px 0 3px}
 .welcome-copy p{font-size:12px;line-height:1.5;color:#5d6e68;margin:0;max-width:620px}
-.stat-grid{gap:12px;margin-bottom:14px}
-.stat-card{position:relative;padding:22px 16px 14px;border-radius:13px}
+.stat-grid{gap:10px;margin-bottom:14px}
+.stat-card{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);grid-template-areas:"icon value" "icon hint";column-gap:10px;row-gap:1px;align-items:center;min-height:0;padding:18px 14px 10px;border-radius:13px}
 .stat-pill{position:absolute;top:-8px;left:13px;z-index:1;display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:#0f766e;color:#fff;border:1px solid rgba(255,255,255,.35);font-size:7.5px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 2px 6px rgba(16,24,40,.14)}
 .stat-label{display:none}
-.stat-value{font-size:27px;margin-top:1px}
-.stat-hint{font-size:10px}
+.stat-top{grid-area:icon;margin:0;align-self:center}
+.stat-icon{width:32px;height:32px}
+.stat-value{grid-area:value;font-size:24px;line-height:1.1;margin:0;align-self:end}
+.stat-hint{grid-area:hint;font-size:11px;line-height:1.3;color:#1f2937;font-weight:600;margin:0;white-space:normal;overflow:visible;text-overflow:clip;align-self:start}
 .panel-grid{gap:12px;margin-bottom:18px}
 .card-head{padding:15px 17px 0}
 .card-head h2{font-size:13.5px}
@@ -279,7 +290,7 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
 }
 @media(max-width:900px){
   .sidebar{width:72px;padding:18px 10px}
-  .brand-text,.nav-item span:not(.nav-badge),.sidebar-card,.admin-meta,.logout span{display:none}
+  .brand-text,.nav-item span:not(.nav-badge),.sidebar-card,.sidebar-fill,.admin-meta,.logout span{display:none}
   .brand{justify-content:center}
   .nav-item{justify-content:center;padding:10px}
   .nav-badge{display:none}
@@ -335,6 +346,13 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
   th,td{padding:9px 11px}
   .table-card{border-radius:12px}
   .quick-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .stat-grid{gap:9px}
+  .stat-card{grid-template-columns:30px minmax(0,1fr);column-gap:8px;padding:18px 11px 10px}
+  .stat-icon{width:30px;height:30px}
+  .stat-value{font-size:23px}
+  .stat-hint{font-size:10.5px}
 }
 </style>
 </head>
@@ -393,6 +411,34 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
         <span class="nav-badge" id="navCount">0</span>
       </button>
     </nav>
+    <div class="sidebar-fill">
+      <div class="sidebar-promo">
+        <svg viewBox="0 0 180 110" fill="none" aria-hidden="true">
+          <rect x="5" y="5" width="170" height="100" rx="10" fill="#0c3a34" stroke="rgba(255,255,255,.12)"/>
+          <rect x="5" y="5" width="170" height="18" rx="10" fill="rgba(255,255,255,.06)"/>
+          <circle cx="16" cy="14" r="2" fill="#5eead4" opacity=".8"/>
+          <circle cx="23" cy="14" r="2" fill="#5eead4" opacity=".5"/>
+          <circle cx="30" cy="14" r="2" fill="#5eead4" opacity=".3"/>
+          <rect x="15" y="33" width="46" height="25" rx="4" fill="rgba(94,234,212,.14)" stroke="rgba(94,234,212,.28)"/>
+          <rect x="67" y="33" width="46" height="25" rx="4" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.09)"/>
+          <rect x="119" y="33" width="46" height="25" rx="4" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.09)"/>
+          <rect x="21" y="40" width="12" height="3" rx="1.5" fill="rgba(255,255,255,.35)"/>
+          <rect x="21" y="47" width="25" height="4" rx="2" fill="#5eead4" opacity=".8"/>
+          <rect x="73" y="40" width="12" height="3" rx="1.5" fill="rgba(255,255,255,.28)"/>
+          <rect x="73" y="47" width="22" height="4" rx="2" fill="rgba(255,255,255,.45)"/>
+          <rect x="125" y="40" width="12" height="3" rx="1.5" fill="rgba(255,255,255,.28)"/>
+          <rect x="125" y="47" width="22" height="4" rx="2" fill="rgba(255,255,255,.45)"/>
+          <rect x="15" y="68" width="150" height="5" rx="2.5" fill="rgba(255,255,255,.08)"/>
+          <rect x="15" y="79" width="120" height="4" rx="2" fill="rgba(255,255,255,.06)"/>
+          <rect x="15" y="88" width="136" height="4" rx="2" fill="rgba(255,255,255,.05)"/>
+          <path d="M154 82c5-5 12-1 12 4 0 6-8 10-12 14-4-4-12-8-12-14 0-5 7-9 12-4Z" fill="rgba(94,234,212,.16)" stroke="#5eead4" stroke-width="1.2"/>
+        </svg>
+        <div class="promo-eyebrow" data-i18n="sidebarPromoEyebrow">Vista de plataforma</div>
+        <strong data-i18n="sidebarPromoTitle">Tu plataforma de un vistazo</strong>
+        <p data-i18n="sidebarPromoText">Suscriptores, accesos y salud en un solo lugar.</p>
+        <div class="promo-stats"><strong id="sidebarHouseholds">—</strong><span data-i18n="sidebarHouseholds">hogares</span><span class="sep">·</span><strong id="sidebarActive">—</strong><span data-i18n="sidebarActive">activas</span></div>
+      </div>
+    </div>
     <div class="sidebar-card">
       <div class="sidebar-card-title" data-i18n="systemStatus">Estado del sistema</div>
       <div class="system-row"><span class="dot" style="color:#34d399"></span><span data-i18n="operational">Operativo</span></div>
@@ -625,6 +671,11 @@ const I18N={
     pillActive:"Activas",
     pillPastdue:"Vencidas",
     pillApps:"Apps",
+    sidebarPromoEyebrow:"Vista de plataforma",
+    sidebarPromoTitle:"Tu plataforma de un vistazo",
+    sidebarPromoText:"Suscriptores, accesos y salud en un solo lugar.",
+    sidebarHouseholds:"hogares",
+    sidebarActive:"activas",
     healthTitle:"Salud de la plataforma",
     healthSub:"Indicadores en tiempo real de la vista actual.",
     stable:"Estable",
@@ -814,6 +865,11 @@ const I18N={
     pillActive:"Active",
     pillPastdue:"Past due",
     pillApps:"Apps",
+    sidebarPromoEyebrow:"Platform snapshot",
+    sidebarPromoTitle:"Your platform at a glance",
+    sidebarPromoText:"Subscribers, access, and health in one place.",
+    sidebarHouseholds:"households",
+    sidebarActive:"active",
     healthTitle:"Platform health",
     healthSub:"Real-time indicators for the current view.",
     stable:"Stable",
@@ -1022,6 +1078,8 @@ function renderSummary(){
   $("statActive").textContent=d.subscriptions_active??"—";
   $("statPastdue").textContent=d.subscriptions_past_due??"—";
   $("statApps").textContent=d.apps_active??"—";
+  $("sidebarHouseholds").textContent=d.households_total??"—";
+  $("sidebarActive").textContent=d.subscriptions_active??"—";
   const total=d.subscriptions_total||0,active=d.subscriptions_active||0;
   $("activeHint").textContent=total?t("activeHintPct",{pct:Math.round(active/total*100)}):t("activeHintTotal");
   $("pastdueHint").textContent=(d.subscriptions_past_due||0)>0?t("pastdueNeeds"):t("pastdueNone");
