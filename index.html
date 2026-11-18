@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Portal de Cuidado | Care Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='18' font-weight='bold' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
 <meta http-equiv="Cache-Control" content="no-store, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
@@ -84,6 +87,9 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .hero-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .secure-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);color:#d9f4ec;font-size:10px;font-weight:650}
 .secure-badge svg{width:11px;height:11px}
+.hero-action{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:#fff;border:1px solid rgba(255,255,255,.55);color:#0f766e;font-size:10.5px;font-weight:750;line-height:1.2;text-decoration:none;box-shadow:0 3px 10px rgba(0,0,0,.08);white-space:nowrap}
+.hero-action:hover{background:#f0fdfa;text-decoration:none}
+.hero-action svg{width:12px;height:12px;flex:none}
 .hero-panel{position:relative;z-index:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:17px;padding:18px;backdrop-filter:blur(6px);display:flex;flex-direction:column;justify-content:center;gap:13px}
 .hero-stat{display:flex;align-items:baseline;gap:9px}
 .hero-stat strong{font-size:31px;line-height:1;letter-spacing:-.04em;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
@@ -118,6 +124,46 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .app-card.off .app-cta{color:#94a3b8}
 .migration-note{margin:14px 2px 0;padding:11px 13px;border:1px solid #f0dfbd;background:#fff8eb;border-radius:10px;color:#8a5a12;font-size:11.5px;line-height:1.55}
 .portal-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:24px;padding-top:14px;border-top:1px solid #e5ece9;font-size:10px;color:#8b9a94}
+
+/* Refined type and vertical rhythm */
+body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:-.008em}
+.brand-text strong,.hero-copy h1,.section-head h2,.app-card h3,.hero-stat strong,.login-card h2,.portal-footer{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.hero{padding:24px 26px;grid-template-columns:1.45fr .55fr;gap:18px;border-radius:20px;margin-bottom:16px}
+.hero-copy h1{font-size:clamp(30px,3.4vw,38px);margin:6px 0 4px}
+.hero-copy #portal-subtitle{font-size:13px;margin-bottom:14px}
+.hero-copy .eyebrow{font-size:9.5px}
+.hero-meta{gap:6px}
+.hero-action{font-size:10px;padding:4px 8px}
+.hero-panel{padding:14px 16px;gap:8px;border-radius:14px}
+.hero-stat strong{font-size:26px}
+.hero-stat span{font-size:9.5px}
+.hero-panel .hero-note{font-size:9px}
+.section-head{margin:0 2px 10px;align-items:center}
+.section-head h2{font-size:16.5px}
+.section-head p{font-size:11.5px}
+.app-grid{gap:10px}
+.app-card{min-height:0;padding:14px;border-radius:13px}
+.app-top{margin-bottom:8px}
+.app-icon{width:34px;height:34px;border-radius:9px}
+.app-icon svg{width:17px;height:17px}
+.app-tag{font-size:8px;padding:2px 6px}
+.app-card h3{font-size:13.5px;margin-bottom:3px}
+.app-card p{font-size:11px;line-height:1.45}
+.app-foot{margin-top:10px;padding-top:8px}
+.app-status{font-size:9px}
+.app-cta{font-size:9.5px}
+.portal-footer{margin-top:16px;padding-top:12px;font-size:10px;color:#5d6e68;font-weight:500}
+/* Caregiver-only tile becomes a full-width, low-height strip */
+.app-card.wide{grid-column:1/-1;display:grid;grid-template-columns:38px minmax(0,1fr) auto;grid-template-areas:"icon title foot" "icon desc foot";column-gap:12px;row-gap:1px;align-items:center;padding:12px 16px;min-height:0;opacity:1;background:#fbfcfc;border-style:solid}
+.app-card.wide:hover{transform:none;border-color:var(--line);box-shadow:0 1px 2px rgba(16,24,40,.025)}
+.app-card.wide .app-top{grid-area:icon;margin:0;align-self:center}
+.app-card.wide .app-tag{display:none}
+.app-card.wide .app-icon{width:36px;height:36px}
+.app-card.wide h3{grid-area:title;margin:0;font-size:12.5px}
+.app-card.wide p{grid-area:desc;margin:0;font-size:10.5px;line-height:1.35}
+.app-card.wide .app-foot{grid-area:foot;margin:0;padding:0;border:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.app-card.wide .app-cta{display:none}
+.app-card.wide .app-status{font-size:9px}
 
 @media(max-width:1000px){
   .hero{grid-template-columns:1fr;gap:18px;padding:26px}
@@ -232,6 +278,10 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
           <span id="secureSession">Sesión segura</span>
         </span>
+        <a id="manageCaregivers" class="hero-action" href="/cuidadores.html?lang=es">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 20c.5-3.5 2.9-5.4 6.2-5.4s5.7 1.9 6.2 5.4"/><path d="M16 5.2a3 3 0 0 1 0 5.6"/><path d="M17.5 14.8c2.1.7 3.4 2.4 3.7 5.2"/></svg>
+          <span id="manageCaregiversLabel">Gestionar cuidadores</span>
+        </a>
       </div>
     </div>
     <div class="hero-panel">
@@ -331,6 +381,7 @@ const TRANSLATIONS = {
     sessionSwitchError: "La sesión no cambió de cuenta. Intente de nuevo.",
     heroGreeting: "Bienvenido de nuevo",
     secureSession: "Sesión segura",
+    manageCaregivers: "Gestionar cuidadores",
     appsHeading: "Sus aplicaciones",
     appsSub: "Todo lo que necesita para el cuidado diario.",
     appsCountLabel: "aplicaciones disponibles",
@@ -382,6 +433,7 @@ const TRANSLATIONS = {
     sessionSwitchError: "The session did not switch accounts. Please try again.",
     heroGreeting: "Welcome back",
     secureSession: "Secure session",
+    manageCaregivers: "Manage caregivers",
     appsHeading: "Your applications",
     appsSub: "Everything you need for daily care.",
     appsCountLabel: "apps available",
@@ -509,6 +561,8 @@ function renderPortal() {
   $("portal-subtitle").textContent = t.subtitle;
   $("heroGreeting").textContent = t.heroGreeting;
   $("secureSession").textContent = t.secureSession;
+  $("manageCaregiversLabel").textContent = t.manageCaregivers;
+  $("manageCaregivers").setAttribute("href", "/cuidadores.html?lang=" + currentLang);
   $("appsHeading").textContent = t.appsHeading;
   $("appsSub").textContent = t.appsSub;
   $("appsCountLabel").textContent = t.appsCountLabel;
@@ -553,7 +607,7 @@ function renderPortal() {
         '<a href="' + buildAppUrl(key).toString() + '" class="app-card" id="card-' + key + '" data-app-key="' + key + '" style="--accent:' + meta.accent + '">' + inner + '</a>');
     } else {
       container.insertAdjacentHTML("beforeend",
-        '<div class="app-card off" id="card-' + key + '" aria-disabled="true" style="--accent:' + meta.accent + '">' + inner + '</div>');
+        '<div class="app-card off' + (caregiverOnly ? ' wide' : '') + '" id="card-' + key + '" aria-disabled="true" style="--accent:' + meta.accent + '">' + inner + '</div>');
     }
   });
 
