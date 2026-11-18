@@ -33,8 +33,8 @@ a{color:var(--brand);text-decoration:none}a:hover{text-decoration:underline}
 .eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 
 /* Login */
-.login-shell{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;background:var(--bg)}
-.login-aside{position:relative;overflow:hidden;background:radial-gradient(circle at 15% 20%,#165e55 0,#0b3b36 42%,#082824 100%);color:#e9f5f1;padding:clamp(30px,5vw,58px);display:flex;flex-direction:column;justify-content:center;gap:20px}
+.login-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;background:var(--bg)}
+.login-aside{position:relative;overflow:hidden;flex:0 1 520px;min-width:0;height:600px;background:radial-gradient(circle at 15% 20%,#165e55 0,#0b3b36 42%,#082824 100%);color:#e9f5f1;padding:clamp(30px,4vw,48px);display:flex;flex-direction:column;justify-content:center;gap:20px;border-radius:20px 0 0 20px}
 .login-aside:after{content:"";position:absolute;width:520px;height:520px;border:1px solid rgba(255,255,255,.10);border-radius:50%;right:-220px;bottom:-230px;box-shadow:0 0 0 70px rgba(255,255,255,.025),0 0 0 140px rgba(255,255,255,.018)}
 .login-aside .brand{position:relative;z-index:1}
 .login-copy{position:relative;z-index:1;max-width:520px;margin:0}
@@ -43,8 +43,8 @@ a{color:var(--brand);text-decoration:none}a:hover{text-decoration:underline}
 .login-points{position:relative;z-index:1;display:grid;gap:10px;font-size:13px;color:#cfe5df}
 .login-points div{display:flex;gap:9px;align-items:center}
 .login-points span{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:10px;color:#8ee0cd}
-.login-panel{display:grid;place-items:center;padding:28px}
-.login-card{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px;box-shadow:0 24px 60px rgba(16,24,40,.09)}
+.login-panel{flex:0 0 430px;width:430px;height:600px;display:flex;align-items:stretch;padding:0;background:#fff;border:1px solid var(--line);border-left:0;border-radius:0 20px 20px 0;box-shadow:0 24px 60px rgba(16,24,40,.09)}
+.login-card{width:100%;background:#fff;border:0;border-radius:0;padding:32px 30px;box-shadow:none;display:flex;flex-direction:column;justify-content:center}
 .login-card h2{font-size:24px;letter-spacing:-.02em;margin:0 0 4px}
 .login-card .intro{color:var(--muted);font-size:13px;margin:0 0 24px}
 .field{margin-bottom:14px}
@@ -289,6 +289,10 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
   .panel-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:900px){
+  .login-shell{padding:20px}
+  .login-aside{display:none}
+  .login-panel{flex:0 1 430px;width:min(430px,100%);height:auto;min-height:0;border:0;border-radius:20px;background:transparent;box-shadow:none}
+  .login-card{border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 24px 60px rgba(16,24,40,.09)}
   .sidebar{width:72px;padding:18px 10px}
   .brand-text,.nav-item span:not(.nav-badge),.sidebar-card,.sidebar-fill,.admin-meta,.logout span{display:none}
   .brand{justify-content:center}
@@ -299,7 +303,6 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
   .main{margin-left:72px}
   .login-shell{grid-template-columns:1fr}
   .login-aside{display:none}
-  .login-panel{min-height:100vh}
 }
 @media(max-width:700px){
   .main{padding:18px 14px 28px}
@@ -1045,7 +1048,7 @@ function applyStatic(){
   setSectionLabels(currentSection);
 }
 function setLang(next){if(next===lang)return;lang=next;try{localStorage.setItem("cuidar-admin-lang",lang);}catch(e){}applyStatic();if(state.summary||state.subs.length)renderAll();if(state.detail){renderDrawerHead();renderDrawerBody();}const sp=$("loginBtn").querySelector("[data-i18n]");if(sp&&$("loginBtn").disabled)sp.textContent=t("signingIn");}
-function showLogin(){$("login").style.display="grid";$("app").hidden=true;$("message").textContent="";$("password").value="";closeDrawer();const sp=$("loginBtn").querySelector("[data-i18n]");if(sp)sp.textContent=t("signIn");$("loginBtn").disabled=false;}
+function showLogin(){$("login").style.display="flex";$("app").hidden=true;$("message").textContent="";$("password").value="";closeDrawer();const sp=$("loginBtn").querySelector("[data-i18n]");if(sp)sp.textContent=t("signIn");$("loginBtn").disabled=false;}
 function showApp(){$("login").style.display="none";$("app").hidden=false;}
 function setAdmin(session){const email=session&&session.user&&session.user.email?session.user.email:t("administrator");$("adminEmail").textContent=email;$("adminAvatar").textContent=initial(email);}
 function reviewCount(){return state.subs.filter(s=>s.review_hold).length;}
