@@ -179,14 +179,15 @@
       listTitle: "Current caregivers",
       active: "Active",
       revoked: "Revoked",
-      hasLink: "Link generated",
+      hasLink: "Link active",
       noLink: "No link yet",
       generate: "Generate link",
-      newLink: "New link",
+      newLink: "Generate new link",
       revoke: "Revoke",
       revokeConfirm: "Revoke this caregiver? Their current links will stop working.",
+      regenerateConfirm: "Generate a new link? The current link will stop working immediately and cannot be recovered.",
       linkTitle: "Links for",
-      linkHint: "These links are shown only once. If you lose them, generate a new link; the old one stops working.",
+      linkHint: "Copy both links now. They are shown only once. If you generate a new link, the current one stops working immediately.",
       rosita: "Daily report",
       gastos: "Household expenses",
       copy: "Copy",
@@ -218,14 +219,15 @@
       listTitle: "Cuidadoras actuales",
       active: "Activa",
       revoked: "Revocada",
-      hasLink: "Enlace generado",
+      hasLink: "Enlace activo",
       noLink: "Sin enlace",
       generate: "Generar enlace",
-      newLink: "Nuevo enlace",
+      newLink: "Generar nuevo enlace",
       revoke: "Revocar",
       revokeConfirm: "¿Revocar esta cuidadora? Sus enlaces actuales dejarán de funcionar.",
+      regenerateConfirm: "¿Generar un enlace nuevo? El enlace actual dejará de funcionar inmediatamente y no se podrá recuperar.",
       linkTitle: "Enlaces para",
-      linkHint: "Estos enlaces se muestran una sola vez. Si los pierde, genere uno nuevo; el anterior deja de funcionar.",
+      linkHint: "Copie ambos enlaces ahora. Solo se muestran una vez. Si genera uno nuevo, el actual deja de funcionar inmediatamente.",
       rosita: "Reporte diario",
       gastos: "Gastos del hogar",
       copy: "Copiar",
@@ -368,6 +370,8 @@
   }
 
   async function generateLink(caregiverId, name) {
+    const existing = state.caregivers.find((c) => c.id === caregiverId);
+    if (existing?.has_token && !confirm(t("regenerateConfirm"))) return;
     try {
       const { data, error } = await supabase.rpc("issue_caregiver_token", {
         p_caregiver_id: caregiverId,
