@@ -34,12 +34,24 @@ a{color:var(--brand);text-decoration:none}a:hover{text-decoration:underline}
 
 /* Login */
 .login-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;background:var(--bg)}
-.login-aside{position:relative;overflow:hidden;flex:0 1 520px;min-width:0;height:600px;background:radial-gradient(circle at 15% 20%,#165e55 0,#0b3b36 42%,#082824 100%);color:#e9f5f1;padding:clamp(30px,4vw,48px);display:flex;flex-direction:column;justify-content:center;gap:20px;border-radius:20px 0 0 20px}
+.login-aside{position:relative;overflow:hidden;flex:0 1 520px;min-width:0;height:600px;background:radial-gradient(circle at 15% 20%,#165e55 0,#0b3b36 42%,#082824 100%);color:#e9f5f1;padding:clamp(30px,3.5vw,42px);display:flex;flex-direction:column;justify-content:space-between;gap:18px;border-radius:20px 0 0 20px}
 .login-aside:after{content:"";position:absolute;width:520px;height:520px;border:1px solid rgba(255,255,255,.10);border-radius:50%;right:-220px;bottom:-230px;box-shadow:0 0 0 70px rgba(255,255,255,.025),0 0 0 140px rgba(255,255,255,.018)}
 .login-aside .brand{position:relative;z-index:1}
+.login-top-copy{position:relative;z-index:1;display:flex;flex-direction:column;gap:20px}
 .login-copy{position:relative;z-index:1;max-width:520px;margin:0}
 .login-copy h1{font-size:clamp(28px,3.3vw,40px);line-height:1.12;letter-spacing:-.03em;margin:0 0 14px;color:#fff}
-.login-copy p{font-size:14px;line-height:1.65;color:#b9d5ce;margin:0;max-width:440px}
+.login-copy p{font-size:17px;line-height:1.55;color:#d3e7e1;margin:0;max-width:450px}
+.login-preview{position:relative;z-index:1;border:1px solid rgba(255,255,255,.14);border-radius:15px;padding:12px;background:rgba(255,255,255,.055);box-shadow:0 14px 30px rgba(0,0,0,.10)}
+.preview-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:#b9d5ce;margin-bottom:9px}
+.preview-readonly{font-size:8.5px;letter-spacing:.04em;text-transform:none;padding:3px 7px;border-radius:999px;background:rgba(94,234,212,.12);color:#8ee0cd;border:1px solid rgba(94,234,212,.18);white-space:nowrap}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.preview-item{display:flex;align-items:center;gap:7px;padding:7px 8px;border:1px solid rgba(255,255,255,.06);border-radius:9px;background:rgba(255,255,255,.035);min-width:0}
+.preview-icon{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:rgba(94,234,212,.10);color:#8ee0cd;font-size:11px;flex:none}
+.preview-item strong{display:block;font-size:10px;line-height:1.2;color:#f1faf7;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview-item small{display:block;font-size:8.5px;line-height:1.25;color:#8fb9b0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview-activity{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);font-size:8.5px;color:#8fb9b0;letter-spacing:.04em;text-transform:uppercase}
+.preview-bars{display:flex;align-items:flex-end;gap:3px;height:20px}
+.preview-bars i{display:block;width:5px;border-radius:2px 2px 1px 1px;background:rgba(94,234,212,.55);height:var(--h,40%)}
 .login-points{position:relative;z-index:1;display:grid;gap:10px;font-size:13px;color:#cfe5df}
 .login-points div{display:flex;gap:9px;align-items:center}
 .login-points span{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:10px;color:#8ee0cd}
@@ -363,15 +375,26 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
 
 <section id="login" class="login-shell">
   <div class="login-aside">
-    <div class="brand">
-      <div class="brand-mark">C</div>
-      <div class="brand-text"><strong>Cuidar SaaS</strong><span data-i18n="loginBrandSub">Administración de plataforma</span></div>
+    <div class="login-top-copy">
+      <div class="brand">
+        <div class="brand-mark">C</div>
+        <div class="brand-text"><strong>Cuidar SaaS</strong><span data-i18n="loginBrandSub">Administración de plataforma</span></div>
+      </div>
+      <div class="login-copy">
+        <h1 data-i18n="loginHeadline">Todo el pulso de tu plataforma, en un solo lugar.</h1>
+        <p data-i18n="loginLead">Revisa hogares, suscripciones, aplicaciones y cuidadores. Una vista de solo lectura para el equipo autorizado, sin tocar cuentas ni cobros.</p>
+      </div>
     </div>
-    <div class="login-copy">
-      <h1 data-i18n="loginHeadline">Todo el pulso de tu plataforma, en un solo lugar.</h1>
-      <p data-i18n="loginLead">Revisa hogares, suscripciones, aplicaciones y cuidadores. Una vista de solo lectura para el equipo autorizado, sin tocar cuentas ni cobros.</p>
+    <div class="login-preview" aria-hidden="true">
+      <div class="preview-head"><span data-i18n="previewEyebrow">Vista de plataforma</span><span class="preview-readonly" data-i18n="previewReadOnly">Solo lectura</span></div>
+      <div class="preview-grid">
+        <div class="preview-item"><span class="preview-icon">⌂</span><div><strong data-i18n="previewHouseholds">Hogares</strong><small data-i18n="previewHouseholdsSub">Miembros y roles</small></div></div>
+        <div class="preview-item"><span class="preview-icon">◈</span><div><strong data-i18n="previewSubscriptions">Suscripciones</strong><small data-i18n="previewSubscriptionsSub">Estados y cobros</small></div></div>
+        <div class="preview-item"><span class="preview-icon">▦</span><div><strong data-i18n="previewApps">Aplicaciones</strong><small data-i18n="previewAppsSub">Accesos por hogar</small></div></div>
+        <div class="preview-item"><span class="preview-icon">♡</span><div><strong data-i18n="previewCaregivers">Cuidadoras</strong><small data-i18n="previewCaregiversSub">Enlaces privados</small></div></div>
+      </div>
+      <div class="preview-activity"><span data-i18n="previewActivity">Actividad por aplicación</span><span class="preview-bars"><i style="--h:45%"></i><i style="--h:62%"></i><i style="--h:38%"></i><i style="--h:72%"></i><i style="--h:52%"></i><i style="--h:84%"></i><i style="--h:58%"></i></span></div>
     </div>
-
   </div>
   <div class="login-panel">
     <div class="login-card">
@@ -619,6 +642,17 @@ const I18N={
     loginBrandSub:"Administración de plataforma",
     loginHeadline:"Todo el pulso de tu plataforma, en un solo lugar.",
     loginLead:"Revisa hogares, suscripciones, aplicaciones y cuidadores. Una vista de solo lectura para el equipo autorizado, sin tocar cuentas ni cobros.",
+    previewEyebrow:"Vista de plataforma",
+    previewReadOnly:"Solo lectura",
+    previewHouseholds:"Hogares",
+    previewHouseholdsSub:"Miembros y roles",
+    previewSubscriptions:"Suscripciones",
+    previewSubscriptionsSub:"Estados y cobros",
+    previewApps:"Aplicaciones",
+    previewAppsSub:"Accesos por hogar",
+    previewCaregivers:"Cuidadoras",
+    previewCaregiversSub:"Enlaces privados",
+    previewActivity:"Actividad por aplicación",
     loginPoint1:"Datos de suscriptores solo para administradores",
     loginPoint2:"Lectura segura; los cambios de cobro se hacen en Stripe",
     loginPoint3:"Exporta la lista cuando la necesites",
@@ -813,6 +847,17 @@ const I18N={
     loginBrandSub:"Platform administration",
     loginHeadline:"The pulse of your platform, in one place.",
     loginLead:"Review households, subscriptions, apps, and caregivers. A read-only view for the authorized team, without touching accounts or billing.",
+    previewEyebrow:"Platform overview",
+    previewReadOnly:"Read-only",
+    previewHouseholds:"Households",
+    previewHouseholdsSub:"Members & roles",
+    previewSubscriptions:"Subscriptions",
+    previewSubscriptionsSub:"Status & billing",
+    previewApps:"Applications",
+    previewAppsSub:"Access per household",
+    previewCaregivers:"Caregivers",
+    previewCaregiversSub:"Private links",
+    previewActivity:"Activity by application",
     loginPoint1:"Subscriber data visible only to administrators",
     loginPoint2:"Secure read-only access; billing changes happen in Stripe",
     loginPoint3:"Export the list whenever you need it",
