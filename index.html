@@ -38,6 +38,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .lang-btn{border:0;background:transparent;color:#7b8b85;font-size:10px;font-weight:750;padding:4px 8px;border-radius:6px;line-height:1}
 .lang-btn.active{background:#fff;color:var(--brand);box-shadow:0 1px 2px rgba(16,24,40,.08)}
 .user-pill{display:flex;align-items:center;gap:8px;padding:4px 5px 4px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:0}
+.account-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);text-decoration:none;font-size:12px;font-weight:750;white-space:nowrap}
+.account-link:hover{background:#f4faf7;border-color:#bcd8ce}
 .avatar{width:30px;height:30px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:11px;font-weight:800;flex:none}
 .user-meta{min-width:0;line-height:1.25}
 .user-meta span{display:block}
@@ -220,6 +222,7 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
     <div class="brand-text"><strong>Cuidar SaaS</strong><span id="headerBrandSub">Portal de Cuidado</span></div>
   </a>
   <div class="header-actions">
+    <a class="account-link" id="accountLink" href="https://marbaquero.github.io/portal.html" hidden>Cuenta</a>
     <div class="user-pill" id="userInfo" style="display:none">
       <div class="avatar" id="userAvatar">M</div>
       <div class="user-meta"><span class="user-email" id="userEmail"></span><span class="user-label" id="userLabel">Cuenta familiar</span></div>
@@ -378,6 +381,7 @@ const TRANSLATIONS = {
     loginSub: "Ingrese sus credenciales para acceder al sistema.",
     logoutBtn: "Cerrar sesión",
     userLabel: "Cuenta familiar",
+    accountLink: "Cuenta",
     loginEyebrow: "Acceso familiar",
     loginAsideTitle: "El cuidado de su familia, en un solo lugar.",
     loginAsideLead: "Acceda a las herramientas de cuidado de su hogar: reportes, inventario, pagos y más. Todo protegido y disponible cuando lo necesite.",
@@ -430,6 +434,7 @@ const TRANSLATIONS = {
     loginSub: "Enter your credentials to access the system.",
     logoutBtn: "Sign out",
     userLabel: "Family account",
+    accountLink: "Account",
     loginEyebrow: "Family access",
     loginAsideTitle: "Your family's care, in one place.",
     loginAsideLead: "Access your household's care tools: reports, inventory, payments, and more. Protected and available whenever you need them.",
@@ -568,6 +573,7 @@ function renderPortal() {
   $("loginFoot").textContent = t.loginFoot;
   $("logoutText").textContent = t.logoutBtn;
   $("userLabel").textContent = t.userLabel;
+  $("accountLink").textContent = t.accountLink;
   $("headerBrandSub").textContent = t.title;
   $("loginBrandSub").textContent = t.title;
   const lo = document.querySelector(".logout"); if (lo) lo.title = t.logoutBtn;
@@ -681,6 +687,7 @@ function applySession(session) {
     $("loginBox").style.display = "none";
     $("portalView").style.display = "flex";
     $("userInfo").style.display = "flex";
+    $("accountLink").hidden = false;
     $("userEmail").textContent = currentUser.email || "";
     $("userAvatar").textContent = initial(currentUser.email);
     $("userLabel").textContent = t.userLabel;
@@ -690,6 +697,7 @@ function applySession(session) {
     $("loginBox").style.display = "flex";
     $("portalView").style.display = "none";
     $("userInfo").style.display = "none";
+    $("accountLink").hidden = true;
     $("userEmail").textContent = "";
     $("loginMsg").textContent = "";
   }
