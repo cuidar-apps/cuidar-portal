@@ -262,7 +262,7 @@ body.login-mode #loginBox{width:100%;max-width:none;min-height:100vh;margin:0;pa
 .login-brand h1{font-family:"Manrope",sans-serif;font-size:clamp(31px,4.2vw,42px);line-height:1.08;letter-spacing:-.04em;color:#fff;margin:0 0 8px;text-shadow:0 2px 16px rgba(0,0,0,.12)}
 .login-brand .login-kicker{font-size:12px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#b9e5d9;margin:0 0 8px}
 .login-brand .login-tagline{font-size:13.5px;line-height:1.65;color:#d9eee8;margin:0 auto;max-width:600px}
-.login-card{width:min(440px,100%);background:#fff;border:1px solid rgba(255,255,255,.6);border-radius:24px;padding:30px;box-shadow:0 26px 60px rgba(4,35,30,.24)}
+.login-card{width:min(440px,100%);background:var(--paper);border:1px solid rgba(255,255,255,.6);border-radius:24px;padding:30px;box-shadow:0 26px 60px rgba(4,35,30,.24)}
 .login-card h2{font-size:26px;line-height:1.15;letter-spacing:-.035em;margin:0 0 5px;color:#132622;font-family:"Manrope",sans-serif}
 .login-card .intro{font-size:12.5px;color:#6b7c76;margin:0 0 20px;line-height:1.6}
 .login-card .field{margin-bottom:12px}
@@ -287,6 +287,102 @@ body.login-mode #loginBox{width:100%;max-width:none;min-height:100vh;margin:0;pa
   .login-card{padding:24px 20px;border-radius:20px}
   .login-card h2{font-size:24px}
 }
+
+
+/* Hello portal visual system */
+:root{
+  --bg:#f3eee4;--surface:#fbf8f1;--paper:#fbf8f1;
+  --ink:#2c2924;--muted:#71695d;--line:#e2d8c8;
+  --brand:#40583d;--brand-dark:#30422e;--brand-deep:#263526;--brand-soft:#e9eee2;
+}
+body{background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+header{background:rgba(248,245,238,.96);border-bottom-color:var(--line)}
+.brand-mark{background:linear-gradient(145deg,#61775a,#40583d);box-shadow:0 4px 12px rgba(64,88,61,.22)}
+.brand-text strong{color:var(--ink)}
+.brand-text span{color:var(--muted)}
+.account-link,.user-pill,.lang-selector{background:var(--paper);border-color:var(--line)}
+.account-link{color:var(--ink)}
+.account-link:hover{background:#f8f3e9;border-color:#cfc3af}
+.lang-selector{background:#efe9dd}
+.lang-btn.active{color:var(--brand)}
+.user-email{color:#3f3a32}
+.logout{color:#71695d}
+#portalView{max-width:1080px;justify-content:flex-start;padding:24px 22px 54px;min-height:calc(100vh - 63px)}
+.portal-nav{max-width:1080px;margin:0 0 22px;background:transparent;border-color:var(--line);box-shadow:none}
+.portal-nav button,.portal-nav a{color:var(--muted);font-family:Arial,Helvetica,sans-serif}
+.portal-nav button:hover,.portal-nav a:hover{background:#efe9dd;color:var(--ink)}
+.portal-nav button.active{background:var(--brand);color:#fff}
+.nav-caregivers{}
+.hero{display:block;background:transparent;border-radius:0;padding:10px 0 28px;margin:0 0 10px;color:var(--ink);box-shadow:none;overflow:visible}
+.hero:before,.hero:after,.hero-art,.hero-panel,.hero-meta{display:none!important}
+.hero-copy{position:static}
+.hero-copy .eyebrow{color:var(--brand);font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.14em}
+#portal-title{font-family:Georgia,"Times New Roman",serif;font-size:clamp(52px,7vw,70px);font-weight:400;line-height:1;letter-spacing:-.045em;color:var(--ink);margin:7px 0 8px}
+#portal-subtitle,.hero-copy #portal-subtitle{font-family:Arial,Helvetica,sans-serif;font-size:15px;color:var(--muted);margin:0;max-width:none}
+.hero-copy .eyebrow,#portal-title,#portal-subtitle{position:relative;z-index:1}
+.apps-section{margin-top:4px}
+.section-head{margin:0 0 16px;align-items:flex-end}
+.section-head h2{font-family:Georgia,"Times New Roman",serif;font-size:29px;font-weight:400;letter-spacing:-.03em;color:var(--ink)}
+.section-head p{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:var(--muted)}
+.apps-badge{background:#e9eee2;color:var(--brand);font-family:Arial,Helvetica,sans-serif}
+.app-grid{gap:14px}
+.app-card{background:var(--paper);border-color:var(--line);border-radius:16px;box-shadow:none;color:var(--ink)}
+.app-card:hover{transform:translateY(-1px);border-color:#c7bca8;box-shadow:0 6px 18px rgba(64,55,38,.06)}
+.app-card h3{font-family:Georgia,"Times New Roman",serif;font-size:20px;font-weight:400;letter-spacing:-.02em;color:var(--ink)}
+.app-card p{font-family:Arial,Helvetica,sans-serif;font-size:12.5px;color:var(--muted)}
+.app-tag{background:#f1ece1;border-color:#e5dccb;color:#71695d;font-family:Arial,Helvetica,sans-serif}
+.app-icon{background:#e9eee2;color:var(--brand)}
+.app-foot{border-top-color:#eee4d5}
+.app-status{font-family:Arial,Helvetica,sans-serif}
+.app-status.on{color:#4f6b45}
+.app-cta{color:var(--brand);font-family:Arial,Helvetica,sans-serif}
+.app-card.off{background:#f5f0e6}
+.app-card.off .app-icon{background:#eee8dc;color:#8b8171}
+.migration-note{background:#f1ece1;border-color:#e5dccb;color:#71695d;font-family:Arial,Helvetica,sans-serif}
+.portal-footer{border-top-color:var(--line);color:var(--muted);font-family:Arial,Helvetica,sans-serif}
+.portal-footer a{color:var(--brand)}
+#portalView.account-mode{padding-top:24px}
+.account-view{max-width:1080px}
+.account-head h2{font-family:Georgia,"Times New Roman",serif;font-size:34px;font-weight:400;letter-spacing:-.03em;color:var(--ink)}
+.account-head p{font-family:Arial,Helvetica,sans-serif;color:var(--muted)}
+.account-head .btn-secondary,.account-actions .btn-secondary{background:var(--paper);border-color:var(--line);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.account-head .btn-secondary:hover,.account-actions .btn-secondary:hover{background:#f3eee4;border-color:#cfc3af}
+.account-card{background:var(--paper);border-color:var(--line);box-shadow:none}
+.account-card-head h3{font-family:Arial,Helvetica,sans-serif;color:var(--muted)}
+.account-plan-name{font-family:Georgia,"Times New Roman",serif;font-size:29px;font-weight:400;letter-spacing:-.025em;color:var(--ink)}
+.account-plan-price{font-family:Arial,Helvetica,sans-serif;color:var(--muted)}
+.account-badge{background:#e9eee2;color:var(--brand);font-family:Arial,Helvetica,sans-serif}
+.account-divider{background:var(--line)}
+.account-row{font-family:Arial,Helvetica,sans-serif;color:var(--muted)}
+.account-row strong{color:var(--ink)}
+.account-actions .btn-primary{background:var(--brand);font-family:Arial,Helvetica,sans-serif}
+.account-actions .btn-primary:hover{background:var(--brand-dark)}
+.account-message{background:#e9eee2;color:#30422e;font-family:Arial,Helvetica,sans-serif}
+.account-message.bad{background:#fff0ee;color:#a83232}
+@media(max-width:760px){
+  #portalView{padding:18px 14px 36px}
+  .account-link{display:none!important}
+  .header-actions{gap:6px}
+  .user-pill{padding:4px}
+  .user-meta{display:none}
+  .logout span{display:none}
+  .logout{padding:0 7px}
+  #portal-subtitle,.hero-copy #portal-subtitle{font-size:14px}
+  .hero{padding:8px 0 22px}
+  #portal-title{font-size:49px}
+  .section-head h2{font-size:25px}
+  .account-head h2{font-size:30px}
+}
+
+
+/* Hello app-card action */
+.app-foot{display:block;margin-top:13px;padding-top:0;border-top:0}
+.app-status{display:none}
+.app-cta{display:flex;align-items:center;justify-content:center;width:100%;padding:9px 12px;border-radius:8px;background:var(--brand);color:#fff!important;font-size:11.5px;font-weight:700;letter-spacing:.01em}
+.app-card:hover .app-cta{background:var(--brand-dark)}
+.app-card.off .app-cta{background:#d8d0c0;color:#6d6557!important}
+.app-card.wide .app-foot{display:block}
+.app-card.wide .app-cta{display:flex}
 
 </style>
 </head>
@@ -539,7 +635,10 @@ const TRANSLATIONS = {
     missingCredentials: "Por favor ingrese correo y contraseña.",
     loginError: "Error: {error}",
     sessionSwitchError: "La sesión no cambió de cuenta. Intente de nuevo.",
-    heroGreeting: "Bienvenido de nuevo",
+    portalTitle: "Hola",
+    headerBrandSub: "Portal del familiar",
+    heroGreeting: "Su cuenta familiar",
+    householdPrefix: "Hogar: ",
     secureSession: "Sesión segura",
     manageCaregivers: "Gestionar cuidadores",
     appsHeading: "Sus aplicaciones",
@@ -620,7 +719,10 @@ const TRANSLATIONS = {
     missingCredentials: "Please enter email and password.",
     loginError: "Error: {error}",
     sessionSwitchError: "The session did not switch accounts. Please try again.",
-    heroGreeting: "Welcome back",
+    portalTitle: "Hello",
+    headerBrandSub: "Family portal",
+    heroGreeting: "Your family account",
+    householdPrefix: "Household: ",
     secureSession: "Secure session",
     manageCaregivers: "Manage caregivers",
     appsHeading: "Your applications",
@@ -761,11 +863,11 @@ function renderPortal() {
   $("accountBillingNote").textContent = t.accountBillingNote;
   $("navCaregivers").href = "/cuidadores.html?lang=" + currentLang;
   $("accountPassword").href = "/reset.html?reset=1&lang=" + currentLang;
-  $("headerBrandSub").textContent = t.title;
+  $("headerBrandSub").textContent = t.headerBrandSub;
   const lo = document.querySelector(".logout"); if (lo) lo.title = t.logoutBtn;
 
-  $("portal-title").textContent = t.title;
-  $("portal-subtitle").textContent = t.subtitle;
+  $("portal-title").textContent = t.portalTitle;
+  $("portal-subtitle").textContent = accountData?.household?.name ? t.householdPrefix + accountData.household.name : t.subtitle;
   $("heroGreeting").textContent = t.heroGreeting;
   $("secureSession").textContent = t.secureSession;
   $("manageCaregiversLabel").textContent = t.manageCaregivers;
@@ -1002,6 +1104,7 @@ function renderAccount() {
   const data = accountData || {};
   const sub = data.subscription;
   const plan = data.plan;
+  if (data.household?.name) $("portal-subtitle").textContent = t.householdPrefix + data.household.name;
   $("accountEmail").textContent = currentUser?.email || "—";
   $("accountHousehold").textContent = data.household?.name || "—";
   $("accountSince").textContent = formatAccountDate(data.membership?.created_at);
