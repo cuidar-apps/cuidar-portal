@@ -438,7 +438,7 @@ header{background:rgba(248,245,238,.96);border-bottom-color:var(--line)}
       <label for="loginPass" id="loginPassLabel">Contraseña</label>
       <input type="password" id="loginPass" autocomplete="current-password" placeholder="Tu contraseña">
     </div>
-    <div class="forgot-row"><a id="forgotPasswordLink" href="https://marbaquero.github.io/reset.html">¿Olvidó su contraseña?</a></div>
+    <div class="forgot-row"><a id="forgotPasswordLink" href="https://wa.me/18323359906?text=Hola%2C%20necesito%20ayuda%20para%20restablecer%20mi%20contrase%C3%B1a%20de%20Cuidar%20a%20Distancia." target="_blank" rel="noopener">¿Olvidó su contraseña? Contacte a su coordinador</a></div>
     <button type="button" onclick="handleLogin()" id="btn-login">Entrar</button>
     <div class="login-msg" id="loginMsg" role="alert" aria-live="polite"></div>
     <a class="force-logout" id="forceLogout" href="https://marbaquero.github.io/portal.html" onclick="event.preventDefault();signOut()">¿Ves datos de otra familia? Forzar cierre de sesión en este navegador</a>
@@ -511,7 +511,7 @@ header{background:rgba(248,245,238,.96);border-bottom-color:var(--line)}
         <div class="account-row"><span id="accountRenewsLabel">Se renueva</span><strong id="accountRenews">—</strong></div>
         <div class="account-actions">
           <button type="button" class="btn-primary" id="accountBilling">Administrar facturación</button>
-          <a class="btn-secondary" href="/reset.html?reset=1" id="accountPassword" style="display:inline-flex;align-items:center;text-decoration:none">Cambiar contraseña</a>
+          <a class="btn-secondary" href="https://wa.me/18323359906?text=Hola%2C%20necesito%20ayuda%20para%20restablecer%20mi%20contrase%C3%B1a%20de%20Cuidar%20a%20Distancia." target="_blank" rel="noopener" id="accountPassword" style="display:inline-flex;align-items:center;text-decoration:none">Ayuda con la contraseña</a>
         </div>
       </article>
       <article class="account-card">
@@ -605,7 +605,8 @@ const TRANSLATIONS = {
     accountPlanLabel: "Plan",
     accountRenewsLabel: "Se renueva",
     accountBilling: "Administrar facturación",
-    accountPassword: "Cambiar contraseña",
+    accountPassword: "Ayuda con la contraseña",
+    contactCoordinator: "¿Olvidó su contraseña? Contacte a su coordinador",
     accountDetailsLabel: "Cuenta",
     accountEmailLabel: "Correo",
     accountHouseholdLabel: "Hogar",
@@ -689,7 +690,8 @@ const TRANSLATIONS = {
     accountPlanLabel: "Plan",
     accountRenewsLabel: "Renews",
     accountBilling: "Manage billing",
-    accountPassword: "Change password",
+    accountPassword: "Password help",
+    contactCoordinator: "Forgot your password? Contact your care coordinator",
     accountDetailsLabel: "Account",
     accountEmailLabel: "Email",
     accountHouseholdLabel: "Household",
@@ -844,7 +846,8 @@ function renderPortal() {
   $("logoutText").textContent = t.logoutBtn;
   $("userLabel").textContent = t.userLabel;
   $("accountLink").textContent = t.accountLink;
-  $("forgotPasswordLink").textContent = t.forgotPassword;
+  $("forgotPasswordLink").textContent = t.contactCoordinator;
+  $("forgotPasswordLink").href = "https://wa.me/18323359906?text=" + encodeURIComponent(currentLang === "es" ? "Hola, necesito ayuda para restablecer mi contraseña de Cuidar a Distancia." : "Hello, I need help resetting my Cuidar a Distancia password.");
   $("navApps").textContent = t.navApps;
   $("navAccount").textContent = t.navAccount;
   $("navCaregivers").textContent = t.navCaregivers;
@@ -862,7 +865,7 @@ function renderPortal() {
   $("accountSinceLabel").textContent = t.accountSinceLabel;
   $("accountBillingNote").textContent = t.accountBillingNote;
   $("navCaregivers").href = "/cuidadores.html?lang=" + currentLang;
-  $("accountPassword").href = "/reset.html?reset=1&lang=" + currentLang;
+  $("accountPassword").href = "https://wa.me/18323359906?text=" + encodeURIComponent(currentLang === "es" ? "Hola, necesito ayuda para restablecer mi contraseña de Cuidar a Distancia." : "Hello, I need help resetting my Cuidar a Distancia password.");
   $("headerBrandSub").textContent = t.headerBrandSub;
   const lo = document.querySelector(".logout"); if (lo) lo.title = t.logoutBtn;
 
