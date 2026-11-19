@@ -268,6 +268,7 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
         <label for="loginPass" id="loginPassLabel">Contraseña</label>
         <input type="password" id="loginPass" autocomplete="current-password" placeholder="Tu contraseña">
       </div>
+      <p style="text-align:right;margin:6px 2px 0"><a id="forgotPasswordLink" href="https://marbaquero.github.io/reset.html" style="color:#0f766e;font-size:12px;font-weight:700;text-decoration:none">¿Olvidó su contraseña?</a></p>
       <button type="button" onclick="handleLogin()" id="btn-login">Entrar</button>
       <div class="login-msg" id="loginMsg"></div>
       <div class="login-foot" id="loginFoot">Acceso exclusivo para familias de Cuidar SaaS. Si olvidó su contraseña, contacte a su coordinador de cuidado.</div>
@@ -394,6 +395,7 @@ const TRANSLATIONS = {
     emailPlaceholder: "tu@correo.com",
     passwordPlaceholder: "Tu contraseña",
     loginBtn: "Entrar",
+    forgotPassword: "¿Olvidó su contraseña?",
     signingIn: "Entrando…",
     missingCredentials: "Por favor ingrese correo y contraseña.",
     loginError: "Error: {error}",
@@ -447,6 +449,7 @@ const TRANSLATIONS = {
     emailPlaceholder: "you@email.com",
     passwordPlaceholder: "Your password",
     loginBtn: "Sign in",
+    forgotPassword: "Forgot password?",
     signingIn: "Signing in…",
     missingCredentials: "Please enter email and password.",
     loginError: "Error: {error}",
@@ -574,6 +577,7 @@ function renderPortal() {
   $("logoutText").textContent = t.logoutBtn;
   $("userLabel").textContent = t.userLabel;
   $("accountLink").textContent = t.accountLink;
+  $("forgotPasswordLink").textContent = t.forgotPassword;
   $("headerBrandSub").textContent = t.title;
   $("loginBrandSub").textContent = t.title;
   const lo = document.querySelector(".logout"); if (lo) lo.title = t.logoutBtn;
@@ -704,6 +708,46 @@ function applySession(session) {
   renderPortal();
 }
 
+async function adoptHandoffSession() {
+  const params = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const accessToken = params.get("access_token");
+  const refreshToken = params.get("refresh_token");
+  if (!accessToken || !refreshToken) return;
+  try {
+    await supa.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    history.replaceState(null, "", location.pathname + location.search);
+  } catch (error) {
+    console.warn("Could not adopt account session", error);
+  }
+}
+
+async function openAccount(event) {
+  if (event) event.preventDefault();
+  const accountUrl = "https://marbaquero.github.io/portal.html";
+  try {
+    let session = (await supa.auth.getSession()).data.session;
+    if (!session) { location.assign(accountUrl); return; }
+    const now = Math.floor(Date.now() / 1000);
+    if (!session.expires_at || session.expires_at - now < 120) {
+      const refreshed = await supa.auth.refreshSession();
+      if (refreshed.error || !refreshed.data.session) { location.assign(accountUrl); return; }
+      session = refreshed.data.session;
+    }
+    const target = new URL(accountUrl);
+    target.searchParams.set("lang", currentLang);
+    target.hash = new URLSearchParams({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_in: String(Math.max(60, (session.expires_at || now + 3600) - now)),
+      token_type: "bearer"
+    }).toString();
+    location.assign(target.toString());
+  } catch (error) {
+    console.warn("Could not hand off to account", error);
+    location.assign(accountUrl);
+  }
+}
+
 async function checkAuth() {
   const { data: { session } } = await supa.auth.getSession();
   applySession(session);
@@ -722,6 +766,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!initSupabase()) { alert("Error: Faltan las credenciales de Supabase."); return; }
   currentLang = getCurrentLang();
   purgeAuthStorage();
+  await adoptHandoffSession();
+  $("accountLink").addEventListener("click", openAccount);
   supa.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_OUT") applySession(null);
     else if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") applySession(session);
