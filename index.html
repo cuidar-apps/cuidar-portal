@@ -223,6 +223,8 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
 .account-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:2px 0 16px;flex-wrap:wrap}
 .account-head h2{font-size:24px;letter-spacing:-.03em;margin:3px 0 4px}
 .account-head p{color:#667b74;font-size:12.5px;margin:0}
+.account-head .btn-secondary{height:36px;padding:0 13px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#34443f;font:700 11.5px "Manrope",sans-serif;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.account-head .btn-secondary:hover{background:#f7faf8;border-color:#bcd8ce}
 .account-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
 .account-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(16,24,40,.04)}
 .account-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
@@ -246,9 +248,49 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
 .account-message.bad{background:#fff1f0;color:#b42318}
 @media(max-width:760px){.portal-nav{overflow-x:auto;white-space:nowrap;margin-left:0;margin-right:0;border-radius:10px}.portal-nav button,.portal-nav a{padding:8px 11px}.portal-nav a{margin-left:0}.account-grid{grid-template-columns:1fr}.account-head h2{font-size:21px}}
 
+
+/* Customer portal login */
+body.login-mode{background:radial-gradient(circle at 78% 18%,#2c7d70 0,#14584f 38%,#4f8068 72%,#779b82 100%);min-height:100vh}
+body.login-mode header{display:none}
+body.login-mode #loginBox{width:100%;max-width:none;min-height:100vh;margin:0;padding:56px 20px 30px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:transparent}
+.login-lang{position:fixed;top:18px;right:20px;display:inline-flex;gap:2px;padding:3px;border:1px solid rgba(255,255,255,.32);border-radius:10px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);z-index:5}
+.login-lang button{border:0;background:transparent;color:#d9f0e8;font:750 10px "Manrope",sans-serif;padding:7px 10px;border-radius:7px;line-height:1;cursor:pointer}
+.login-lang button.active{background:#fff;color:#0f5b52;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.login-brand{text-align:center;max-width:680px;margin-bottom:22px}
+.login-logo{width:76px;height:76px;margin:0 auto 14px;display:grid;place-items:center;filter:drop-shadow(0 10px 22px rgba(0,0,0,.16))}
+.login-logo svg{width:100%;height:100%;display:block}
+.login-brand h1{font-family:"Manrope",sans-serif;font-size:clamp(31px,4.2vw,42px);line-height:1.08;letter-spacing:-.04em;color:#fff;margin:0 0 8px;text-shadow:0 2px 16px rgba(0,0,0,.12)}
+.login-brand .login-kicker{font-size:12px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:#b9e5d9;margin:0 0 8px}
+.login-brand .login-tagline{font-size:13.5px;line-height:1.65;color:#d9eee8;margin:0 auto;max-width:600px}
+.login-card{width:min(440px,100%);background:#fff;border:1px solid rgba(255,255,255,.6);border-radius:24px;padding:30px;box-shadow:0 26px 60px rgba(4,35,30,.24)}
+.login-card h2{font-size:26px;line-height:1.15;letter-spacing:-.035em;margin:0 0 5px;color:#132622;font-family:"Manrope",sans-serif}
+.login-card .intro{font-size:12.5px;color:#6b7c76;margin:0 0 20px;line-height:1.6}
+.login-card .field{margin-bottom:12px}
+.login-card .field input{height:48px;border-radius:11px;background:#fbfdfc;font-size:13.5px}
+.login-card #btn-login{height:48px;border-radius:11px;margin-top:8px;font-size:13.5px;box-shadow:0 8px 20px rgba(15,118,110,.22)}
+.login-card .forgot-row{display:flex;justify-content:flex-end;margin:2px 1px 14px}
+.login-card .forgot-row a{color:#0f766e;font-size:11.5px;font-weight:750;text-decoration:none}
+.login-card .forgot-row a:hover{text-decoration:underline}
+.login-card .login-msg{min-height:18px;margin:7px 0 0;font-size:11.5px}
+.login-card .login-msg:empty{margin-top:0}
+.login-card .force-logout{display:block;margin-top:14px;padding-top:13px;border-top:1px solid #e8efeb;color:#5f756e;font-size:10.5px;line-height:1.55;text-align:center;text-decoration:none}
+.login-card .force-logout:hover{color:#0f766e;text-decoration:underline}
+.login-security{color:#c9e5dc;font-size:10.5px;font-weight:600;letter-spacing:.02em;text-align:center;margin:17px 0 0}
+.login-foot{display:none}
+@media(max-width:600px){
+  body.login-mode #loginBox{padding:58px 16px 24px;justify-content:flex-start}
+  .login-lang{top:14px;right:14px}
+  .login-brand{margin:8px 0 18px}
+  .login-logo{width:64px;height:64px;margin-bottom:10px}
+  .login-brand h1{font-size:32px}
+  .login-brand .login-tagline{font-size:12.5px}
+  .login-card{padding:24px 20px;border-radius:20px}
+  .login-card h2{font-size:24px}
+}
+
 </style>
 </head>
-<body>
+<body class="login-mode">
 
 <header>
   <a class="brand" href="/" aria-label="Cuidar SaaS">
@@ -273,41 +315,39 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
 </header>
 
 <div id="loginBox">
-  <aside class="login-aside">
-    <div class="brand">
-      <div class="brand-mark">C</div>
-      <div class="brand-text"><strong>Cuidar SaaS</strong><span id="loginBrandSub">Portal de Cuidado</span></div>
-    </div>
-    <div class="login-copy">
-      <div class="eyebrow" id="loginEyebrow">Acceso familiar</div>
-      <h1 id="loginAsideTitle">El cuidado de su familia, en un solo lugar.</h1>
-      <p id="loginAsideLead">Acceda a las herramientas de cuidado de su hogar: reportes, inventario, pagos y más. Todo protegido y disponible cuando lo necesite.</p>
-    </div>
-    <div class="login-points">
-      <div><i>✓</i><span id="loginPoint1">Aplicaciones seguras para su hogar</span></div>
-      <div><i>✓</i><span id="loginPoint2">Sesión protegida y acceso privado</span></div>
-      <div><i>✓</i><span id="loginPoint3">Disponible en español e inglés</span></div>
-    </div>
-  </aside>
-  <div class="login-panel">
-    <div class="login-card">
-      <div class="eyebrow" id="loginCardEyebrow">Acceso familiar</div>
-      <h2 id="login-title">Iniciar Sesión</h2>
-      <p class="intro" id="login-sub">Ingrese sus credenciales para acceder al sistema.</p>
-      <div class="field">
-        <label for="loginEmail" id="loginEmailLabel">Correo electrónico</label>
-        <input type="email" id="loginEmail" autocomplete="username" placeholder="tu@correo.com">
-      </div>
-      <div class="field">
-        <label for="loginPass" id="loginPassLabel">Contraseña</label>
-        <input type="password" id="loginPass" autocomplete="current-password" placeholder="Tu contraseña">
-      </div>
-      <p style="text-align:right;margin:6px 2px 0"><a id="forgotPasswordLink" href="https://marbaquero.github.io/reset.html" style="color:#0f766e;font-size:12px;font-weight:700;text-decoration:none">¿Olvidó su contraseña?</a></p>
-      <button type="button" onclick="handleLogin()" id="btn-login">Entrar</button>
-      <div class="login-msg" id="loginMsg"></div>
-      <div class="login-foot" id="loginFoot">Acceso exclusivo para familias de Cuidar SaaS. Si olvidó su contraseña, contacte a su coordinador de cuidado.</div>
-    </div>
+  <div class="login-lang" role="group" aria-label="Language / Idioma">
+    <button type="button" data-login-lang="es" onclick="switchLanguage('es')">ES</button>
+    <button type="button" data-login-lang="en" onclick="switchLanguage('en')">EN</button>
   </div>
+  <div class="login-brand">
+    <div class="login-logo" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none">
+        <path d="M7 28.5 32 7l25 21.5v22A4.5 4.5 0 0 1 52.5 55H37V42H27v13H11.5A4.5 4.5 0 0 1 7 50.5v-22Z" fill="#fff" fill-opacity=".97"/>
+        <path d="M32 46s-12-7-12-15c0-4.4 3.4-7.2 7-7.2 2.5 0 4.3 1.3 5 2.8.7-1.5 2.5-2.8 5-2.8 3.6 0 7 2.8 7 7.2 0 8-12 15-12 15Z" fill="#66d2b6"/>
+        <path d="M32 46s-12-7-12-15c0-4.4 3.4-7.2 7-7.2 2.5 0 4.3 1.3 5 2.8.7-1.5 2.5-2.8 5-2.8 3.6 0 7 2.8 7 7.2 0 8-12 15-12 15Z" stroke="#2b8f7c" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <h1>Cuidar a Distancia</h1>
+    <div class="login-kicker" id="loginBrandSub">Portal del familiar</div>
+    <p class="login-tagline" id="loginTagline">Reporte, sesión, historial, pagos, inventario y gastos, en un solo lugar.</p>
+  </div>
+  <div class="login-card">
+    <h2 id="login-title">Iniciar sesión</h2>
+    <p class="intro" id="login-sub">Usa el correo con el que te suscribiste.</p>
+    <div class="field">
+      <label for="loginEmail" id="loginEmailLabel">Correo electrónico</label>
+      <input type="email" id="loginEmail" autocomplete="username" placeholder="tu@correo.com">
+    </div>
+    <div class="field">
+      <label for="loginPass" id="loginPassLabel">Contraseña</label>
+      <input type="password" id="loginPass" autocomplete="current-password" placeholder="Tu contraseña">
+    </div>
+    <div class="forgot-row"><a id="forgotPasswordLink" href="https://marbaquero.github.io/reset.html">¿Olvidó su contraseña?</a></div>
+    <button type="button" onclick="handleLogin()" id="btn-login">Entrar</button>
+    <div class="login-msg" id="loginMsg" role="alert" aria-live="polite"></div>
+    <a class="force-logout" id="forceLogout" href="https://marbaquero.github.io/portal.html" onclick="event.preventDefault();signOut()">¿Ves datos de otra familia? Forzar cierre de sesión en este navegador</a>
+  </div>
+  <div class="login-security" id="loginFoot">Sesión segura · Solo familia y cuidadores</div>
 </div>
 
 <main id="portalView">
@@ -450,8 +490,12 @@ const TRANSLATIONS = {
     available: "Disponible",
     migrating: "En migración",
     caregiverLink: "Enlace de cuidadora",
-    loginTitle: "Iniciar Sesión",
-    loginSub: "Ingrese sus credenciales para acceder al sistema.",
+    loginTitle: "Iniciar sesión",
+    loginSub: "Usa el correo con el que te suscribiste.",
+    loginBrandSub: "Portal del familiar",
+    loginTagline: "Reporte, sesión, historial, pagos, inventario y gastos, en un solo lugar.",
+    forceLogout: "¿Ves datos de otra familia? Forzar cierre de sesión en este navegador",
+    loginFoot: "Sesión segura · Solo familia y cuidadores",
     logoutBtn: "Cerrar sesión",
     userLabel: "Cuenta familiar",
     accountLink: "Cuenta",
@@ -485,13 +529,6 @@ const TRANSLATIONS = {
     accountStatusPaused: "Pausada",
     accountStatusIncomplete: "Pago pendiente",
     accountStatusInactive: "Sin plan",
-    loginEyebrow: "Acceso familiar",
-    loginAsideTitle: "El cuidado de su familia, en un solo lugar.",
-    loginAsideLead: "Acceda a las herramientas de cuidado de su hogar: reportes, inventario, pagos y más. Todo protegido y disponible cuando lo necesite.",
-    loginPoint1: "Aplicaciones seguras para su hogar",
-    loginPoint2: "Sesión protegida y acceso privado",
-    loginPoint3: "Disponible en español e inglés",
-    loginFoot: "Acceso exclusivo para familias de Cuidar SaaS. Si olvidó su contraseña, contacte a su coordinador de cuidado.",
     emailLabel: "Correo electrónico",
     passwordLabel: "Contraseña",
     emailPlaceholder: "tu@correo.com",
@@ -534,8 +571,12 @@ const TRANSLATIONS = {
     available: "Available",
     migrating: "Migrating",
     caregiverLink: "Caregiver link",
-    loginTitle: "Sign In",
-    loginSub: "Enter your credentials to access the system.",
+    loginTitle: "Sign in",
+    loginSub: "Use the email you subscribed with.",
+    loginBrandSub: "Family portal",
+    loginTagline: "Reports, sessions, history, payments, inventory, and expenses — all in one place.",
+    forceLogout: "Seeing another family's data? Force sign out on this browser",
+    loginFoot: "Secure session · Family and caregivers only",
     logoutBtn: "Sign out",
     userLabel: "Family account",
     accountLink: "Account",
@@ -569,13 +610,6 @@ const TRANSLATIONS = {
     accountStatusPaused: "Paused",
     accountStatusIncomplete: "Payment pending",
     accountStatusInactive: "No plan",
-    loginEyebrow: "Family access",
-    loginAsideTitle: "Your family's care, in one place.",
-    loginAsideLead: "Access your household's care tools: reports, inventory, payments, and more. Protected and available whenever you need them.",
-    loginPoint1: "Secure apps for your household",
-    loginPoint2: "Protected session and private access",
-    loginPoint3: "Available in Spanish and English",
-    loginFoot: "Family-only access for Cuidar SaaS. If you forgot your password, contact your care coordinator.",
     emailLabel: "Email",
     passwordLabel: "Password",
     emailPlaceholder: "you@email.com",
@@ -698,14 +732,13 @@ function renderPortal() {
   $("loginEmail").placeholder = t.emailPlaceholder;
   $("loginPass").placeholder = t.passwordPlaceholder;
   $("btn-login").textContent = t.loginBtn;
-  $("loginEyebrow").textContent = t.loginEyebrow;
-  $("loginCardEyebrow").textContent = t.loginEyebrow;
-  $("loginAsideTitle").textContent = t.loginAsideTitle;
-  $("loginAsideLead").textContent = t.loginAsideLead;
-  $("loginPoint1").textContent = t.loginPoint1;
-  $("loginPoint2").textContent = t.loginPoint2;
-  $("loginPoint3").textContent = t.loginPoint3;
+  $("loginBrandSub").textContent = t.loginBrandSub;
+  $("loginTagline").textContent = t.loginTagline;
+  $("forceLogout").textContent = t.forceLogout;
   $("loginFoot").textContent = t.loginFoot;
+  document.querySelectorAll("[data-login-lang]").forEach(button => {
+    button.classList.toggle("active", button.getAttribute("data-login-lang") === currentLang);
+  });
   $("logoutText").textContent = t.logoutBtn;
   $("userLabel").textContent = t.userLabel;
   $("accountLink").textContent = t.accountLink;
@@ -729,7 +762,6 @@ function renderPortal() {
   $("navCaregivers").href = "/cuidadores.html?lang=" + currentLang;
   $("accountPassword").href = "/reset.html?reset=1&lang=" + currentLang;
   $("headerBrandSub").textContent = t.title;
-  $("loginBrandSub").textContent = t.title;
   const lo = document.querySelector(".logout"); if (lo) lo.title = t.logoutBtn;
 
   $("portal-title").textContent = t.title;
@@ -836,6 +868,7 @@ async function signOut() {
 
 function applySession(session) {
   const t = TRANSLATIONS[currentLang];
+  document.body.classList.toggle("login-mode", !(session && session.user));
   if (session && session.user) {
     currentUser = session.user;
     $("loginBox").style.display = "none";
@@ -1004,6 +1037,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentLang = getCurrentLang();
   purgeAuthStorage();
   await adoptHandoffSession();
+  ["loginEmail", "loginPass"].forEach(id => {
+    $(id).addEventListener("keydown", event => { if (event.key === "Enter") { event.preventDefault(); handleLogin(); } });
+  });
   $("accountLink").addEventListener("click", (event) => { event.preventDefault(); showView("account"); });
   $("navApps").addEventListener("click", () => showView("apps"));
   $("navAccount").addEventListener("click", () => showView("account"));
