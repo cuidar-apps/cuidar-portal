@@ -212,6 +212,40 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
   .hero-copy h1{font-size:28px}
   .hero-panel{grid-template-columns:1fr 1fr}
 }
+
+.portal-nav{max-width:1200px;margin:0 0 16px;display:flex;align-items:center;gap:6px;padding:5px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(16,24,40,.04)}
+.portal-nav button,.portal-nav a{appearance:none;border:0;background:transparent;color:#667b74;text-decoration:none;font:700 12px "Manrope",sans-serif;padding:9px 14px;border-radius:8px;cursor:pointer;line-height:1}
+.portal-nav button:hover,.portal-nav a:hover{background:#f4faf7;color:#17342e}
+.portal-nav button.active{background:#0f766e;color:#fff}
+.portal-nav a{margin-left:auto}
+#portalView.account-mode{justify-content:flex-start;padding-top:18px}
+.account-view{max-width:1200px;margin:0 auto}
+.account-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:2px 0 16px;flex-wrap:wrap}
+.account-head h2{font-size:24px;letter-spacing:-.03em;margin:3px 0 4px}
+.account-head p{color:#667b74;font-size:12.5px;margin:0}
+.account-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+.account-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(16,24,40,.04)}
+.account-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.account-card-head h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#667b74;margin:0}
+.account-plan-name{display:block;font-size:22px;letter-spacing:-.03em;margin:2px 0 2px}
+.account-plan-price{font-size:12px;color:#667b74;margin:0 0 14px}
+.account-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:#e8f4ef;color:#0f766e;font-size:10px;font-weight:800}
+.account-badge:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.account-divider{height:1px;background:var(--line);margin:14px 0}
+.account-row{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;color:#667b74;padding:5px 0}
+.account-row strong{color:#17342e;font-weight:700;text-align:right}
+.account-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.account-actions .btn-primary,.account-actions .btn-secondary{height:36px;padding:0 13px;border-radius:8px;font:700 11.5px "Manrope",sans-serif;cursor:pointer}
+.account-actions .btn-primary{border:0;background:#0f766e;color:#fff}
+.account-actions .btn-secondary{border:1px solid var(--line);background:#fff;color:#34443f}
+.account-actions .btn-primary:hover{background:#0b655e}
+.account-actions .btn-secondary:hover{background:#f7faf8}
+.account-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:11.5px}
+.account-links a{color:#0f766e;text-decoration:none;font-weight:700}
+.account-message{margin:14px 0 0;padding:10px 12px;border-radius:8px;background:#e8f4ef;color:#0b5d55;font-size:12px}
+.account-message.bad{background:#fff1f0;color:#b42318}
+@media(max-width:760px){.portal-nav{overflow-x:auto;white-space:nowrap;margin-left:0;margin-right:0;border-radius:10px}.portal-nav button,.portal-nav a{padding:8px 11px}.portal-nav a{margin-left:0}.account-grid{grid-template-columns:1fr}.account-head h2{font-size:21px}}
+
 </style>
 </head>
 <body>
@@ -277,6 +311,12 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
 </div>
 
 <main id="portalView">
+  <nav class="portal-nav" id="portalNav" aria-label="Portal sections">
+    <button type="button" class="active" data-view="apps" id="navApps">Apps</button>
+    <button type="button" data-view="account" id="navAccount">Cuenta</button>
+    <a id="navCaregivers" href="/cuidadores.html?lang=es">Cuidadores</a>
+  </nav>
+  <div id="appsView">
   <section class="hero">
     <div class="hero-copy">
       <div class="eyebrow" id="heroGreeting">Bienvenido de nuevo</div>
@@ -319,6 +359,36 @@ body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,He
     <div class="app-grid" id="cards-container"></div>
     <p class="migration-note" id="migration-note" hidden></p>
   </section>
+  </div>
+
+  <section id="accountView" class="account-view" hidden>
+    <div class="account-head">
+      <div><div class="eyebrow" id="accountEyebrow">Cuenta</div><h2 id="accountHeading">Plan y facturación</h2><p id="accountLede">Consulte su plan, facturación y datos del hogar.</p></div>
+      <button type="button" class="btn-secondary" id="accountRefresh">Actualizar</button>
+    </div>
+    <div class="account-grid">
+      <article class="account-card">
+        <div class="account-card-head"><h3 id="accountPlanLabel">Plan</h3><span class="account-badge" id="accountStatus">Activo</span></div>
+        <strong class="account-plan-name" id="accountPlanName">—</strong>
+        <p class="account-plan-price" id="accountPlanPrice">—</p>
+        <div class="account-divider"></div>
+        <div class="account-row"><span id="accountRenewsLabel">Se renueva</span><strong id="accountRenews">—</strong></div>
+        <div class="account-actions">
+          <button type="button" class="btn-primary" id="accountBilling">Administrar facturación</button>
+          <a class="btn-secondary" href="/reset.html?reset=1" id="accountPassword" style="display:inline-flex;align-items:center;text-decoration:none">Cambiar contraseña</a>
+        </div>
+      </article>
+      <article class="account-card">
+        <div class="account-card-head"><h3 id="accountDetailsLabel">Cuenta</h3></div>
+        <div class="account-row"><span id="accountEmailLabel">Correo</span><strong id="accountEmail">—</strong></div>
+        <div class="account-row"><span id="accountHouseholdLabel">Hogar</span><strong id="accountHousehold">—</strong></div>
+        <div class="account-row"><span id="accountSinceLabel">Miembro desde</span><strong id="accountSince">—</strong></div>
+        <div class="account-divider"></div>
+        <p style="font-size:11.5px;line-height:1.6;color:#667b74;margin:0" id="accountBillingNote">Stripe procesa los pagos. Cuidar a Distancia nunca ve ni guarda los datos de su tarjeta.</p>
+      </article>
+    </div>
+    <p class="account-message" id="accountMessage" hidden></p>
+  </section>
 
   <footer class="portal-footer">
     <span id="footerLeft">Cuidar SaaS · Portal de Cuidado</span>
@@ -333,6 +403,8 @@ window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB
 let supa = null;
 let currentUser = null;
 let currentLang = "es";
+let currentView = "apps";
+let accountData = null;
 const $ = id => document.getElementById(id);
 
 const AUTH_APPS = new Set(["reportes", "dashboard", "gastosAdmin", "inventario", "pagos", "reporteMedico"]);
@@ -383,6 +455,36 @@ const TRANSLATIONS = {
     logoutBtn: "Cerrar sesión",
     userLabel: "Cuenta familiar",
     accountLink: "Cuenta",
+    navApps: "Aplicaciones",
+    navAccount: "Cuenta",
+    navCaregivers: "Cuidadores",
+    accountEyebrow: "Cuenta",
+    accountHeading: "Plan y facturación",
+    accountLede: "Consulte su plan, facturación y datos del hogar.",
+    accountRefresh: "Actualizar",
+    accountPlanLabel: "Plan",
+    accountRenewsLabel: "Se renueva",
+    accountBilling: "Administrar facturación",
+    accountPassword: "Cambiar contraseña",
+    accountDetailsLabel: "Cuenta",
+    accountEmailLabel: "Correo",
+    accountHouseholdLabel: "Hogar",
+    accountSinceLabel: "Miembro desde",
+    accountBillingNote: "Stripe procesa los pagos. Cuidar a Distancia nunca ve ni guarda los datos de su tarjeta.",
+    accountNoPlan: "Sin plan activo",
+    accountNoPrice: "Sin suscripción",
+    accountPerMonth: "/ mes",
+    accountError: "No pudimos cargar los datos de la cuenta.",
+    accountBillingError: "No pudimos abrir la facturación.",
+    accountStatusActive: "Activa",
+    accountStatusTrialing: "En prueba",
+    accountStatusPastDue: "Pago fallido",
+    accountStatusUnpaid: "Sin pagar",
+    accountStatusCanceled: "Cancelada",
+    accountStatusReview: "En revisión",
+    accountStatusPaused: "Pausada",
+    accountStatusIncomplete: "Pago pendiente",
+    accountStatusInactive: "Sin plan",
     loginEyebrow: "Acceso familiar",
     loginAsideTitle: "El cuidado de su familia, en un solo lugar.",
     loginAsideLead: "Acceda a las herramientas de cuidado de su hogar: reportes, inventario, pagos y más. Todo protegido y disponible cuando lo necesite.",
@@ -437,6 +539,36 @@ const TRANSLATIONS = {
     logoutBtn: "Sign out",
     userLabel: "Family account",
     accountLink: "Account",
+    navApps: "Apps",
+    navAccount: "Account",
+    navCaregivers: "Caregivers",
+    accountEyebrow: "Account",
+    accountHeading: "Plan & billing",
+    accountLede: "Review your plan, billing, and household details.",
+    accountRefresh: "Refresh",
+    accountPlanLabel: "Plan",
+    accountRenewsLabel: "Renews",
+    accountBilling: "Manage billing",
+    accountPassword: "Change password",
+    accountDetailsLabel: "Account",
+    accountEmailLabel: "Email",
+    accountHouseholdLabel: "Household",
+    accountSinceLabel: "Member since",
+    accountBillingNote: "Stripe processes payments. Cuidar a Distancia never sees or stores your card details.",
+    accountNoPlan: "No active plan",
+    accountNoPrice: "No subscription",
+    accountPerMonth: "/ month",
+    accountError: "We could not load your account details.",
+    accountBillingError: "We could not open billing.",
+    accountStatusActive: "Active",
+    accountStatusTrialing: "Trialing",
+    accountStatusPastDue: "Payment failed",
+    accountStatusUnpaid: "Unpaid",
+    accountStatusCanceled: "Canceled",
+    accountStatusReview: "Under review",
+    accountStatusPaused: "Paused",
+    accountStatusIncomplete: "Payment pending",
+    accountStatusInactive: "No plan",
     loginEyebrow: "Family access",
     loginAsideTitle: "Your family's care, in one place.",
     loginAsideLead: "Access your household's care tools: reports, inventory, payments, and more. Protected and available whenever you need them.",
@@ -578,6 +710,24 @@ function renderPortal() {
   $("userLabel").textContent = t.userLabel;
   $("accountLink").textContent = t.accountLink;
   $("forgotPasswordLink").textContent = t.forgotPassword;
+  $("navApps").textContent = t.navApps;
+  $("navAccount").textContent = t.navAccount;
+  $("navCaregivers").textContent = t.navCaregivers;
+  $("accountEyebrow").textContent = t.accountEyebrow;
+  $("accountHeading").textContent = t.accountHeading;
+  $("accountLede").textContent = t.accountLede;
+  $("accountRefresh").textContent = t.accountRefresh;
+  $("accountPlanLabel").textContent = t.accountPlanLabel;
+  $("accountRenewsLabel").textContent = t.accountRenewsLabel;
+  $("accountBilling").textContent = t.accountBilling;
+  $("accountPassword").textContent = t.accountPassword;
+  $("accountDetailsLabel").textContent = t.accountDetailsLabel;
+  $("accountEmailLabel").textContent = t.accountEmailLabel;
+  $("accountHouseholdLabel").textContent = t.accountHouseholdLabel;
+  $("accountSinceLabel").textContent = t.accountSinceLabel;
+  $("accountBillingNote").textContent = t.accountBillingNote;
+  $("navCaregivers").href = "/cuidadores.html?lang=" + currentLang;
+  $("accountPassword").href = "/reset.html?reset=1&lang=" + currentLang;
   $("headerBrandSub").textContent = t.title;
   $("loginBrandSub").textContent = t.title;
   const lo = document.querySelector(".logout"); if (lo) lo.title = t.logoutBtn;
@@ -695,6 +845,7 @@ function applySession(session) {
     $("userEmail").textContent = currentUser.email || "";
     $("userAvatar").textContent = initial(currentUser.email);
     $("userLabel").textContent = t.userLabel;
+    loadAccountData();
     try { localStorage.setItem("cuidar-last-user", currentUser.id); } catch (e) {}
   } else {
     currentUser = null;
@@ -703,6 +854,7 @@ function applySession(session) {
     $("userInfo").style.display = "none";
     $("accountLink").hidden = true;
     $("userEmail").textContent = "";
+    showView("apps");
     $("loginMsg").textContent = "";
   }
   renderPortal();
@@ -748,6 +900,91 @@ async function openAccount(event) {
   }
 }
 
+function formatAccountDate(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(currentLang === "es" ? "es-ES" : "en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
+
+const ACCOUNT_STATUS = {
+  active: "accountStatusActive", trialing: "accountStatusTrialing", past_due: "accountStatusPastDue",
+  unpaid: "accountStatusUnpaid", canceled: "accountStatusCanceled", review: "accountStatusReview",
+  paused: "accountStatusPaused", incomplete: "accountStatusIncomplete"
+};
+
+function showAccountMessage(text, bad = false) {
+  const el = $("accountMessage");
+  el.textContent = text || "";
+  el.hidden = !text;
+  el.classList.toggle("bad", !!bad);
+}
+
+function showView(view) {
+  currentView = view === "account" ? "account" : "apps";
+  $("appsView").hidden = currentView !== "apps";
+  $("accountView").hidden = currentView !== "account";
+  $("portalView").classList.toggle("account-mode", currentView === "account");
+  $("navApps").classList.toggle("active", currentView === "apps");
+  $("navAccount").classList.toggle("active", currentView === "account");
+  if (currentView === "account") loadAccountData();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function loadAccountData() {
+  if (!currentUser) return;
+  const t = TRANSLATIONS[currentLang];
+  showAccountMessage("");
+  try {
+    const [profileResult, membershipResult] = await Promise.all([
+      supa.from("customer_profiles").select("*").eq("id", currentUser.id).maybeSingle(),
+      supa.from("household_members").select("household_id, role, created_at").eq("user_id", currentUser.id).order("created_at").limit(1).maybeSingle()
+    ]);
+    if (profileResult.error) console.warn(profileResult.error);
+    if (membershipResult.error) console.warn(membershipResult.error);
+    const membership = membershipResult.data || null;
+    let household = null, subscription = null, plan = null;
+    if (membership?.household_id) {
+      const [householdResult, subResult] = await Promise.all([
+        supa.from("households").select("id, name, created_at").eq("id", membership.household_id).maybeSingle(),
+        supa.from("subscriptions").select("plan_key, status, current_period_end, cancel_at_period_end, provider_customer_id, review_hold").eq("household_id", membership.household_id).maybeSingle()
+      ]);
+      household = householdResult.data || null;
+      subscription = subResult.data || null;
+      if (subscription?.plan_key) {
+        const planResult = await supa.from("subscription_plans").select("display_name, monthly_price_cents, currency").eq("plan_key", subscription.plan_key).maybeSingle();
+        plan = planResult.data || null;
+      }
+    }
+    accountData = { profile: profileResult.data || null, membership, household, subscription, plan };
+    renderAccount();
+  } catch (error) {
+    console.error(error);
+    showAccountMessage(t.accountError, true);
+  }
+}
+
+function renderAccount() {
+  const t = TRANSLATIONS[currentLang];
+  const data = accountData || {};
+  const sub = data.subscription;
+  const plan = data.plan;
+  $("accountEmail").textContent = currentUser?.email || "—";
+  $("accountHousehold").textContent = data.household?.name || "—";
+  $("accountSince").textContent = formatAccountDate(data.membership?.created_at);
+  $("accountPlanName").textContent = plan?.display_name || (sub?.plan_key === "full_setup" ? "Full Setup" : sub?.plan_key === "family" ? (currentLang === "es" ? "Plan Familia" : "Family Plan") : t.accountNoPlan);
+  $("accountPlanPrice").textContent = plan?.monthly_price_cents != null
+    ? "$" + Math.round(plan.monthly_price_cents / 100) + " " + t.accountPerMonth
+    : t.accountNoPrice;
+  const statusKey = ACCOUNT_STATUS[sub?.status] || "accountStatusInactive";
+  $("accountStatus").textContent = t[statusKey] || statusKey;
+  $("accountStatus").classList.toggle("off", !sub);
+  $("accountRenews").textContent = sub?.current_period_end ? formatAccountDate(sub.current_period_end) : "—";
+  const canBill = !!sub?.provider_customer_id && sub?.status !== "review";
+  $("accountBilling").hidden = !canBill;
+  $("accountPassword").hidden = false;
+}
+
 async function checkAuth() {
   const { data: { session } } = await supa.auth.getSession();
   applySession(session);
@@ -767,7 +1004,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentLang = getCurrentLang();
   purgeAuthStorage();
   await adoptHandoffSession();
-  $("accountLink").addEventListener("click", openAccount);
+  $("accountLink").addEventListener("click", (event) => { event.preventDefault(); showView("account"); });
+  $("navApps").addEventListener("click", () => showView("apps"));
+  $("navAccount").addEventListener("click", () => showView("account"));
+  $("accountRefresh").addEventListener("click", loadAccountData);
+  $("accountBilling").addEventListener("click", async () => {
+    const t = TRANSLATIONS[currentLang];
+    try {
+      const { data, error } = await supa.functions.invoke("create-billing-portal-session", { body: {} });
+      if (error) throw error;
+      if (!data?.url) throw new Error("No billing URL");
+      location.assign(data.url);
+    } catch (error) {
+      console.error(error);
+      showAccountMessage(t.accountBillingError, true);
+    }
+  });
   supa.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_OUT") applySession(null);
     else if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") applySession(session);
