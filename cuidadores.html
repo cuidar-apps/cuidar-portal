@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Cache-Control" content="no-store, max-age=0">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#f8f5ee">
@@ -74,18 +73,82 @@
   #loading{text-align:center;padding:70px 0;color:var(--muted)}
   footer{max-width:980px;margin:0 auto;padding:0 22px 40px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
   @media(max-width:720px){.person{grid-template-columns:1fr}.person .buttons{justify-content:flex-start}.form-row{grid-template-columns:1fr}.link-row{grid-template-columns:1fr}}
+
+/* Hello portal shell */
+:root{
+  --bg:#DCD0BD;--paper:#F2EBDD;--ink:#1D2923;--muted:#4F4A41;
+  --green:#40583D;--green-dark:#30422E;--soft:#E9EEE2;
+  --line:#D2C4AE;--amber:#8A5A12;--amber-bg:#FFF6E5;
+  --red:#A83232;--red-bg:#FFF0EE;
+  --sans:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+html,body{background:var(--bg)}
+body{font-family:var(--sans);font-size:16px;font-weight:500;line-height:1.65;color:var(--ink)}
+.top{max-width:1080px;padding:18px 22px 0;gap:18px}
+.brand{display:flex;align-items:center;gap:10px;font:inherit;letter-spacing:0;color:var(--ink);min-width:0}
+.brand-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#61775A,#40583D);color:#fff;display:grid;place-items:center;font:800 16px/1 Manrope,sans-serif;box-shadow:0 4px 12px rgba(64,88,61,.22);flex:none}
+.brand-text{display:block;line-height:1.2}
+.brand-text strong{display:block;font-size:18px;font-weight:800;color:#16231E;letter-spacing:-.03em}
+.brand-text span{display:block;font-size:11.5px;font-weight:750;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.top-actions{gap:8px}
+.lang{background:#E9E0D1;border-color:#CFC1AB;padding:3px}
+.lang button{font:800 11px Manrope,sans-serif;color:var(--muted);padding:6px 9px}
+.lang button[aria-pressed="true"]{background:var(--green);color:#fff}
+.ghost{background:#E9E0D1;border-color:#CFC1AB;color:var(--ink);font:800 12.5px Manrope,sans-serif;padding:9px 13px;text-decoration:none}
+.ghost:hover{background:#E2D5C3;border-color:#C2B29B}
+main{max-width:1080px;padding:34px 22px 60px}
+.kicker{font:800 12px Manrope,sans-serif;letter-spacing:.13em;color:var(--muted)}
+h1{font-size:clamp(42px,6vw,58px);font-weight:400;line-height:1.02;letter-spacing:-.045em;margin:10px 0 10px}
+h2{font-size:30px;font-weight:400;letter-spacing:-.03em;margin:0 0 8px}
+h3{font-size:20px;font-weight:400;letter-spacing:-.02em}
+p{font-size:16px;line-height:1.65;color:var(--muted);margin:0 0 14px}
+.muted{color:var(--muted)} .small{font-size:14px;line-height:1.6}
+.card{background:var(--paper);border-color:var(--line);border-radius:16px;padding:24px;box-shadow:none}
+.card h2{font-size:29px}
+label{font:800 14px Manrope,sans-serif;color:var(--ink);margin:16px 0 7px}
+input{font:500 15px Manrope,sans-serif;padding:13px 14px;border-color:var(--line);border-radius:10px;background:#F8F1E6;color:var(--ink)}
+input:focus{outline:3px solid rgba(64,88,61,.13);border-color:var(--green);background:#FFF9F0}
+.btn{font:800 14px Manrope,sans-serif;border-radius:10px;min-height:44px;padding:11px 16px;text-decoration:none}
+.btn.primary{background:var(--green)}
+.btn.primary:hover{background:var(--green-dark)}
+.btn.secondary{background:var(--paper);border-color:var(--line);color:var(--ink)}
+.btn.danger{background:var(--red-bg);border-color:#F0CCCC;color:var(--red)}
+.person{background:var(--paper);border-color:var(--line);border-radius:16px;padding:18px}
+.person .name{font-size:18px;font-weight:800;color:var(--ink)}
+.person .meta{font-size:13.5px;font-weight:500;color:var(--muted)}
+.badge{font:800 11.5px Manrope,sans-serif;padding:5px 10px}
+.links .card{border-color:var(--line);background:var(--paper)}
+.link-row{border-color:var(--line);background:#F8F1E6}
+.link-row code{font:12px/1.55 ui-monospace,monospace;color:#3F4A3B}
+footer{max-width:1080px;color:var(--muted);font:600 11.5px Manrope,sans-serif;padding:0 22px 34px}
+footer a{color:var(--green)}
+@media(max-width:720px){
+  .top{padding:14px 14px 0;gap:10px}
+  .brand-text strong{font-size:17px}
+  .brand-text span{font-size:10.5px}
+  .ghost{font-size:12px;padding:8px 10px}
+  main{padding:28px 14px 48px}
+  h1{font-size:42px}
+  h2{font-size:27px}
+  .card{padding:20px}
+  .card h2{font-size:26px}
+}
+
 </style>
 </head>
 <body>
 
 <header class="top">
-  <a class="brand" href="/">● CUIDAR A DISTANCIA</a>
+  <a class="brand" href="/" aria-label="Cuidar SaaS — Care Portal">
+    <span class="brand-mark" aria-hidden="true">C</span>
+    <span class="brand-text"><strong>Cuidar SaaS</strong><span>Portal del familiar</span></span>
+  </a>
   <div class="top-actions">
     <div class="lang" aria-label="Language">
       <button type="button" data-lang="en" aria-pressed="true">EN</button>
       <button type="button" data-lang="es" aria-pressed="false">ES</button>
     </div>
-    <a class="ghost" href="./" data-i18n="back">Back to account</a>
+    <a class="ghost" href="/" data-i18n="back">Back to Portal</a>
     <button class="ghost" id="signout" type="button" data-i18n="signOut">Sign out</button>
   </div>
 </header>
@@ -136,38 +199,20 @@
   <span><a href="https://wa.me/18323359906" target="_blank" rel="noopener" data-i18n="support">Support</a></span>
 </footer>
 
-<script>
-// Drop this origin's cached session before adopting a handoff from the
-// commercial portal. If the handoff is invalid, the page fails closed.
-(function () {
-  try {
-    var raw = (location.hash || "").replace(/^#/, "");
-    if (!raw) return;
-    var p = new URLSearchParams(raw);
-    if (!p.get("access_token")) return;
-    var doomed = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if (k && (k.indexOf("sb-") === 0 || k === "cuidar-portal-auth")) doomed.push(k);
-    }
-    doomed.forEach(function (k) { localStorage.removeItem(k); });
-  } catch (e) { /* ignore */ }
-})();
-</script>
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
   const SUPABASE_URL = "https://fftnffmttuzfftntzzhu.supabase.co";
   const SUPABASE_KEY = "sb_publishable_f5py08cOv3Bdo0Yvm6lmbA_VBxnbEsP";
-  const ROSITA_URL = "https://cuidar-reportes-cuidadoras.pages.dev/";
-  const GASTOS_URL = "https://cuidar-gastos.marbaquero.workers.dev/";
+  const ROSITA_URL = "https://cuidar-reportes.marbaquero.workers.dev";
+  const GASTOS_URL = "https://cuidar-gastos.marbaquero.workers.dev";
 
   const I18N = {
     en: {
       kicker: "CAREGIVER ACCESS",
       title: "Caregivers",
       intro: "Each caregiver gets a private link for the daily report and household expenses. Do not share these links publicly.",
-      back: "Back to account",
+      back: "Back to Portal",
       signOut: "Sign out",
       loading: "Loading caregivers…",
       errorTitle: "Something needs attention",
@@ -179,15 +224,14 @@
       listTitle: "Current caregivers",
       active: "Active",
       revoked: "Revoked",
-      hasLink: "Link active",
+      hasLink: "Link generated",
       noLink: "No link yet",
       generate: "Generate link",
-      newLink: "Generate new link",
+      newLink: "New link",
       revoke: "Revoke",
       revokeConfirm: "Revoke this caregiver? Their current links will stop working.",
-      regenerateConfirm: "Generate a new link? The current link will stop working immediately and cannot be recovered.",
       linkTitle: "Links for",
-      linkHint: "Copy both links now. They are shown only once. If you generate a new link, the current one stops working immediately.",
+      linkHint: "These links are shown only once. If you lose them, generate a new link; the old one stops working.",
       rosita: "Daily report",
       gastos: "Household expenses",
       copy: "Copy",
@@ -207,7 +251,7 @@
       kicker: "ACCESO DE CUIDADORAS",
       title: "Cuidadores",
       intro: "Cada cuidadora recibe un enlace privado para el reporte diario y los gastos del hogar. No comparta estos enlaces públicamente.",
-      back: "Volver a la cuenta",
+      back: "Volver al portal",
       signOut: "Cerrar sesión",
       loading: "Cargando cuidadoras…",
       errorTitle: "Algo necesita atención",
@@ -219,15 +263,14 @@
       listTitle: "Cuidadoras actuales",
       active: "Activa",
       revoked: "Revocada",
-      hasLink: "Enlace activo",
+      hasLink: "Enlace generado",
       noLink: "Sin enlace",
       generate: "Generar enlace",
-      newLink: "Generar nuevo enlace",
+      newLink: "Nuevo enlace",
       revoke: "Revocar",
       revokeConfirm: "¿Revocar esta cuidadora? Sus enlaces actuales dejarán de funcionar.",
-      regenerateConfirm: "¿Generar un enlace nuevo? El enlace actual dejará de funcionar inmediatamente y no se podrá recuperar.",
       linkTitle: "Enlaces para",
-      linkHint: "Copie ambos enlaces ahora. Solo se muestran una vez. Si genera uno nuevo, el actual deja de funcionar inmediatamente.",
+      linkHint: "Estos enlaces se muestran una sola vez. Si los pierde, genere uno nuevo; el anterior deja de funcionar.",
       rosita: "Reporte diario",
       gastos: "Gastos del hogar",
       copy: "Copiar",
@@ -251,26 +294,13 @@
 
   const $ = (id) => document.getElementById(id);
   const state = { user: null, caregivers: [], locale: "en", generated: null };
-  const from = new URLSearchParams(location.search).get("from");
-  const backLink = document.querySelector('a[data-i18n="back"]');
-  if (backLink) {
-    backLink.href = from === "family"
-      ? "https://marbaquero.github.io/portal.html"
-      : from === "admin"
-        ? "https://marbaquero.github.io/admin-invite.html"
-        : "./";
-  }
 
   boot();
 
   async function boot() {
     show("loading");
-    const urlLang = new URLSearchParams(location.search).get("lang");
     const saved = localStorage.getItem("cad-cuidadores-lang");
-    if (urlLang === "es" || urlLang === "en") {
-      state.locale = urlLang;
-      localStorage.setItem("cad-cuidadores-lang", urlLang);
-    } else if (saved === "es" || saved === "en") state.locale = saved;
+    if (saved === "es" || saved === "en") state.locale = saved;
     else state.locale = (navigator.language || "en").toLowerCase().startsWith("es") ? "es" : "en";
 
     const { data: { session }, error } = await supabase.auth.getSession();
@@ -370,8 +400,6 @@
   }
 
   async function generateLink(caregiverId, name) {
-    const existing = state.caregivers.find((c) => c.id === caregiverId);
-    if (existing?.has_token && !confirm(t("regenerateConfirm"))) return;
     try {
       const { data, error } = await supabase.rpc("issue_caregiver_token", {
         p_caregiver_id: caregiverId,
@@ -406,9 +434,8 @@
     const caregiver = state.caregivers.find((c) => c.id === caregiverId);
     const name = caregiver?.full_name || fallbackName;
     const phone = caregiver?.phone || fallbackPhone;
-    const linkLang = state.locale === "es" ? "es" : "en";
-    const rosita = `${ROSITA_URL}?t=${encodeURIComponent(token)}&lang=${linkLang}`;
-    const gastos = `${GASTOS_URL}?t=${encodeURIComponent(token)}&lang=${linkLang}`;
+    const rosita = `${ROSITA_URL}?t=${encodeURIComponent(token)}`;
+    const gastos = `${GASTOS_URL}?t=${encodeURIComponent(token)}`;
     state.generated = { token, caregiverId, name, phone };
 
     $("links-panel").innerHTML = `
