@@ -15,7 +15,7 @@ jobs:
       - name: Stage static assets
         run: |
           mkdir -p dist
-          cp index.html accept-invitation.html cuidadores.html config.js dist/
+          cp index.html accept-invitation.html cuidadores.html config.js admin.html dist/
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
