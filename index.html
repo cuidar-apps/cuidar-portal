@@ -500,7 +500,7 @@ header{background:rgba(235,228,216,.97);border-bottom-color:var(--line)}
     <div class="brand-text"><strong>Cuidar SaaS</strong><span id="headerBrandSub">Portal de Cuidado</span></div>
   </a>
   <div class="header-actions">
-    <a class="account-link" id="accountLink" href="https://marbaquero.github.io/portal.html" hidden>Cuenta</a>
+    <a class="account-link" id="accountLink" href="/" hidden>Cuenta</a>
     <div class="user-pill" id="userInfo" style="display:none">
       <div class="avatar" id="userAvatar">M</div>
       <div class="user-meta"><span class="user-email" id="userEmail"></span><span class="user-label" id="userLabel">Cuenta familiar</span></div>
@@ -547,7 +547,7 @@ header{background:rgba(235,228,216,.97);border-bottom-color:var(--line)}
     <div class="forgot-row"><a id="forgotPasswordLink" href="https://wa.me/18323359906?text=Hola%2C%20necesito%20ayuda%20para%20restablecer%20mi%20contrase%C3%B1a%20de%20Cuidar%20a%20Distancia." target="_blank" rel="noopener">¿Olvidó su contraseña? Contacte a su coordinador</a></div>
     <button type="button" onclick="handleLogin()" id="btn-login">Entrar</button>
     <div class="login-msg" id="loginMsg" role="alert" aria-live="polite"></div>
-    <a class="force-logout" id="forceLogout" href="https://marbaquero.github.io/portal.html" onclick="event.preventDefault();signOut()">¿Ves datos de otra familia? Forzar cierre de sesión en este navegador</a>
+    <a class="force-logout" id="forceLogout" href="/" onclick="event.preventDefault();signOut()">¿Ves datos de otra familia? Forzar cierre de sesión en este navegador</a>
   </div>
   <div class="login-security" id="loginFoot">Sesión segura · Solo familia y cuidadores</div>
 </div>
@@ -1119,7 +1119,7 @@ async function adoptHandoffSession() {
 
 async function openAccount(event) {
   if (event) event.preventDefault();
-  const accountUrl = "https://marbaquero.github.io/portal.html";
+  const accountUrl = "/";
   try {
     let session = (await supa.auth.getSession()).data.session;
     if (!session) { location.assign(accountUrl); return; }
