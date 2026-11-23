@@ -28,7 +28,7 @@
 
 const COOKIE_NAME = 'cuidar-saas-session';
 const PARENT_DOMAIN = '.cuidaradistancia.com';
-const MAX_COOKIE = 3800; // browsers reject >4096 bytes per cookie
+const MAX_COOKIE = 3000; // browsers reject >4096 bytes per cookie; encoding inflates the value
 
 function cookieDomainFor(hostname) {
   if (!hostname) return null;
