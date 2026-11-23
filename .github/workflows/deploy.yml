@@ -15,7 +15,7 @@ jobs:
       - name: Stage static assets
         run: |
           mkdir -p dist
-          cp index.html accept-invitation.html cuidadores.html config.js admin.html cuidar-auth.js dist/   # cuidar-auth.js is the shared session module
+          cp index.html accept-invitation.html cuidadores.html config.js admin.html dist/
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
