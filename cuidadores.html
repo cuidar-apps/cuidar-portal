@@ -300,8 +300,14 @@ footer a{color:var(--green)}
 
   async function boot() {
     show("loading");
+    const urlLang = new URLSearchParams(location.search).get("lang");
     const saved = localStorage.getItem("cad-cuidadores-lang");
-    if (saved === "es" || saved === "en") state.locale = saved;
+    if (urlLang === "es" || urlLang === "en") {
+      // The portal links here with ?lang=es; the parameter must win over the
+      // browser's language, or a Spanish user on an English browser lands in English.
+      state.locale = urlLang;
+      try { localStorage.setItem("cad-cuidadores-lang", urlLang); } catch (e) {}
+    } else if (saved === "es" || saved === "en") state.locale = saved;
     else state.locale = (navigator.language || "en").toLowerCase().startsWith("es") ? "es" : "en";
 
     const { data: { session }, error } = await supabase.auth.getSession();
