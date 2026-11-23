@@ -60,3 +60,57 @@ jobs:
           done
 
           exit $FAILED
+
+      # Contract checks: the failures that happened by accident should be
+      # detected on purpose. Each of these catches a real incident from 22-23 Nov.
+      - name: Every app still loads the shared session module
+        run: |
+          set -u
+          FAILED=0
+          for url in https://inventario.cuidaradistancia.com/ \
+                     https://pagos.cuidaradistancia.com/ \
+                     https://reportes.cuidaradistancia.com/ \
+                     https://dashboard.cuidaradistancia.com/ \
+                     https://gastos-admin.cuidaradistancia.com/ \
+                     https://medico.cuidaradistancia.com/ \
+                     https://app.cuidaradistancia.com/cuidadores ; do
+            page=$(curl -s -m 20 "$url?cb=$RANDOM")
+            if echo "$page" | grep -q "cuidar-auth\.js\|installSharedStorage"; then
+              echo "ok   session module referenced  $url"
+            else
+              echo "FAIL session module missing   $url"
+              FAILED=1
+            fi
+            base="${url%/}"
+            base="${base%/cuidadores}"
+            mod=$(curl -s -m 20 "$base/cuidar-auth.js?cb=$RANDOM")  # bypass edge cache
+            if echo "$mod" | grep -q "installSharedStorage"; then
+              echo "ok   module current            $url"
+            else
+              echo "FAIL module stale or missing  $url"
+              FAILED=1
+            fi
+          done
+          exit $FAILED
+
+      - name: No surface still points at a retired host
+        run: |
+          set -u
+          FAILED=0
+          for url in https://app.cuidaradistancia.com/ \
+                     https://gastos.cuidaradistancia.com/ \
+                     https://inventario.cuidaradistancia.com/ \
+                     https://pagos.cuidaradistancia.com/ \
+                     https://reportes.cuidaradistancia.com/ \
+                     https://dashboard.cuidaradistancia.com/ \
+                     https://gastos-admin.cuidaradistancia.com/ \
+                     https://medico.cuidaradistancia.com/ ; do
+            n=$(curl -s -m 20 "$url" | grep -c "marbaquero\.workers\.dev" || true)
+            if [ "$n" -eq 0 ]; then
+              echo "ok   no retired hosts         $url"
+            else
+              echo "FAIL $n retired-host links    $url"
+              FAILED=1
+            fi
+          done
+          exit $FAILED
