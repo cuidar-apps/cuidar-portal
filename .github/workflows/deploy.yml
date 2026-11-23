@@ -5,20 +5,36 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Don't let two deploys race for the same Worker.
+concurrency:
+  group: deploy-portal
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # Pinned to the v4 commit: a tag can be repointed by whoever controls the action.
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
+      # Every top-level .html/.js goes to dist. Adding a page no longer breaks
+      # the deploy — the previous approach listed files by name and broke when
+      # accept-invitation.html was removed.
       - name: Stage static assets
         run: |
           mkdir -p dist
-          cp index.html accept-invitation.html cuidadores.html config.js admin.html dist/
+          find . -maxdepth 1 -type f \
+            \( -name '*.html' -o -name '*.js' -o -name '_headers' -o -name '_redirects' \) \
+            -exec cp {} dist/ \;
+          echo "Staged $(ls dist | wc -l) files:"
+          ls dist
 
       - name: Deploy Worker
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@392082e81ffbcb9ebdde27400634aa004b35ea37  # v3.14.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
