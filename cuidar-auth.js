@@ -154,7 +154,51 @@ async function signOutEverywhere(supabase, { storage, win = typeof window !== 'u
   try { win.localStorage.setItem('cuidar-signout', String(Date.now())); } catch (_) {}
 }
 
-const CuidarAuthApi = { COOKIE_NAME, PARENT_DOMAIN, cookieDomainFor, isSharedHost, createCookieStorage, adoptLegacyHash, signOutEverywhere };
+/**
+ * Install the shared session into every Supabase client created on this page.
+ *
+ * Relying on each page to pass `storage` to createClient is what broke: the
+ * Cuidadores page kept its own client with a localStorage key and silently saw
+ * no session. This wraps createClient so a forgotten option cannot produce a
+ * signed-out app on a host where the cookie exists.
+ *
+ * It intercepts the UMD assignment because this module loads before the CDN.
+ */
+function installSharedStorage(win) {
+  if (!win || win.__cuidarAuthInstalled) return;
+  let real = win.supabase;
+  const wrap = (lib) => {
+    if (!lib || typeof lib.createClient !== 'function' || lib.__cuidarWrapped) return lib;
+    const original = lib.createClient.bind(lib);
+    lib.createClient = function (url, key, options) {
+      const opts = options || {};
+      const auth = opts.auth || {};
+      if (auth.storage) return original(url, key, opts);
+      let storage;
+      try { storage = createCookieStorage({ document: win.document, hostname: win.location && win.location.hostname }); }
+      catch (e) { return original(url, key, opts); }
+      return original(url, key, {
+        ...opts,
+        auth: { ...auth, storage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+      });
+    };
+    lib.__cuidarWrapped = true;
+    return lib;
+  };
+  try {
+    Object.defineProperty(win, 'supabase', {
+      configurable: true,
+      get() { return real; },
+      set(v) { real = wrap(v); }
+    });
+  } catch (e) { real = wrap(real); }
+  win.__cuidarAuthInstalled = true;
+}
+
+const CuidarAuthApi = { COOKIE_NAME, PARENT_DOMAIN, cookieDomainFor, isSharedHost, createCookieStorage, adoptLegacyHash, signOutEverywhere, installSharedStorage };
 
 
-if (typeof window !== 'undefined') window.CuidarAuth = CuidarAuthApi;
+if (typeof window !== 'undefined') {
+  window.CuidarAuth = CuidarAuthApi;
+  installSharedStorage(window);
+}
