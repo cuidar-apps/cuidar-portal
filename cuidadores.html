@@ -310,6 +310,11 @@ footer a{color:var(--green)}
     } else if (saved === "es" || saved === "en") state.locale = saved;
     else state.locale = (navigator.language || "en").toLowerCase().startsWith("es") ? "es" : "en";
 
+    // Translate the shell before the session check: a signed-out visitor lands on
+    // the "please sign in" view, and that view used to stay in English regardless
+    // of ?lang because applyLanguage() only ran after a session was found.
+    applyLanguage();
+
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error || !session) {
       $("fatal-message").textContent = t("noSession");
