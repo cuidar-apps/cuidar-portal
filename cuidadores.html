@@ -199,6 +199,7 @@ footer a{color:var(--green)}
   <span><a href="https://wa.me/18323359906" target="_blank" rel="noopener" data-i18n="support">Support</a></span>
 </footer>
 
+<script src="/cuidar-auth.js"></script>
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -289,7 +290,7 @@ footer a{color:var(--green)}
   };
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "cuidar-portal-auth" },
+    auth: { storage: window.CuidarAuth.createCookieStorage(), persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
   });
 
   const $ = (id) => document.getElementById(id);
