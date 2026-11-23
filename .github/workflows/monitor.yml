@@ -1,0 +1,62 @@
+name: Uptime check
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # every 15 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every surface must answer 200
+        run: |
+          set -u
+          FAILED=0
+          for url in \
+            https://app.cuidaradistancia.com/ \
+            https://gastos.cuidaradistancia.com/ \
+            https://inventario.cuidaradistancia.com/ \
+            https://pagos.cuidaradistancia.com/ \
+            https://reportes.cuidaradistancia.com/ \
+            https://dashboard.cuidaradistancia.com/ \
+            https://gastos-admin.cuidaradistancia.com/ \
+            https://medico.cuidaradistancia.com/ ; do
+            code=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "$url" || echo "000")
+            if [ "$code" = "200" ]; then
+              echo "ok   $code $url"
+            else
+              echo "FAIL $code $url"
+              FAILED=1
+            fi
+          done
+
+          # The portal must still send its security headers.
+          headers=$(curl -sI -m 20 https://app.cuidaradistancia.com/ | grep -ci "content-security-policy")
+          if [ "$headers" -lt 1 ]; then
+            echo "FAIL security headers missing on app.cuidaradistancia.com"
+            FAILED=1
+          else
+            echo "ok   security headers present"
+          fi
+
+          # The retired hosts must stay dead.
+          for gone in \
+            cuidar-portal.marbaquero.workers.dev \
+            cuidar-gastos.marbaquero.workers.dev \
+            cuidar-inventario.marbaquero.workers.dev \
+            cuidar-pagos.marbaquero.workers.dev \
+            cuidar-reportes.marbaquero.workers.dev ; do
+            code=$(curl -s -o /dev/null -m 15 -w "%{http_code}" "https://$gone/" || echo "000")
+            if [ "$code" = "404" ]; then
+              echo "ok   404 $gone (retired, as intended)"
+            else
+              echo "FAIL $code $gone is serving again"
+              FAILED=1
+            fi
+          done
+
+          exit $FAILED
