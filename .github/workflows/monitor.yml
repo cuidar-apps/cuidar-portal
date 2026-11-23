@@ -114,3 +114,46 @@ jobs:
             fi
           done
           exit $FAILED
+
+      # The single line that separates the household apps from the public
+      # internet is `run_worker_first = true` in the guard's wrangler.toml.
+      # Without it, Cloudflare serves the static files before the worker, with
+      # no passphrase. This asserts the gate is still in front.
+      - name: The Guard still gates the personal apps
+        run: |
+          set -u
+          body=$(curl -s -m 25 "https://guard.cuidaradistancia.com/gastos-admin/?cb=$RANDOM" || true)
+          if echo "$body" | grep -qiE "Registrar gasto|Gastos de Mam|Reporte diario|Medicinas"; then
+            echo "FAIL the Guard served app content without a passphrase"
+            exit 1
+          fi
+          if echo "$body" | grep -qiE "Clave|passphrase|Contraseña"; then
+            echo "ok   passphrase gate is in front of the personal apps"
+          else
+            echo "FAIL the Guard returned neither the app nor the gate"
+            echo "$body" | head -c 200
+            exit 1
+          fi
+
+      # These live behind the Guard now. If one reappears here, the personal
+      # apps are back on the commercial domain.
+      - name: Personal apps are absent from the commercial domain
+        run: |
+          set -u
+          FAILED=0
+          for path in /mama/ /Gastos-de-mama-admin/ /Gastos-de-mama-original/ /Pago-Cuidadoras/ /inventario-medicinas/ /reporte-rosita/ ; do
+            code=""
+            for attempt in 1 2 3; do
+              code=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "https://cuidaradistancia.com${path}?cb=$RANDOM" || echo 000)
+              case "$code" in
+                404|410|200|301|302|307|308) break ;;
+                *) sleep $((attempt * 5)) ;;   # 5xx / timeout: GitHub propagating, retry
+              esac
+            done
+            case "$code" in
+              404|410) echo "ok   gone      $path" ;;
+              200|301|302|307|308) echo "FAIL $code      $path is being served again"; FAILED=1 ;;
+              *) echo "warn $code      $path unknown (GitHub not answering); not treated as a failure" ;;
+            esac
+          done
+          exit $FAILED
