@@ -1,6 +1,18 @@
 name = "cuidar-portal"
+main = "src/index.js"
+
+# The workers.dev alias cannot share the session cookie, so it must not serve a login.
+workers_dev = false
 compatibility_date = "2026-11-19"
 
+# Customer-facing hostname. Custom domain provisions DNS + certificate.
+routes = [{ pattern = "app.cuidaradistancia.com", custom_domain = true }]
+
+# Workers Builds stages these static files into dist/ before deploying.
 [assets]
 directory = "dist"
-not_found_handling = "single-page-application"
+binding = "ASSETS"
+# Without this, assets are served before the worker and it cannot set headers.
+run_worker_first = true
+# No client-side path routing: unknown paths should 404, not return HTML.
+not_found_handling = "404-page"

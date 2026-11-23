@@ -10,6 +10,169 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='18' font-weight='bold' fill='white' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
 <meta http-equiv="Cache-Control" content="no-store, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
+<script>
+/*
+ * Cuidar SaaS — shared session across every app.
+ *
+ * Today every app receives its session as access_token/refresh_token in the URL
+ * fragment, then stores it in its own localStorage. Eight origins therefore keep
+ * eight independent sessions: refreshing one leaves the others stale, signing out
+ * of one leaves the rest signed in, and opening an app directly shows nothing.
+ *
+ * This module replaces that with one cookie on the parent domain, so every app
+ * under .cuidaradistancia.com shares a single session. It also keeps a bridge for
+ * the old fragment links during the migration.
+ *
+ * Works as an ES module and as a classic script (window.CuidarAuth).
+ */
+
+const COOKIE_NAME = 'cuidar-saas-session';
+const PARENT_DOMAIN = '.cuidaradistancia.com';
+const MAX_COOKIE = 3800; // browsers reject >4096 bytes per cookie
+
+function cookieDomainFor(hostname) {
+  if (!hostname) return null;
+  const h = hostname.toLowerCase();
+  return h === 'cuidaradistancia.com' || h.endsWith('.cuidaradistancia.com') ? PARENT_DOMAIN : null;
+}
+
+function isSharedHost(hostname) {
+  return cookieDomainFor(hostname) !== null;
+}
+
+function readRaw(doc, name) {
+  const parts = String(doc.cookie || '').split(';');
+  for (const part of parts) {
+    const idx = part.indexOf('=');
+    if (idx === -1) continue;
+    if (part.slice(0, idx).trim() === name) {
+      return decodeURIComponent(part.slice(idx + 1));
+    }
+  }
+  return null;
+}
+
+function writeRaw(doc, name, value, opts) {
+  const bits = [`${name}=${encodeURIComponent(value)}`, 'Path=/'];
+  if (opts.domain) bits.push(`Domain=${opts.domain}`);
+  bits.push(`Max-Age=${value === '' ? 0 : opts.maxAge}`);
+  bits.push(`SameSite=${opts.sameSite}`);
+  if (opts.secure) bits.push('Secure');
+  doc.cookie = bits.join('; ');
+}
+
+/**
+ * Storage adapter for supabase-js: createClient(url, key, { auth: { storage } }).
+ * supabase passes a storage key ('sb-<ref>-auth-token'); we keep one shared cookie
+ * so every app reads the same session.
+ */
+function createCookieStorage(options = {}) {
+  const doc = options.document || (typeof document !== 'undefined' ? document : null);
+  const hostname = options.hostname || (typeof location !== 'undefined' ? location.hostname : '');
+  const domain = options.domain !== undefined ? options.domain : cookieDomainFor(hostname);
+  const maxAge = options.maxAge || 60 * 60 * 24 * 30;
+  const secure = options.secure !== false;
+  const sameSite = options.sameSite || 'Lax';
+  const name = options.name || COOKIE_NAME;
+
+  if (!domain) {
+    // Hosts that cannot share the parent cookie (pages.dev previews, workers.dev
+    // aliases, localhost) keep a per-origin session instead of failing. A blank
+    // page is never an acceptable outcome for a preview URL.
+    const key = options.name || COOKIE_NAME;
+    const fallback = (options.localStorage) || (typeof localStorage !== 'undefined' ? localStorage : null);
+    if (!fallback) throw new Error('createCookieStorage: no cookie domain and no localStorage on ' + (hostname || 'this host'));
+    if (typeof console !== 'undefined' && console.warn) {
+      console.warn('[cuidar-auth] ' + (hostname || 'this host') + ' cannot share the session cookie; using per-origin storage.');
+    }
+    return {
+      getItem() { return fallback.getItem(key); },
+      setItem(_k, v) { fallback.setItem(key, String(v)); },
+      removeItem() { fallback.removeItem(key); }
+    };
+  }
+
+  function read() {
+    const count = readRaw(doc, `${name}.count`);
+    if (!count) {
+      const single = readRaw(doc, name);
+      return single === null ? null : single;
+    }
+    let out = '';
+    for (let i = 0; i < Number(count); i++) {
+      const part = readRaw(doc, `${name}.${i}`);
+      if (part === null) return null; // partial write, treat as absent
+      out += part;
+    }
+    return out;
+  }
+
+  function clear() {
+    const count = readRaw(doc, `${name}.count`);
+    if (count) {
+      for (let i = 0; i < Number(count); i++) writeRaw(doc, `${name}.${i}`, '', { domain, maxAge, sameSite, secure });
+    }
+    writeRaw(doc, `${name}.count`, '', { domain, maxAge, sameSite, secure });
+    writeRaw(doc, name, '', { domain, maxAge, sameSite, secure });
+  }
+
+  return {
+    getItem() {
+      return read();
+    },
+    setItem(_key, value) {
+      const str = String(value);
+      clear();
+      if (str.length <= MAX_COOKIE) {
+        writeRaw(doc, name, str, { domain, maxAge, sameSite, secure });
+        return;
+      }
+      const chunks = [];
+      for (let i = 0; i < str.length; i += MAX_COOKIE) chunks.push(str.slice(i, i + MAX_COOKIE));
+      chunks.forEach((chunk, i) => writeRaw(doc, `${name}.${i}`, chunk, { domain, maxAge, sameSite, secure }));
+      writeRaw(doc, `${name}.count`, String(chunks.length), { domain, maxAge, sameSite, secure });
+    },
+    removeItem() {
+      clear();
+    }
+  };
+}
+
+/**
+ * One-time bridge for the old fragment handoff: if the URL carries
+ * #access_token=…&refresh_token=…, hand it to supabase once and strip the hash
+ * so it never lands in history or a shared link.
+ */
+async function adoptLegacyHash(supabase, win = typeof window !== 'undefined' ? window : null) {
+  if (!win || !win.location || !win.location.hash) return null;
+  const params = new URLSearchParams(win.location.hash.replace(/^#/, ''));
+  const access_token = params.get('access_token');
+  const refresh_token = params.get('refresh_token');
+  if (!access_token || !refresh_token) return null;
+  const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
+  try {
+    win.history.replaceState(null, '', win.location.pathname + win.location.search);
+  } catch (_) { /* history may be unavailable in tests */ }
+  return error ? null : data.session;
+}
+
+/**
+ * Sign-out that reaches every app: clear the shared cookie, then announce it on
+ * localStorage, which fires `storage` events in the other open tabs of the same
+ * origin and in same-origin iframes.
+ */
+async function signOutEverywhere(supabase, { storage, win = typeof window !== 'undefined' ? window : null } = {}) {
+  try { await supabase.auth.signOut({ scope: 'global' }); } catch (_) { /* already invalid */ }
+  if (storage && storage.removeItem) storage.removeItem();
+  try { win.localStorage.setItem('cuidar-signout', String(Date.now())); } catch (_) {}
+}
+
+const CuidarAuthApi = { COOKIE_NAME, PARENT_DOMAIN, cookieDomainFor, isSharedHost, createCookieStorage, adoptLegacyHash, signOutEverywhere };
+
+
+if (typeof window !== 'undefined') window.CuidarAuth = CuidarAuthApi;
+
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -628,6 +791,15 @@ header{background:rgba(235,228,216,.97);border-bottom-color:var(--line)}
         <div class="account-divider"></div>
         <p style="font-size:11.5px;line-height:1.6;color:#667b74;margin:0" id="accountBillingNote">Stripe procesa los pagos. Cuidar a Distancia nunca ve ni guarda los datos de su tarjeta.</p>
       </article>
+      <article class="account-card">
+        <div class="account-card-head"><h3 id="accountDataLabel">Sus datos</h3></div>
+        <p style="font-size:11.5px;line-height:1.6;color:#667b74;margin:0 0 12px" id="accountDataNote">Descargue una copia de todo lo de su hogar, o elimine la cuenta.</p>
+        <div class="account-actions">
+          <button type="button" class="btn-secondary" id="accountExport">Descargar mis datos</button>
+          <button type="button" class="btn-secondary" id="accountDelete" style="color:#8B3A22;border-color:#D8B9A8">Eliminar mi cuenta</button>
+        </div>
+        <p id="accountDeleteNote" style="display:none;font-size:11.5px;line-height:1.5;color:#8B3A22;margin:10px 0 0"></p>
+      </article>
     </div>
     <p class="account-message" id="accountMessage" hidden></p>
   </section>
@@ -655,13 +827,13 @@ const CAREGIVER_ONLY = new Set(["gastos"]);
 const BUILD_TAG = "2026-11-17-session-3";
 
 const APP_URLS = {
-  reportes: "https://cuidar-reportes.marbaquero.workers.dev",
-  dashboard: "https://cuidar-dashboard.pages.dev",
-  gastos: "https://cuidar-gastos.marbaquero.workers.dev",
-  gastosAdmin: "https://cuidar-gastos-admin.pages.dev",
-  inventario: "https://cuidar-inventario.marbaquero.workers.dev",
-  pagos: "https://cuidar-pagos.marbaquero.workers.dev",
-  reporteMedico: "https://reporte-medico.pages.dev"
+  reportes: "https://reportes.cuidaradistancia.com",
+  dashboard: "https://dashboard.cuidaradistancia.com",
+  gastos: "https://gastos.cuidaradistancia.com",
+  gastosAdmin: "https://gastos-admin.cuidaradistancia.com",
+  inventario: "https://inventario.cuidaradistancia.com",
+  pagos: "https://pagos.cuidaradistancia.com",
+  reporteMedico: "https://medico.cuidaradistancia.com"
 };
 
 const ICONS = {
@@ -718,6 +890,14 @@ const TRANSLATIONS = {
     accountHouseholdLabel: "Hogar",
     accountSinceLabel: "Miembro desde",
     accountBillingNote: "Stripe procesa los pagos. Cuidar a Distancia nunca ve ni guarda los datos de su tarjeta.",
+    accountDataLabel: "Sus datos",
+    accountDataNote: "Descargue una copia de todo lo de su hogar, o elimine la cuenta.",
+    accountExport: "Descargar mis datos",
+    accountDelete: "Eliminar mi cuenta",
+    accountExportError: "No pudimos generar la descarga. Intente de nuevo.",
+    accountDeleteConfirm: "Escriba ELIMINAR para confirmar. Esta acción no se puede deshacer.",
+    accountDeleteWord: "ELIMINAR",
+    accountDeleteError: "No pudimos eliminar la cuenta.",
     accountNoPlan: "Sin plan activo",
     accountNoPrice: "Sin suscripción",
     accountPerMonth: "/ mes",
@@ -803,6 +983,14 @@ const TRANSLATIONS = {
     accountHouseholdLabel: "Household",
     accountSinceLabel: "Member since",
     accountBillingNote: "Stripe processes payments. Cuidar a Distancia never sees or stores your card details.",
+    accountDataLabel: "Your data",
+    accountDataNote: "Download a copy of everything in your household, or delete the account.",
+    accountExport: "Download my data",
+    accountDelete: "Delete my account",
+    accountExportError: "We could not build the download. Please try again.",
+    accountDeleteConfirm: "Type DELETE to confirm. This cannot be undone.",
+    accountDeleteWord: "DELETE",
+    accountDeleteError: "We could not delete the account.", 
     accountNoPlan: "No active plan",
     accountNoPrice: "No subscription",
     accountPerMonth: "/ month",
@@ -860,7 +1048,7 @@ const TRANSLATIONS = {
 function initSupabase() {
   if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) return false;
   supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "cuidar-portal-auth" }
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: window.CuidarAuth.createCookieStorage() }
   });
   return true;
 }
@@ -970,6 +1158,10 @@ function renderPortal() {
   $("accountHouseholdLabel").textContent = t.accountHouseholdLabel;
   $("accountSinceLabel").textContent = t.accountSinceLabel;
   $("accountBillingNote").textContent = t.accountBillingNote;
+  $("accountDataLabel").textContent = t.accountDataLabel;
+  $("accountDataNote").textContent = t.accountDataNote;
+  $("accountExport").textContent = t.accountExport;
+  $("accountDelete").textContent = t.accountDelete;
   $("navCaregivers").href = "/cuidadores.html?lang=" + currentLang;
   $("accountPassword").href = "https://wa.me/18323359906?text=" + encodeURIComponent(currentLang === "es" ? "Hola, necesito ayuda para restablecer mi contraseña de Cuidar a Distancia." : "Hello, I need help resetting my Cuidar a Distancia password.");
   $("headerBrandSub").textContent = t.headerBrandSub;
@@ -1070,6 +1262,18 @@ async function handleLogin() {
 }
 
 async function signOut() {
+  // End the session server-side first, so every app on every device stops
+  // working — not just this tab's storage.
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (session) {
+      await fetch(window.SUPABASE_URL + "/functions/v1/signout-everywhere", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + session.access_token, "Content-Type": "application/json" },
+        body: "{}",
+      });
+    }
+  } catch (e) {}
   try { await supa.auth.signOut({ scope: "local" }); } catch (e) {}
   purgeAuthStorage();
   currentUser = null;
@@ -1229,6 +1433,53 @@ function renderAccount() {
   $("accountBilling").hidden = !canBill;
   $("accountPassword").hidden = false;
 }
+
+async function downloadMyData() {
+  const note = $("accountDeleteNote");
+  note.style.display = "none";
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) return;
+  try {
+    const res = await fetch(window.SUPABASE_URL + "/functions/v1/account-export", {
+      headers: { Authorization: "Bearer " + session.access_token },
+    });
+    if (!res.ok) throw new Error("export failed");
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "cuidar-datos-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  } catch (e) {
+    note.textContent = TRANSLATIONS[currentLang].accountExportError;
+    note.style.display = "block";
+  }
+}
+
+async function deleteMyAccount() {
+  const note = $("accountDeleteNote");
+  const typed = prompt(TRANSLATIONS[currentLang].accountDeleteConfirm);
+  if (typed !== TRANSLATIONS[currentLang].accountDeleteWord) return;
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) return;
+  try {
+    const res = await fetch(window.SUPABASE_URL + "/functions/v1/account-delete", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + session.access_token, "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: "DELETE" }),
+    });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(out.error || "delete failed");
+    await supa.auth.signOut();
+    location.href = "/?deleted=1";
+  } catch (e) {
+    note.textContent = (e.message && e.message !== "delete failed") ? e.message : TRANSLATIONS[currentLang].accountDeleteError;
+    note.style.display = "block";
+  }
+}
+
+$("accountExport").addEventListener("click", downloadMyData);
+$("accountDelete").addEventListener("click", deleteMyAccount);
 
 async function checkAuth() {
   const { data: { session } } = await supa.auth.getSession();
