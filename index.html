@@ -674,6 +674,14 @@ header{background:rgba(235,228,216,.97);border-bottom-color:var(--line)}
 .admin-link{margin-left:8px;text-decoration:none;display:inline-flex;align-items:center}
 .account-sub-btn{padding:9px 12px!important;font-size:13.5px!important}
 @media (max-width:640px){.account-card{padding:14px!important}.account-view{padding-block:12px!important}}
+
+/* Two small things after the compaction: the data card spans the full width so
+   it stops leaving a hole beside it, and the header actions sit at the right. */
+.account-grid > article:last-child{grid-column:1/-1}
+.account-head{flex-wrap:nowrap!important}
+.account-head > div:first-child{margin-right:auto;min-width:0}
+.account-head .btn-secondary,.account-head .admin-link{flex:0 0 auto;white-space:nowrap}
+@media (max-width:760px){.account-head{flex-wrap:wrap!important}.account-grid > article:last-child{grid-column:auto}}
 </style>
 </head>
 <body class="login-mode">
