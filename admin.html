@@ -1239,8 +1239,8 @@ function applyStatic(){
   setSectionLabels(currentSection);
 }
 function setLang(next){if(next===lang)return;lang=next;try{localStorage.setItem("cuidar-admin-lang",lang);}catch(e){}applyStatic();if(state.summary||state.subs.length)renderAll();if(state.detail){renderDrawerHead();renderDrawerBody();}const sp=$("loginBtn").querySelector("[data-i18n]");if(sp&&$("loginBtn").disabled)sp.textContent=t("signingIn");}
-function showLogin(){$("login").style.display="flex";$("app").hidden=true;$("message").textContent="";$("password").value="";closeDrawer();const sp=$("loginBtn").querySelector("[data-i18n]");if(sp)sp.textContent=t("signIn");$("loginBtn").disabled=false;}
-function showApp(){$("login").style.display="none";$("app").hidden=false;}
+function showLogin(){$("login").style.setProperty("display","flex","important");$("app").hidden=true;$("message").textContent="";$("password").value="";closeDrawer();const sp=$("loginBtn").querySelector("[data-i18n]");if(sp)sp.textContent=t("signIn");$("loginBtn").disabled=false;}
+function showApp(){$("login").style.setProperty("display","none","important");$("app").hidden=false;}
 function setAdmin(session){const email=session&&session.user&&session.user.email?session.user.email:t("administrator");$("adminEmail").textContent=email;$("adminAvatar").textContent=initial(email);}
 function reviewCount(){return state.subs.filter(s=>s.review_hold).length;}
 function activeCount(){return state.subs.filter(s=>s.status==="active"||s.status==="trialing").length;}
