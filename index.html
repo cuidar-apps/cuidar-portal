@@ -1575,6 +1575,27 @@ function switchLanguage(lang) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // Stripe returns with ?checkout=success: acknowledge it and refresh the plan.
+  (function () {
+    var p = new URLSearchParams(location.search);
+    if (p.get("checkout") !== "success") return;
+    setTimeout(function () {
+      try {
+        if (typeof loadAccountData === "function") loadAccountData();
+        var b = document.createElement("div");
+        b.setAttribute("role", "status");
+        b.style.cssText = "position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:999;"
+          + "background:#40583D;color:#fff;padding:11px 18px;border-radius:999px;font:600 14px/1.2 system-ui;"
+          + "box-shadow:0 8px 24px rgba(0,0,0,.18)";
+        b.textContent = currentLang === "es" ? "Pago recibido. Su plan está activo."
+                                             : "Payment received. Your plan is active.";
+        document.body.appendChild(b);
+        setTimeout(function () { b.remove(); }, 7000);
+        p.delete("checkout");
+        history.replaceState({}, "", location.pathname + (p.toString() ? "?" + p : ""));
+      } catch (e) {}
+    }, 1500);
+  })();
   if (!initSupabase()) { alert("Error: Faltan las credenciales de Supabase."); return; }
   currentLang = getCurrentLang();
   purgeAuthStorage();
