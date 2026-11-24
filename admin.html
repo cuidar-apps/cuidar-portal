@@ -502,6 +502,20 @@ tr.row:hover,tr.row:focus-visible{background:#ECE3D4}
   #login .login-card h2{font-size:28px}
 }
 
+
+/* Invite dialog + a language switch that matches the heading beside it */
+.lang-btn{font-size:13px!important;font-weight:750!important;padding:6px 10px!important;border-radius:8px!important}
+.modal{position:fixed;inset:0;background:rgba(18,32,28,.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal[hidden]{display:none!important}
+.modal-card{background:#fff;border-radius:18px;padding:24px;width:min(94vw,460px);box-shadow:0 20px 60px rgba(16,24,40,.25)}
+.modal-title{margin:0 0 6px;font-size:22px}
+.modal-sub{margin:0 0 16px;color:#5d574c;font-size:13.5px;line-height:1.45}
+.modal-label{display:block;font-size:12px;font-weight:700;color:#41505c;margin:0 0 5px}
+.modal-card input,.modal-card select{width:100%;box-sizing:border-box;border:1px solid #d8cfbc;border-radius:10px;
+  padding:10px 11px;font:14px/1.3 inherit;background:#fff;color:#1d2923}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.modal-msg{margin-top:12px;font-size:13px}
+.modal-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -624,10 +638,7 @@ tr.row:hover,tr.row:focus-visible{background:#ECE3D4}
       </div>
       <div class="top-actions">
         <div class="lang-toggle top-lang" aria-label="Language"><button class="lang-btn active" data-lang="es" type="button">ES</button><button class="lang-btn" data-lang="en" type="button">EN</button></div>
-        <a class="btn" href="https://marbaquero.github.io/admin-invite.html" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
-          <span data-i18n="inviteCustomer">Invitar cliente</span>
-        </a>
+        <button class="btn" type="button" id="inviteOpen">Invitar cliente</button>
         <button id="refresh" class="btn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
           <span data-i18n="refresh">Actualizar</span>
@@ -1458,5 +1469,69 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
 });
 
 </script>
-</body>
+
+<div id="inviteModal" class="modal" hidden>
+  <div class="modal-card">
+    <h3 class="modal-title">Invitar cliente</h3>
+    <p class="modal-sub">Se envía un correo con un enlace para crear su cuenta. El plan queda pre-aprobado.</p>
+    <label class="modal-label" for="inviteEmail">Correo del cliente</label>
+    <input id="inviteEmail" type="email" autocomplete="off" placeholder="cliente@correo.com">
+    <div class="modal-row">
+      <div>
+        <label class="modal-label" for="invitePlan">Plan</label>
+        <select id="invitePlan">
+          <option value="family">Family Plan — $29/mes</option>
+          <option value="full_setup">Full Setup — $49/mes + $99</option>
+        </select>
+      </div>
+      <div>
+        <label class="modal-label" for="inviteLocale">Idioma</label>
+        <select id="inviteLocale">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </div>
+    <div id="inviteMsg" class="modal-msg" hidden></div>
+    <div class="modal-actions">
+      <button class="btn" type="button" id="inviteSend">Enviar invitación</button>
+      <button class="btn ghost" type="button" id="inviteClose">Cancelar</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var open=$("inviteOpen"), modal=$("inviteModal"), send=$("inviteSend"), msg=$("inviteMsg"), close=$("inviteClose");
+  if(!open||!modal) return;
+  function show(text, isError){
+    msg.hidden=false; msg.textContent=text;
+    msg.style.color = isError ? "#A8493D" : "#2F5D3A";
+  }
+  open.addEventListener("click", function(){ modal.hidden=false; msg.hidden=true; $("inviteEmail").value=""; $("inviteEmail").focus(); });
+  close.addEventListener("click", function(){ modal.hidden=true; });
+  modal.addEventListener("click", function(e){ if(e.target===modal) modal.hidden=true; });
+  send.addEventListener("click", async function(){
+    var email=$("inviteEmail").value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ show("Escriba un correo válido.", true); return; }
+    send.disabled=true; show("Enviando…", false);
+    try{
+      var s=await supabaseClient.auth.getSession();
+      var token=s && s.data && s.data.session && s.data.session.access_token;
+      if(!token){ show("Su sesión expiró. Vuelva a entrar.", true); return; }
+      var res=await fetch(window.SUPABASE_URL+"/functions/v1/invite-customer", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+token },
+        body: JSON.stringify({ email: email, plan_key: $("invitePlan").value, locale: $("inviteLocale").value })
+      });
+      var body=await res.json().catch(function(){ return {}; });
+      if(!res.ok){ show(body.error || "No se pudo enviar la invitación.", true); return; }
+      show("Invitación enviada a "+email+".", false);
+    }catch(err){
+      show("No se pudo enviar la invitación.", true);
+    }finally{
+      send.disabled=false;
+    }
+  });
+})();
+</script></body>
 </html>
