@@ -1582,6 +1582,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     setTimeout(function () {
       try {
         if (typeof loadAccountData === "function") loadAccountData();
+        // ask the backend to send the "thanks, here is how to start" email;
+        // it is idempotent per household, so returning twice sends nothing extra
+        supa.auth.getSession().then(function (s) {
+          var tk = s && s.data && s.data.session && s.data.session.access_token;
+          if (!tk) return;
+          fetch(window.SUPABASE_URL + "/functions/v1/send-welcome-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: "Bearer " + tk },
+            body: "{}"
+          }).catch(function () {});
+        });
         var b = document.createElement("div");
         b.setAttribute("role", "status");
         b.style.cssText = "position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:999;"
