@@ -653,6 +653,9 @@ header{background:rgba(235,228,216,.97);border-bottom-color:var(--line)}
   .account-head h2{font-size:33px}
 }
 
+.account-sub-lede{margin:10px 0 12px;font-size:13.5px;color:var(--muted)}
+.account-sub-btn{display:block;width:100%;margin:0 0 8px;text-align:center}
+.account-sub-note{margin:4px 0 0;font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body class="login-mode">
@@ -776,6 +779,13 @@ header{background:rgba(235,228,216,.97);border-bottom-color:var(--line)}
         <div class="account-card-head"><h3 id="accountPlanLabel">Plan</h3><span class="account-badge" id="accountStatus">Activo</span></div>
         <strong class="account-plan-name" id="accountPlanName">—</strong>
         <p class="account-plan-price" id="accountPlanPrice">—</p>
+        <div id="accountSubscribe" hidden>
+          <div class="account-divider"></div>
+          <p class="account-sub-lede">Elija un plan para activar su hogar.</p>
+          <button class="btn primary account-sub-btn" type="button" data-plan="family">Plan Familia — $29/mes</button>
+          <button class="btn account-sub-btn" type="button" data-plan="full_setup">Instalación completa — $49/mes + $99</button>
+          <p class="account-sub-note" id="accountSubscribeNote">30 días de reembolso sin preguntas.</p>
+        </div>
         <div class="account-divider"></div>
         <div class="account-row"><span id="accountRenewsLabel">Se renueva</span><strong id="accountRenews">—</strong></div>
         <div class="account-actions">
@@ -1429,9 +1439,45 @@ function renderAccount() {
   $("accountStatus").textContent = t[statusKey] || statusKey;
   $("accountStatus").classList.toggle("off", !sub);
   $("accountRenews").textContent = sub?.current_period_end ? formatAccountDate(sub.current_period_end) : "—";
+  const active = !!sub && ["active", "trialing", "past_due"].includes(sub.status);
   const canBill = !!sub?.provider_customer_id && sub?.status !== "review";
   $("accountBilling").hidden = !canBill;
   $("accountPassword").hidden = false;
+  const canSubscribe = !active && !sub?.provider_subscription_id;
+  $("accountSubscribe").hidden = !canSubscribe;
+  if (canSubscribe && !$("accountSubscribe").dataset.wired) {
+    $("accountSubscribe").dataset.wired = "1";
+    $("accountSubscribe").querySelectorAll("[data-plan]").forEach(function (b) {
+      b.addEventListener("click", function () { startCheckout(b.dataset.plan); });
+    });
+    const want = new URLSearchParams(location.search).get("plan");
+    if (want === "family" || want === "full_setup") startCheckout(want);
+  }
+}
+
+// Creates a Stripe Checkout session for the chosen plan and sends the browser there.
+// The $99 setup fee is a one-time line item, so it lands on the first invoice.
+async function startCheckout(planKey) {
+  const note = $("accountSubscribeNote");
+  const buttons = document.querySelectorAll(".account-sub-btn");
+  buttons.forEach(function (b) { b.disabled = true; });
+  note.textContent = "Abriendo el pago seguro…";
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session) throw new Error("no session");
+    const res = await fetch(window.SUPABASE_URL + "/functions/v1/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+      body: JSON.stringify({ plan_key: planKey }),
+    });
+    const body = await res.json().catch(function () { return {}; });
+    if (!res.ok || !body.url) throw new Error(body.error || "checkout failed");
+    location.href = body.url;
+  } catch (err) {
+    buttons.forEach(function (b) { b.disabled = false; });
+    note.textContent = "No se pudo abrir el pago. Escríbanos y lo resolvemos.";
+    console.error(err);
+  }
 }
 
 async function downloadMyData() {
