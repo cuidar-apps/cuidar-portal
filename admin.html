@@ -12,6 +12,7 @@
 window.SUPABASE_URL="https://fftnffmttuzfftntzzhu.supabase.co";
 window.SUPABASE_ANON_KEY="sb_publishable_f5py08cOv3Bdo0Yvm6lmbA_VBxnbEsP";
 </script>
+<script src="/cuidar-auth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root{
@@ -774,7 +775,10 @@ tr.row:hover,tr.row:focus-visible{background:#ECE3D4}
 <div id="toast" class="toast" role="status"></div>
 
 <script>
-const supabaseClient=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+const supabaseClient=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY,{
+  auth: { storage: window.CuidarAuth.createCookieStorage(), persistSession: true,
+          autoRefreshToken: true, detectSessionInUrl: false }
+});
 const $=id=>document.getElementById(id);
 const I18N={
   es:{
