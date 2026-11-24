@@ -1408,7 +1408,8 @@ function renderDrawerBody(){
 async function authorize(session){
   if(!session){showLogin();return;}
   const {data,error}=await supabaseClient.rpc("is_platform_admin");
-  if(error||data!==true){await supabaseClient.auth.signOut();showLogin();setMessage(t("errorPermission"));return;}
+  if(error){setMessage(t("errorPermission"));return;}
+  if(data!==true){await supabaseClient.auth.signOut();showLogin();setMessage(t("errorPermission"));return;}
   setAdmin(session);showApp();await loadAll();
 }
 $("loginBtn").addEventListener("click",async()=>{
@@ -1449,7 +1450,12 @@ $("drawerBody").addEventListener("click",e=>{const b=e.target.closest("[data-cop
 document.querySelectorAll(".lang-btn").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
 applyStatic();
 supabaseClient.auth.getSession().then(({data})=>authorize(data.session));
-supabaseClient.auth.onAuthStateChange((_event,session)=>{if(!session)showLogin();});
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+  if(event==="SIGNED_OUT"){showLogin();return;}
+  if(session){authorize(session);}
+  // INITIAL_SESSION arrives with a null session before the cookie is read;
+  // reacting to it drew the login form over a panel that had already loaded.
+});
 
 </script>
 </body>
