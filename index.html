@@ -656,6 +656,24 @@ header{background:rgba(235,228,216,.97);border-bottom-color:var(--line)}
 .account-sub-lede{margin:10px 0 12px;font-size:13.5px;color:var(--muted)}
 .account-sub-btn{display:block;width:100%;margin:0 0 8px;text-align:center}
 .account-sub-note{margin:4px 0 0;font-size:12px;color:var(--muted)}
+
+/* Account view: four large cards and a 33px plan name for three facts. */
+.account-view{padding-block:18px!important}
+.account-head{margin:0 0 12px!important;align-items:center!important;gap:10px!important}
+.account-head h2{font-size:clamp(24px,2.6vw,30px)!important;margin:2px 0 0!important}
+.account-head p{margin:4px 0 0!important;font-size:14px!important}
+.account-grid{gap:12px!important}
+.account-card{padding:16px 18px!important;border-radius:14px!important}
+.account-card-head{margin-bottom:8px!important}
+.account-plan-name{font-size:23px!important;margin:0!important}
+.account-plan-price{margin:2px 0 10px!important;font-size:13px!important}
+.account-divider{margin:10px 0!important}
+.account-row{padding:5px 0!important;font-size:13.5px!important}
+.account-badge{font-size:11px!important;padding:3px 8px!important}
+.account-card .btn,.account-card .btn-secondary{padding:8px 12px!important;font-size:13px!important}
+.admin-link{margin-left:8px;text-decoration:none;display:inline-flex;align-items:center}
+.account-sub-btn{padding:9px 12px!important;font-size:13.5px!important}
+@media (max-width:640px){.account-card{padding:14px!important}.account-view{padding-block:12px!important}}
 </style>
 </head>
 <body class="login-mode">
@@ -773,6 +791,7 @@ header{background:rgba(235,228,216,.97);border-bottom-color:var(--line)}
     <div class="account-head">
       <div><div class="eyebrow" id="accountEyebrow">Cuenta</div><h2 id="accountHeading">Plan y facturación</h2><p id="accountLede">Consulte su plan, facturación y datos del hogar.</p></div>
       <button type="button" class="btn-secondary" id="accountRefresh">Actualizar</button>
+        <a class="btn-secondary admin-link" id="accountAdminLink" href="/admin" hidden>Panel de administración</a>
     </div>
     <div class="account-grid">
       <article class="account-card">
@@ -1443,6 +1462,12 @@ function renderAccount() {
   const canBill = !!sub?.provider_customer_id && sub?.status !== "review";
   $("accountBilling").hidden = !canBill;
   $("accountPassword").hidden = false;
+  if (!$("accountAdminLink").dataset.checked) {
+    $("accountAdminLink").dataset.checked = "1";
+    supa.rpc("is_platform_admin").then(function (r) {
+      if (!r.error && r.data === true) $("accountAdminLink").hidden = false;
+    });
+  }
   const canSubscribe = !active && !sub?.provider_subscription_id;
   $("accountSubscribe").hidden = !canSubscribe;
   if (canSubscribe && !$("accountSubscribe").dataset.wired) {
